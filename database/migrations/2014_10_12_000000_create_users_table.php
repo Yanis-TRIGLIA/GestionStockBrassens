@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_admin')->default(false); // Ajout du champ is_admin
+            $table->string('role')->nullable(); // Ajout du champ role
+            $table->string('photo_profil')->nullable(); // Ajout du champ photo_profil
             $table->rememberToken();
             $table->timestamps();
         });
