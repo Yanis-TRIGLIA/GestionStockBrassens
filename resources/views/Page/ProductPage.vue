@@ -2,9 +2,7 @@
     <div class="container mx-auto p-4">
         <h1 class="text-2xl font-bold text-center mb-6">Liste des Produits</h1>
 
-        <!-- Filtres -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <!-- Recherche par nom -->
             <input
                 v-model="rechercheNom"
                 type="text"
@@ -23,7 +21,6 @@
             </select>
         </div>
 
-        <!-- Liste des produits avec nouveau style -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div
                 v-for="produit in produitsFiltres"
@@ -54,12 +51,12 @@
                         <p v-if="produit.quantité > 2" class="text-green-500">{{ produit.quantité }}</p>
                         <p v-else class="text-red-500">{{ produit.quantité }}</p>
                     </div>
-                    <a
-                        href="#"
+                    <router-link
+                        :to="`/prod/${produit.id}`"
                         class="flex items-center justify-center rounded-md bg-slate-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
                     >
                         Accéder à {{ produit.nom }}
-                    </a>
+                    </router-link>
                 </div>
             </div>
         </div>

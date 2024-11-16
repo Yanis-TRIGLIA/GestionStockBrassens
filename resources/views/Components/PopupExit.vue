@@ -1,25 +1,88 @@
 <script>
+import axios from "../../../axios.config.js";
+import Toastify from "toastify-js";
+import "toastify-js/src/toastify.css";
+
 export default {
     name: "PopupExit",
     data() {
         return {
-            selectedZone: '',
-            quantity: 1
+            allItems: [],
+            selectedType: "zone",
+            selectedItem: '',
+            quantity: 1,
+            id_produit:null,
         };
+    },
+    mounted() {
+        axios
+            .get("/api/zones")
+            .then((response) => {
+                this.allItems = response.data;
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+    },
+    computed: {
+        filteredItems() {
+            return this.allItems.filter(item => item.type === this.selectedType);
+        }
     },
     methods: {
         closePopup() {
-            // Cette méthode ferme la popup
             document.getElementById('modelConfirm').classList.add('hidden');
         },
         validateForm() {
-            // Ajouter ici la logique pour valider le formulaire
-            console.log("Zone:", this.selectedZone);
+            console.log("Élément sélectionné:", this.selectedItem);
             console.log("Quantité:", this.quantity);
+            this.id_produit = window.location.pathname.split("/").pop();
+
+
+            axios
+                .post(`/api/produits/${this.id_produit}/retirer-stock`, {
+                    "zone_id": this.selectedItem,
+                    "quantité": this.quantity
+                })
+                .then(() => {
+                    this.showSuccessToast("Stock retiré avec succès !");
+                    this.closePopup();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                })
+                .catch((error) => {
+                    console.error("Erreur lors de la mise à jour des données:", error);
+                    this.showErrorToast("Erreur lors du retrait du stock !");
+                });
+        },
+        showSuccessToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+                stopOnFocus: true
+            }).showToast();
+        },
+        showErrorToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+                stopOnFocus: true
+            }).showToast();
         }
     }
 };
 </script>
+
 
 <template>
     <div id="modelConfirm" class="fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4">
@@ -38,32 +101,38 @@ export default {
                 </button>
             </div>
 
-            <!-- Contenu de la popup -->
             <div class="p-6 pt-0">
                 <h3 class="text-xl font-semibold text-gray-800 mb-6">Sortie de produit</h3>
 
-                <!-- Formulaire -->
                 <form @submit.prevent="validateForm">
 
-                    <!-- Select pour choisir la zone -->
                     <div class="mb-4">
-                        <label for="zone" class="block text-gray-600 font-medium mb-2">Sélectionner une zone</label>
-                        <select id="zone" v-model="selectedZone" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="">Sélectionnez une zone</option>
-                            <option value="zone1">Zone 1</option>
-                            <option value="zone2">Zone 2</option>
-                            <option value="zone3">Zone 3</option>
-                            <option value="zone4">Zone 4</option>
+                        <label class="block text-gray-600 font-medium mb-2">Type</label>
+                        <div class="flex gap-4">
+                            <label>
+                                <input type="radio" value="zone" v-model="selectedType" class="mr-2" />
+                                Zone
+                            </label>
+                            <label>
+                                <input type="radio" value="personne" v-model="selectedType" class="mr-2" />
+                                Personne
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="item" class="block text-gray-600 font-medium mb-2">Sélectionner un élément</label>
+                        <select id="item" v-model="selectedItem" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Sélectionnez un élément</option>
+                            <option v-for="item in filteredItems" :key="item.id" :value="item.id">{{ item.nom }}</option>
                         </select>
                     </div>
 
-                    <!-- Input pour la quantité -->
                     <div class="mb-4">
                         <label for="quantity" class="block text-gray-600 font-medium mb-2">Quantité à enlever</label>
                         <input type="number" id="quantity" v-model="quantity" min="1" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                     </div>
 
-                    <!-- Bouton de validation -->
                     <div class="flex justify-center">
                         <button type="submit" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Valider
@@ -74,6 +143,9 @@ export default {
         </div>
     </div>
 </template>
+
+
+
 
 <style scoped>
 /* Vous pouvez personnaliser ici les styles de la popup si nécessaire */

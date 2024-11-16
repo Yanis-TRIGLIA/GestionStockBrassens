@@ -2,18 +2,23 @@
 import axios from "../../../axios.config"
 import PopupExit from "../Components/PopupExit.vue";
 
+
 export default {
     name: "Product",
     components: { PopupExit },
+    urlParts : window.location.pathname.split("/"),
     data() {
         return {
             produit: [],
-            showPopup: false, // Variable pour contrôler l'affichage de la pop-up
+            showPopup: false,
+            id_produit : null,
         };
     },
     mounted() {
+        this.id_produit = window.location.pathname.split("/").pop();
         axios
-            .get("/api/produits/2")
+            .get(`/api/produits/${this.id_produit}`)
+
             .then((response) => {
                 this.produit = response.data;
             })
@@ -23,10 +28,10 @@ export default {
     },
     methods: {
         openPopup() {
-            this.showPopup = true; // Affiche la pop-up
+            this.showPopup = true;
         },
         closePopup() {
-            this.showPopup = false; // Ferme la pop-up
+            this.showPopup = false;
         }
     }
 
