@@ -19,11 +19,27 @@ class ZoneController extends Controller
     {
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
+            'type' => 'nullable|string',
             'image_url' => 'nullable|string',
+
         ]);
 
         $zone = Zone::create($validated);
         return response()->json($zone, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $zone = Zone::findOrFail($id);
+
+        $validated = $request->validate([
+            'nom' => 'sometimes|string|max:255',
+            'image_url' => 'nullable|string',
+            'type' => 'nullable|string|in:zone,personne,autre',
+        ]);
+
+        $zone->update($validated);
+        return response()->json($zone);
     }
 
     // Affiche une zone spécifique
@@ -33,19 +49,6 @@ class ZoneController extends Controller
         return response()->json($zone);
     }
 
-    // Met à jour une zone spécifique
-    public function update(Request $request, $id)
-    {
-        $zone = Zone::findOrFail($id);
-
-        $validated = $request->validate([
-            'nom' => 'sometimes|string|max:255',
-            'image_url' => 'nullable|string',
-        ]);
-
-        $zone->update($validated);
-        return response()->json($zone);
-    }
 
     // Supprime une zone spécifique
     public function destroy($id)

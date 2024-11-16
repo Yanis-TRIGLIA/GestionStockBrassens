@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produit;
 use Illuminate\Http\Request;
+use App\Models\Sortie;
 
 class StockController extends Controller
 {
@@ -11,7 +12,7 @@ class StockController extends Controller
     {
         $request->validate([
             'quantité' => 'required|integer|min:1',
-            'zone_id' => 'required|exists:zones,id'
+            'zone_id' => 'nullable|exists:zones,id',
         ]);
 
         $produit = Produit::findOrFail($produitId);
@@ -20,9 +21,14 @@ class StockController extends Controller
             return response()->json(['message' => 'Quantité insuffisante'], 400);
         }
 
-        // Mettre à jour la quantité
         $produit->quantité -= $request->quantité;
         $produit->save();
+
+        Sortie::create([
+            'produit_id' => $produitId,
+            'zone_id' => $request->zone_id,
+            'quantité' => $request->quantité,
+        ]);
 
         return response()->json(['message' => 'Stock mis à jour', 'produit' => $produit]);
     }

@@ -24,26 +24,32 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-Route::post('/register', [AuthController::class, 'register'])->middleware('auth:sanctum'); 
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/produits', [ProduitController::class, 'index']);
-    Route::post('/produits', [ProduitController::class, 'store']); 
-    Route::get('/produits/{id}', [ProduitController::class, 'show']); 
-    Route::put('/produits/{id}', [ProduitController::class, 'update']); 
-    Route::delete('/produits/{id}', [ProduitController::class, 'destroy']); 
+    Route::post('/produits', [ProduitController::class, 'store']);
+    Route::get('/produits/{id}', [ProduitController::class, 'show']);
+    Route::put('/produits/{id}', [ProduitController::class, 'update']);
+    Route::delete('/produits/{id}', [ProduitController::class, 'destroy']);
 });
+Route::get('/produits', [ProduitController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/zones', [ZoneController::class, 'index']); 
-    Route::post('/zones', [ZoneController::class, 'store']); 
+    Route::get('/zones', [ZoneController::class, 'index']);
+    Route::post('/zonescreate', [ZoneController::class, 'store']);
     Route::get('/zones/{id}', [ZoneController::class, 'show']);
-    Route::put('/zones/{id}', [ZoneController::class, 'update']); 
+    Route::put('/zones/{id}', [ZoneController::class, 'update']);
     Route::delete('/zones/{id}', [ZoneController::class, 'destroy']);
 });
+
+Route::get('/sorties', function () {
+    return response()->json(\App\Models\Sortie::with('produit', 'zone')->latest()->get());
+})->middleware('auth:sanctum');
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/produits/{id}/retirer-stock', [StockController::class, 'retirerStock']); // Retirer du stock
 });
+
