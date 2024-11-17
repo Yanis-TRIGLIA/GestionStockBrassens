@@ -2,7 +2,7 @@
     <div class="flex h-screen">
         <!-- Sidebar -->
         <nav class="w-1/5 bg-gray-800 text-white p-4 h-full">
-            <h1 class="text-xl font-bold mb-8">Admin Panel</h1>
+            <h1 class="text-xl font-bold mb-8">️👨🏻‍💻 Espace Administrateur</h1>
             <ul class="space-y-4">
                 <li>
                     <router-link

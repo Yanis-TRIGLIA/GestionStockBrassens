@@ -1,43 +1,18 @@
 <template>
-    <div>
-        <h2>Statistiques Admin</h2>
-        <div class="chart-container">
-            <canvas id="productDistributionChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="newProductsChart"></canvas>
-        </div>
+    <div class="p-6 bg-gray-50 min-h-screen">
+        <h2 class="text-3xl font-bold text-gray-700 mb-6">Statistiques Admin</h2>
+
+        <div
+            id="newProductsChart"
+            class="shadow-lg bg-white rounded-lg p-4"
+            style="height: 400px;"
+        ></div>
     </div>
 </template>
 
 <script>
-import {
-    Chart,
-    PieController,
-    LineController,
-    ArcElement,
-    LineElement,
-    PointElement,
-    CategoryScale,
-    LinearScale,
-    Title,
-    Tooltip,
-    Legend,
-} from "chart.js";
+import * as echarts from "echarts";
 import axios from "axios";
-
-Chart.register(
-    PieController,
-    LineController,
-    ArcElement,
-    LineElement,
-    PointElement,
-    CategoryScale,
-    LinearScale,
-    Title,
-    Tooltip,
-    Legend
-);
 
 export default {
     name: "AdminStats",
@@ -47,43 +22,90 @@ export default {
     methods: {
         async loadStats() {
             try {
-                const { data } = await axios.get("/api/admin/stats");
+                const {data} = await axios.get("/api/admin/stats");
 
-                // Graphique circulaire pour la distribution des produits
-                const distributionCtx = document
-                    .getElementById("productDistributionChart")
-                    .getContext("2d");
-                new Chart(distributionCtx, {
-                    type: "pie",
-                    data: {
-                        labels: Object.keys(data.productDistribution),
-                        datasets: [
-                            {
-                                data: Object.values(data.productDistribution),
-                                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-                            },
-                        ],
-                    },
-                });
+                // Initialiser le graphique
+                const chartDom = document.getElementById("newProductsChart");
+                const chart = echarts.init(chartDom);
 
-                // Graphique linéaire pour les nouveaux produits
-                const newProductsCtx = document
-                    .getElementById("newProductsChart")
-                    .getContext("2d");
-                new Chart(newProductsCtx, {
-                    type: "line",
-                    data: {
-                        labels: data.newProducts.map((item) => item.date),
-                        datasets: [
-                            {
-                                label: "Nouveaux produits",
-                                data: data.newProducts.map((item) => item.count),
-                                borderColor: "#42A5F5",
-                                backgroundColor: "rgba(66, 165, 245, 0.2)",
-                                fill: true,
-                            },
-                        ],
+                // Options du graphique
+                const options = {
+                    title: {
+                        text: "Nouveaux Produits",
+                        left: "center",
+                        textStyle: {
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            color: "#333",
+                        },
                     },
+                    tooltip: {
+                        trigger: "axis",
+                        axisPointer: {
+                            type: "line",
+                        },
+                    },
+                    xAxis: {
+                        type: "category",
+                        boundaryGap: false,
+                        data: data.newProducts.map((item) => item.date),
+                        axisLine: {
+                            lineStyle: {
+                                color: "#ccc",
+                            },
+                        },
+                        axisLabel: {
+                            rotate: 45,
+                            fontSize: 12,
+                            color: "#666",
+                        },
+                    },
+                    yAxis: {
+                        type: "value",
+                        axisLine: {
+                            lineStyle: {
+                                color: "#ccc",
+                            },
+                        },
+                        axisLabel: {
+                            fontSize: 12,
+                            color: "#666",
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                type: "dashed",
+                                color: "#ddd",
+                            },
+                        },
+                    },
+                    series: [
+                        {
+                            name: "Nouveaux produits",
+                            type: "line",
+                            data: data.newProducts.map((item) => item.count),
+                            smooth: true,
+                            lineStyle: {
+                                color: "#42A5F5",
+                                width: 3,
+                            },
+                            areaStyle: {
+                                color: "rgba(66, 165, 245, 0.3)",
+                            },
+                            itemStyle: {
+                                color: "#42A5F5",
+                                borderColor: "#fff",
+                                borderWidth: 2,
+                            },
+                        },
+                    ],
+                };
+
+                // Charger les options dans le graphique
+                chart.setOption(options);
+
+                // Réagir à la redimension
+                window.addEventListener("resize", () => {
+                    chart.resize();
                 });
             } catch (error) {
                 console.error("Erreur lors de la récupération des statistiques :", error);
@@ -94,16 +116,9 @@ export default {
 </script>
 
 <style scoped>
-.chart-container {
-    margin: 20px 0;
-    /* Définit la taille du conteneur, par exemple 80% de la largeur du parent */
-    width: 40%;
-    max-width: 20%; /* Limiter la taille maximale */
-
-}
-
-canvas {
-    width: 100% !important; /* Assurer que le canvas prend toute la largeur du conteneur */
-    height: 100% !important; /* Assurer que le canvas prend toute la hauteur du conteneur */
+/* Ajout de styles pour améliorer la présentation */
+#newProductsChart {
+    margin: 0 auto;
+    max-width: 600px;
 }
 </style>

@@ -73,11 +73,7 @@ export default {
                             class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl   font-medium rounded-lg text-sm px-5 py-2 text-center me-2 mb-2">
                             Connexion
                         </button>
-                        <button
-                            type="button"
-                            class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl    font-medium rounded-lg text-sm px-5 py-2 text-center me-2 mb-2">
-                            Inscription
-                        </button>
+
                     </li>
 
                     <!-- Afficher le nom de l'utilisateur connecté -->

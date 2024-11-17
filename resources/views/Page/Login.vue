@@ -1,40 +1,10 @@
-<script>
-import axios from 'axios';
-
-export default {
-    name: "Login",
-    data() {
-        return {
-            email: '',
-            password: '',
-            errorMessage: '',
-        };
-    },
-    methods: {
-        async login() {
-            try {
-                const response = await axios.post('/api/login', {
-                    email: this.email,
-                    password: this.password,
-                });
-
-                const token = response.data.access_token;
-
-                localStorage.setItem('auth_token', token);
-                localStorage.setItem('auth_token_expiration', Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 jours
-
-                this.$router.push('/');
-            } catch (error) {
-                this.errorMessage = error.response.data.message || 'Erreur lors de la connexion';
-            }
-        },
-    },
-};
-</script>
-
 <template>
-    <div class="bg-login-fond bg-cover bg-center bg-fixed">
-        <div class="h-screen flex justify-center items-center">
+    <div class="relative h-screen bg-cover bg-center bg-fixed">
+        <!-- Image de fond avec effet de flou -->
+        <div class="absolute inset-0 bg-image-blur"></div>
+
+        <!-- Contenu au premier plan -->
+        <div class="relative flex justify-center items-center h-full">
             <div class="bg-white mx-4 p-8 rounded shadow-md w-full md:w-1/2 lg:w-1/3">
                 <h1 class="text-3xl font-bold mb-8 text-center">Connexion</h1>
                 <form @submit.prevent="login">
@@ -79,5 +49,58 @@ export default {
     </div>
 </template>
 
+<script>
+import axios from "axios";
+
+export default {
+    name: "Login",
+    data() {
+        return {
+            email: "",
+            password: "",
+            errorMessage: "",
+        };
+    },
+    methods: {
+        async login() {
+            try {
+                const response = await axios.post("/api/login", {
+                    email: this.email,
+                    password: this.password,
+                });
+
+                const token = response.data.access_token;
+
+                localStorage.setItem("auth_token", token);
+                localStorage.setItem(
+                    "auth_token_expiration",
+                    Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 jours
+                );
+
+
+                window.location.reload();
+                this.$router.push("/");
+            } catch (error) {
+                this.errorMessage =
+                    error.response.data.message || "Erreur lors de la connexion";
+            }
+        },
+    },
+};
+</script>
+
 <style scoped>
+.bg-image-blur {
+    background-image: url('https://ds.static.rtbf.be/article/image/370x208/5/d/0/b98a3773ecf715751d3cf0fb6dcba424-1634905771.jpg'); /* Remplacez par le chemin de votre image locale */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(8px);
+    z-index: -1;
+}
+
+.relative {
+    position: relative;
+    z-index: 1;
+}
 </style>
