@@ -1,16 +1,106 @@
+<template>
+    <div class="p-6 bg-gray-50 rounded shadow-lg">
+        <!-- En-tête et contrôles -->
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-bold text-gray-700">Sortie de Produits</h1>
+            <div class="flex space-x-2">
+                <!-- Input de recherche -->
+                <input
+                    v-model="searchQuery"
+                    @input="filterData"
+                    type="text"
+                    placeholder="Rechercher un produit..."
+                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+                />
+                <!-- Bouton Actualiser -->
+                <button
+                    @click="refreshData"
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center space-x-2"
+                >
+                    <i class="pi pi-refresh"></i>
+                    <span>Actualiser</span>
+                </button>
+                <!-- Bouton Exporter en CSV -->
+                <button
+                    @click="exportToCSV"
+                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center space-x-2"
+                >
+                    <i class="pi pi-download"></i>
+                    <span>Exporter en CSV</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tableau -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+                <!-- En-tête des colonnes avec tri -->
+                <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+                <tr>
+                    <th
+                        v-for="col in columns"
+                        :key="col.key"
+                        @click="sortData(col.key)"
+                        class="px-6 py-3 border-b text-left cursor-pointer hover:bg-gray-300"
+                    >
+                        {{ col.label }}
+                        <span v-if="sortColumn === col.key">
+                                <i :class="sortOrder === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down'"></i>
+                            </span>
+                    </th>
+                </tr>
+                </thead>
+                <!-- Corps du tableau -->
+                <tbody>
+                <tr
+                    v-for="sortie in filteredAndSortedData"
+                    :key="sortie.id"
+                    class="even:bg-gray-100 hover:bg-gray-50"
+                >
+                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit.nom }}</td>
+                    <td class="px-6 py-4 border-b">
+                        <img
+                            v-if="sortie.produit.image_url"
+                            :src="`http://127.0.0.1:8000/storage/${sortie.produit.image_url}`"
+                            alt="Image du produit"
+                            class="w-16 h-16 object-cover rounded"
+                        />
+                    </td>
+                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.quantité }}</td>
+                    <td class="px-6 py-4 border-b text-gray-700">
+                        {{ new Date(sortie.date_sortie).toLocaleString() }}
+                    </td>
+                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit.quantité }}</td>
+                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.zone.nom }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>
+
 <script>
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Button from 'primevue/button';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from "vue";
 import axios from "../../../axios.config.js";
 
 export default {
     name: "TableauSortie",
     setup() {
         const sorties = ref([]);
+        const searchQuery = ref("");
+        const sortColumn = ref("");
+        const sortOrder = ref("asc");
 
-        onMounted(() => {
+        const columns = [
+            { key: "produit.nom", label: "Nom du Produit" },
+            { key: "produit.image_url", label: "Image" },
+            { key: "quantité", label: "Quantité Sortie" },
+            { key: "date_sortie", label: "Date de Sortie" },
+            { key: "produit.quantité", label: "Stock Actuel" },
+            { key: "zone.nom", label: "Zone Concernée" },
+        ];
+
+        const fetchData = () => {
             axios
                 .get(`/api/sorties`)
                 .then((response) => {
@@ -19,67 +109,109 @@ export default {
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des sorties:", error);
                 });
-        });
-
-        // Formater le prix (si nécessaire pour une future colonne, sinon peut être supprimé)
-        const formatCurrency = (value) => {
-            return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         };
 
-        return { sorties, formatCurrency };
-    }
+        const refreshData = () => {
+            fetchData();
+        };
+
+        const filterData = () => {
+            // Recherche en temps réel déclenchée par le champ de recherche
+        };
+
+        const filteredAndSortedData = computed(() => {
+            let data = sorties.value;
+
+            // Filtrage par recherche
+            if (searchQuery.value) {
+                data = data.filter((sortie) =>
+                    sortie.produit.nom
+                        .toLowerCase()
+                        .includes(searchQuery.value.toLowerCase())
+                );
+            }
+
+            // Tri par colonne
+            if (sortColumn.value) {
+                data.sort((a, b) => {
+                    const aValue = sortColumn.value
+                        .split(".")
+                        .reduce((o, i) => o[i], a);
+                    const bValue = sortColumn.value
+                        .split(".")
+                        .reduce((o, i) => o[i], b);
+
+                    if (aValue < bValue) return sortOrder.value === "asc" ? -1 : 1;
+                    if (aValue > bValue) return sortOrder.value === "asc" ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            return data;
+        });
+
+        const sortData = (column) => {
+            if (sortColumn.value === column) {
+                // Inverser l'ordre de tri
+                sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+            } else {
+                // Nouvelle colonne de tri
+                sortColumn.value = column;
+                sortOrder.value = "asc";
+            }
+        };
+
+        const exportToCSV = () => {
+            const headers = columns.map((col) => col.label);
+            const rows = filteredAndSortedData.value.map((sortie) => [
+                sortie.produit.nom,
+                sortie.produit.image_url
+                    ? `http://127.0.0.1:8000/storage/${sortie.produit.image_url}`
+                    : "Aucune image",
+                sortie.quantité,
+                new Date(sortie.date_sortie).toLocaleString(),
+                sortie.produit.quantité,
+                sortie.zone.nom,
+            ]);
+
+            const csvContent =
+                "data:text/csv;charset=utf-8," +
+                [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "sorties.csv");
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        onMounted(() => {
+            fetchData();
+        });
+
+        return {
+            sorties,
+            searchQuery,
+            refreshData,
+            exportToCSV,
+            filteredAndSortedData,
+            sortData,
+            columns,
+            sortColumn,
+            sortOrder,
+        };
+    },
 };
 </script>
 
-<template>
-    <div class="card p-4">
-        <DataTable :value="sorties" tableStyle="min-width: 50rem border">
-            <template #header>
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="text-xl font-bold">Sortie de Produits</span>
-                    <Button icon="pi pi-refresh" rounded raised />
-                </div>
-            </template>
-
-            <!-- Nom du produit -->
-            <Column field="produit.nom" header="Nom du Produit" :sortable="true"></Column>
-
-            <!-- Image du produit -->
-            <Column header="Image">
-                <template #body="slotProps">
-                    <img :src="slotProps.data.produit.image_url" :alt="slotProps.data.produit.nom" class="w-24 rounded" />
-                </template>
-            </Column>
-
-            <!-- Quantité sortie -->
-            <Column field="quantité" header="Quantité Sortie" :sortable="true"></Column>
-
-            <!-- Date de sortie -->
-            <Column field="date_sortie" header="Date de Sortie" :sortable="true">
-                <template #body="slotProps">
-                    {{ new Date(slotProps.data.date_sortie).toLocaleString() }}
-                </template>
-            </Column>
-
-
-
-            <!-- Stock actuel du produit -->
-            <Column field="produit.quantité" header="Stock Actuel" :sortable="true"></Column>
-
-
-            <!-- Date de sortie -->
-            <Column field="zone.nom" header="Zone concernée" :sortable="true">
-            </Column>
-
-            <template #footer>
-            </template>
-        </DataTable>
-    </div>
-</template>
-
 <style scoped>
-/* Style optionnel pour améliorer la présentation */
-.w-24 {
-    width: 6rem;
+img {
+    transition: transform 0.2s ease-in-out;
+}
+img:hover {
+    transform: scale(1.1);
 }
 </style>

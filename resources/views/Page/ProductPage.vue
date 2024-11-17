@@ -30,12 +30,11 @@
                 <a class="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl" href="#">
                     <img
                         class="object-cover"
-                        :src="produit.image_url"
+                        :src="`http://127.0.0.1:8000/storage/${produit.image_url}`"
                         alt="Image du produit"
                     />
-                    <span v-if="produit.promotion" class="absolute top-0 left-0 m-2 rounded-full bg-black px-2 text-center text-sm font-medium text-white">
-                        {{ produit.promotion }}% OFF
-                    </span>
+
+                  
                 </a>
                 <div class="mt-4 px-5 pb-5">
                     <a href="#">

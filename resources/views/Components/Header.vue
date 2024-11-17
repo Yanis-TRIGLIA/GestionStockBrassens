@@ -82,15 +82,18 @@ export default {
 
                     <!-- Afficher le nom de l'utilisateur connecté -->
                     <li v-if="isLoggedIn" class="flex items-center space-x-4">
+                        <a href="/admin">Espace Administrateur</a>
                         <span class="text-gray-900 font-medium">
-                            Bonjour, {{ user?.name || 'Utilisateur' }}
+                            👋 Bonjour, {{ user?.name || 'Utilisateur' }}
                         </span>
+
                         <button
                             @click="logout"
                             type="button"
                             class="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2 text-center me-2 mb-2">
                             Déconnexion
                         </button>
+
                     </li>
                 </ul>
             </div>

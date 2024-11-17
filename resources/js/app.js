@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import { createWebHistory, createRouter } from 'vue-router';
 
-// Importation des composants
+// Importation des pages
 import Produits from '../views/Page/ProductPage.vue';
 import Produit from '../views/Page/Product.vue';
 import Header from '../views/Components/Header.vue';
@@ -9,10 +9,28 @@ import Login from '../views/Page/Login.vue';
 import Home from '../views/Page/Home.vue';
 import TableauSortie from '../views/Page/TableauSortie.vue';
 
+// Importation des pages Admin
+import AdminLayout from '../views/Page/Admin/AdminLayout.vue';
+
+import AdminDashboard from '../views/Page/Admin/AdminDashboard.vue';
+
+import AdminProduits from '../views/Page/Admin/Produit/AdminProduit.vue';
+import CreateProduit from '../views/Page/Admin/Produit/CreateProduit.vue';
+import EditProduit from '../views/Page/Admin/Produit/EditProduit.vue';
+
+import AdminZones from '../views/Page/Admin/Zone/AdminZone.vue';
+import EditZones from '../views/Page/Admin/Zone/EditZone.vue';
+import CreateZones from '../views/Page/Admin/Zone/CreateZone.vue';
+
+
+// Componenet
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
+import Column from "primevue/column";
 import PrimeVue from 'primevue/config';
+
+
+
 
 // Définir les routes
 const routes = [
@@ -41,6 +59,32 @@ const routes = [
         component: TableauSortie,
         meta: { requiresAuth: true },
     },
+    {
+        path: "/admin",
+        component: AdminLayout,
+        children: [
+            { path: "", component: AdminDashboard },
+            { path: "produits", component: AdminProduits },
+            {
+                path: 'produits/create',
+                component: CreateProduit,
+            },
+            {
+                path: 'produits/edit/:id',
+                component: EditProduit,
+            },
+            { path: "zones", component: AdminZones },
+            {
+                path: 'zones/create',
+                component: CreateZones,
+            },
+            {
+                path: 'zones/edit/:id',
+                component: EditZones,
+            },
+
+        ],
+    },
 ];
 
 // Configuration du routeur
@@ -49,7 +93,6 @@ const router = createRouter({
     routes,
 });
 
-// Gérer la vérification d'authentification avant chaque changement de route
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('auth_token');
     const tokenExpiration = localStorage.getItem('auth_token_expiration');
@@ -62,7 +105,6 @@ router.beforeEach((to, from, next) => {
     }
 });
 
-// Définir le composant principal
 const App = {
     components: { Header },
     template: `
@@ -73,14 +115,12 @@ const App = {
     `,
 };
 
-// Créer l'application Vue
 const app = createApp(App);
 
-// Utiliser PrimeVue et enregistrer les composants
-app.use(PrimeVue); // Initialiser PrimeVue
-app.component('Button', Button); // Enregistrer le composant Button
-app.component('DataTable', DataTable); // Enregistrer le composant DataTable
-app.component('Column', Column); // Enregistrer le composant Column
+app.use(PrimeVue);
+app.component('Button', Button);
+app.component('DataTable', DataTable);
+app.component('Column', Column);
 
 // Utiliser le routeur
 app.use(router);

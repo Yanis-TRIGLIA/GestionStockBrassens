@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,7 +39,7 @@ Route::get('/produits', [ProduitController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/zones', [ZoneController::class, 'index']);
-    Route::post('/zonescreate', [ZoneController::class, 'store']);
+    Route::post('/zones', [ZoneController::class, 'store']);
     Route::get('/zones/{id}', [ZoneController::class, 'show']);
     Route::put('/zones/{id}', [ZoneController::class, 'update']);
     Route::delete('/zones/{id}', [ZoneController::class, 'destroy']);
@@ -52,4 +53,7 @@ Route::get('/sorties', function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/produits/{id}/retirer-stock', [StockController::class, 'retirerStock']); // Retirer du stock
 });
+
+Route::get('/admin/stats', [AdminController::class, 'stats']);
+
 
