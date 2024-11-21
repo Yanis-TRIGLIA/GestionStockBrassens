@@ -1,18 +1,15 @@
 <template>
-    <h3 class="text-xl font-bold mt-6 mb-4">📍Lieu (Zone)</h3>
-
     <div>
+        <h3 class="text-xl font-bold mt-6 mb-4">👨‍⚕️ Agent (Personne)</h3>
 
         <button
-            @click="$router.push('/admin/zones/create')"
+            @click="$router.push('/admin/agent/create')"
             class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
         >
-            Créez votre zone
+            Créez un Agent
         </button>
 
-
-
-        <!-- Tableau pour les zones de type "zone" -->
+        <!-- Tableau pour les zones de type "personne" -->
         <table class="min-w-full border-collapse border border-gray-300 mt-2">
             <thead>
             <tr>
@@ -22,7 +19,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="zone in paginatedZonesZone" :key="zone.id">
+            <tr v-for="zone in paginatedZonesPersonne" :key="zone.id">
                 <td class="border border-gray-300 px-4 py-2">
                     <img v-if="zone.image_url" :src="`http://127.0.0.1:8000/storage/${zone.image_url}`" alt="Image" class="w-16 h-16 object-cover rounded">
                 </td>
@@ -45,32 +42,33 @@
             </tbody>
         </table>
 
-        <!-- Pagination pour les zones de type "zone" -->
         <div class="flex justify-between items-center mt-4">
             <button
-                @click="previousPageZone"
-                :disabled="currentPageZone === 1"
+                @click="previousPagePersonne"
+                :disabled="currentPagePersonne === 1"
                 class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300"
             >
                 Précédent
             </button>
             <select
-                v-model="currentPageZone"
-                @change="changePageZone"
+                v-model="currentPagePersonne"
+                @change="changePagePersonne"
                 class="px-4 py-2 border rounded mx-2"
             >
-                <option v-for="page in totalPagesZone" :key="page" :value="page">
+                <option v-for="page in totalPagesPersonne" :key="page" :value="page">
                     {{ page }}
                 </option>
             </select>
             <button
-                @click="nextPageZone"
-                :disabled="currentPageZone === totalPagesZone"
+                @click="nextPagePersonne"
+                :disabled="currentPagePersonne === totalPagesPersonne"
                 class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300"
             >
                 Suivant
             </button>
         </div>
+
+
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
@@ -102,7 +100,7 @@ import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
 
 export default {
-    name: "Adminzones",
+    name: "AdminAgent",
     data() {
         return {
             zones: [],
@@ -114,34 +112,26 @@ export default {
         };
     },
     computed: {
-
-        // Zones de type "zone" avec pagination
-        paginatedZonesZone() {
-            const start = (this.currentPageZone - 1) * this.zonesPerPage;
+        paginatedZonesPersonne() {
+            const start = (this.currentPagePersonne - 1) * this.zonesPerPage;
             const end = start + this.zonesPerPage;
-            return this.zones.filter(zone => zone.type === "zone").slice(start, end);
+            return this.zones.filter(zone => zone.type === "personne").slice(start, end);
         },
-        // Nombre total de pages pour les zones de type "personne"
+
         totalPagesPersonne() {
             return Math.ceil(this.zones.filter(zone => zone.type === "personne").length / this.zonesPerPage);
         },
-        // Nombre total de pages pour les zones de type "zone"
-        totalPagesZone() {
-            return Math.ceil(this.zones.filter(zone => zone.type === "zone").length / this.zonesPerPage);
-        },
+
     },
     methods: {
-        // Ouvrir la fenêtre de confirmation
         confirmDeletion(zoneId) {
             this.zoneToDeleteId = zoneId;
             this.showConfirmationModal = true;
         },
-        // Annuler la suppression
         cancelDeletion() {
             this.showConfirmationModal = false;
             this.zoneToDeleteId = null;
         },
-        // Effectuer la suppression
         deleteZone() {
             axios
                 .delete(`/api/zones/${this.zoneToDeleteId}`)
@@ -157,23 +147,20 @@ export default {
                     this.zoneToDeleteId = null;
                 });
         },
-
-        // Pagination - Page précédente pour "zone"
-        previousPageZone() {
-            if (this.currentPageZone > 1) {
-                this.currentPageZone--;
+        previousPagePersonne() {
+            if (this.currentPagePersonne > 1) {
+                this.currentPagePersonne--;
             }
         },
-        // Pagination - Page suivante pour "zone"
-        nextPageZone() {
-            if (this.currentPageZone < this.totalPagesZone) {
-                this.currentPageZone++;
+        nextPagePersonne() {
+            if (this.currentPagePersonne < this.totalPagesPersonne) {
+                this.currentPagePersonne++;
             }
         },
-        // Pagination - Changer de page pour "zone"
-        changePageZone() {
+        changePagePersonne() {
             this.fetchzones();
         },
+
         fetchzones() {
             axios
                 .get("/api/zones")
@@ -214,7 +201,6 @@ export default {
 </script>
 
 <style scoped>
-/* Styles modale de confirmation */
 .fixed {
     display: flex;
     justify-content: center;
@@ -239,6 +225,7 @@ button {
 button:hover {
     background-color: #f0f0f0;
 }
+
 
 .table th,
 .table td {

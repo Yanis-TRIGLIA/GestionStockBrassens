@@ -22,6 +22,14 @@
                 </li>
                 <li>
                     <router-link
+                        to="/admin/agent"
+                        class="block px-4 py-2 rounded hover:bg-gray-700"
+                    >
+                        Agents
+                    </router-link>
+                </li>
+                <li>
+                    <router-link
                         to="/admin/utilisateurs"
                         class="block px-4 py-2 rounded hover:bg-gray-700"
                     >

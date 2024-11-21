@@ -8,6 +8,7 @@ import Header from '../views/Components/Header.vue';
 import Login from '../views/Page/Login.vue';
 import Home from '../views/Page/Home.vue';
 import TableauSortie from '../views/Page/TableauSortie.vue';
+import TableauProduits from '../views/Page/TableauProduit.vue';
 
 // Importation des pages Admin
 import AdminLayout from '../views/Page/Admin/AdminLayout.vue';
@@ -22,6 +23,8 @@ import AdminZones from '../views/Page/Admin/Zone/AdminZone.vue';
 import EditZones from '../views/Page/Admin/Zone/EditZone.vue';
 import CreateZones from '../views/Page/Admin/Zone/CreateZone.vue';
 
+import AdminAgent from '../views/Page/Admin/Agents/AdminAgent.vue';
+import CreateAgent from '../views/Page/Admin/Agents/CreateAgent.vue';
 
 // Componenet
 import Button from 'primevue/button';
@@ -60,6 +63,11 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/tableau_produit',
+        component: TableauProduits,
+        meta: { requiresAuth: true },
+    },
+    {
         path: "/admin",
         component: AdminLayout,
         children: [
@@ -81,6 +89,11 @@ const routes = [
             {
                 path: 'zones/edit/:id',
                 component: EditZones,
+            },
+            { path: "agent", component: AdminAgent },
+            {
+                path: 'agent/create',
+                component: CreateAgent,
             },
 
         ],

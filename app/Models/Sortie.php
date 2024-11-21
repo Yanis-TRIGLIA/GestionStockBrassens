@@ -14,6 +14,7 @@ class Sortie extends Model
         'zone_id',
         'quantité',
         'date_sortie',
+        'number_after_reduce'
     ];
 
     public function produit(): \Illuminate\Database\Eloquent\Relations\BelongsTo

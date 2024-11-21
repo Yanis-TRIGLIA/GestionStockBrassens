@@ -1,5 +1,4 @@
 <template>
-
     <form @submit.prevent="submitForm">
         <div class="mb-4">
             <label for="nom" class="block text-gray-700">Nom</label>
@@ -8,13 +7,12 @@
                 type="text"
                 id="nom"
                 class="border rounded w-full py-2 px-3"
-                placeholder="Nom"
-                value="{{$props.zone.nom}}"
+                placeholder="Nom de l'agent"
             />
         </div>
 
         <div class="mb-4">
-            <label for="image" class="block text-gray-700">Image de la {{$props.zone.type}}</label>
+            <label for="image" class="block text-gray-700">Image de l'agent</label>
             <input
                 type="file"
                 id="image"
@@ -33,33 +31,25 @@
 
 <script>
 export default {
-    name: "FormulaireZone",
+    name: "FormulaireAgent",
     props: {
         zone: {
             type: Object,
-            required: false,
-            default: () => ({
-                nom: "",
-                type: "zone",
-                image_url: null,
-            }),
+            default: null,
         },
     },
-
     data() {
         return {
             formData: {
-                nom: this.zone?.nom || "", // Initialize with a fallback
-                type: this.zone?.type || "zone",
+                nom: "",
+                type: "personne",
                 image: null,
             },
         };
     },
-
     watch: {
-        // Watcher pour mettre à jour `formData` quand la prop `zone` change
         zone: {
-            immediate: true, // Exécute le watcher dès le montage du composant
+            immediate: true,
 
         },
     },

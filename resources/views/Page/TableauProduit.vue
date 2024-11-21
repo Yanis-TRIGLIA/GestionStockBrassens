@@ -2,7 +2,7 @@
     <div class="p-6 bg-gray-50 rounded shadow-lg">
         <!-- En-tête et contrôles -->
         <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold text-gray-700">Sortie de Produits</h1>
+            <h1 class="text-2xl font-bold text-gray-700">Tableau des produits</h1>
             <div class="flex space-x-2">
                 <!-- Input de recherche -->
                 <input
@@ -53,25 +53,21 @@
                 <!-- Corps du tableau -->
                 <tbody>
                 <tr
-                    v-for="sortie in filteredAndSortedData"
-                    :key="sortie.id"
+                    v-for="produit in filteredAndSortedData"
+                    :key="produit.id"
                     class="even:bg-gray-100 hover:bg-gray-50"
                 >
-                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit.nom }}</td>
+                    <td class="px-6 py-4 border-b text-gray-700">{{ produit.nom }}</td>
                     <td class="px-6 py-4 border-b">
                         <img
-                            v-if="sortie.produit.image_url"
-                            :src="`http://127.0.0.1:8000/storage/${sortie.produit.image_url}`"
+                            v-if="produit.image_url"
+                            :src="`http://127.0.0.1:8000/storage/${produit.image_url}`"
                             alt="Image du produit"
                             class="w-16 h-16 object-cover rounded"
                         />
                     </td>
-                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.quantité }}</td>
-                    <td class="px-6 py-4 border-b text-gray-700">
-                        {{ new Date(sortie.updated_at).toLocaleString() }}
-                    </td>
-                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.number_after_reduce }}</td>
-                    <td class="px-6 py-4 border-b text-gray-700">{{ sortie.zone.nom }}</td>
+                    <td class="px-6 py-4 border-b text-gray-700">{{ produit.quantité }}</td>
+
                 </tr>
                 </tbody>
             </table>
@@ -84,38 +80,32 @@ import { ref, computed, onMounted } from "vue";
 import axios from "../../../axios.config.js";
 
 export default {
-    name: "TableauSortie",
+    name: "TableauProduit",
     setup() {
-        const sorties = ref([]);
+        const produits = ref([]);
         const searchQuery = ref("");
         const sortColumn = ref("");
         const sortOrder = ref("asc");
 
         const columns = [
-            { key: "produit.nom", label: "Nom du Produit" },
-            { key: "produit.image_url", label: "Image" },
-            { key: "quantité", label: "Quantité Sortie" },
-            { key: "updated_at", label: "Date de Sortie" },
-            { key: "number_after_reduce", label: "Stock Actuel" },
-            { key: "zone.nom", label: "Zone Concernée" },
+            { key: "nom", label: "Nom du Produit" },
+            { key: "image_url", label: "Image" },
+            { key: "quantité", label: "Quantité produit" },
         ];
 
         const columnscsv = [
-            { key: "produit.nom", label: "Nom du Produit" },
-            { key: "quantité", label: "Quantité Sortie" },
-            { key: "updated_at", label: "Date de Sortie" },
-            { key: "number_after_reduce", label: "Stock Actuel" },
-            { key: "zone.nom", label: "Zone Concernée" },
+            { key: "nom", label: "Nom du Produit" },
+            { key: "quantité", label: "Quantité produit" },
         ];
 
         const fetchData = () => {
             axios
-                .get(`/api/sorties`)
+                .get(`/api/produits`)
                 .then((response) => {
-                    sorties.value = response.data;
+                    produits.value = response.data;
                 })
                 .catch((error) => {
-                    console.error("Erreur lors de la récupération des sorties:", error);
+                    console.error("Erreur lors de la récupération des produits:", error);
                 });
         };
 
@@ -126,12 +116,12 @@ export default {
 
 
         const filteredAndSortedData = computed(() => {
-            let data = sorties.value;
+            let data = produits.value;
 
             // Filtrage par recherche
             if (searchQuery.value) {
-                data = data.filter((sortie) =>
-                    sortie.produit.nom
+                data = data.filter((produit) =>
+                    produit.produit.nom
                         .toLowerCase()
                         .includes(searchQuery.value.toLowerCase())
                 );
@@ -168,12 +158,9 @@ export default {
 
         const exportToCSV = () => {
             const headers = columnscsv.map((col) => col.label);
-            const rows = filteredAndSortedData.value.map((sortie) => [
-                sortie.produit.nom,
-                sortie.quantité,
-                new Date(sortie.updated_at).toLocaleString(),
-                sortie.number_after_reduce,
-                sortie.zone.nom,
+            const rows = filteredAndSortedData.value.map((produit) => [
+                produit.produit.nom,
+                produit.quantité,
             ]);
 
             const csvContent =
@@ -183,7 +170,7 @@ export default {
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "sorties.csv");
+            link.setAttribute("download", "produits.csv");
             document.body.appendChild(link);
 
             link.click();
@@ -195,7 +182,7 @@ export default {
         });
 
         return {
-            sorties,
+            produits,
             searchQuery,
             refreshData,
             exportToCSV,

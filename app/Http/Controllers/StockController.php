@@ -22,12 +22,14 @@ class StockController extends Controller
         }
 
         $produit->quantité -= $request->quantité;
+        $number_redure = $produit->quantité - $request->quantité;
         $produit->save();
 
         Sortie::create([
             'produit_id' => $produitId,
             'zone_id' => $request->zone_id,
             'quantité' => $request->quantité,
+            'number_after_reduce' => $number_redure,
         ]);
 
         return response()->json(['message' => 'Stock mis à jour', 'produit' => $produit]);
