@@ -16,4 +16,12 @@ class Produit extends Model
         'image_url',
         'file_product',
     ];
+
+    // Dans le modèle Produit
+    public function categories()
+    {
+        return $this->belongsToMany(Categories::class, 'categorie_produit', 'produit_id', 'categorie_id');
+    }
+
+
 }

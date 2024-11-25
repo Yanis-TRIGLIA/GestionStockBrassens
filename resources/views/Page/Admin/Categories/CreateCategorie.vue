@@ -1,29 +1,33 @@
 <template>
     <div>
-        <h2 class="text-2xl font-bold mb-4">Créer un nouveau produit</h2>
-        <FormulaireProduit @submit="createProduit" />
+        <h2 class="text-2xl font-bold mb-4">Créer une Nouvelle Catégorie</h2>
+        <FormulaireCategory @submit="createCategory" />
     </div>
 </template>
 
 <script>
-import FormulaireProduit from "./FormulaireProduit.vue";
 import axios from "../../../../../axios.config.js";
 import Toastify from "toastify-js";
+import "toastify-js/src/toastify.css";
+import FormulaireCategory from "./FormulaireCategorie.vue";
 
 export default {
-    name: "CreateProduit",
-    components: { FormulaireProduit },
+    name: "CreateCategorie",
+    components: {
+        FormulaireCategory,
+    },
     methods: {
-        createProduit(formData) {
-            // Convertir formData en JSON
+        createCategory(formData) {
             axios
-                .post("/api/produits", formData) // Axios envoie des données en JSON par défaut si c'est un objet JavaScript
+                .post("/api/categorie", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                })
                 .then(() => {
-                    this.showSuccessToast("Produit créé avec succès !");
-                    this.$router.push("/admin/produits");
+                    this.showSuccessToast("Catégorie créée avec succès !");
+                    this.$router.push("/admin/categories");
                 })
                 .catch(() => {
-                    this.showErrorToast("Erreur lors de la création du produit.");
+                    this.showErrorToast("Erreur lors de la création de la catégorie.");
                 });
         },
         showSuccessToast(message) {
@@ -51,7 +55,3 @@ export default {
     },
 };
 </script>
-
-<style scoped>
-/* Ajoutez vos styles ici */
-</style>

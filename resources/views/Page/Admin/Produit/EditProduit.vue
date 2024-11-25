@@ -27,41 +27,44 @@ export default {
             axios
                 .get(`/api/produits/${id}`)
                 .then((response) => {
-                    this.produit = response.data;
-                    console.log(response.data)
+                    console.log("Produit récupéré :", response.data);
+                    this.produit = response.data; // Vérifiez ici si "categories" existe
                 })
                 .catch(() => {
                     this.showErrorToast("Erreur lors du chargement du produit.");
                 });
         },
+
         updateProduit(formData) {
             const id = this.$route.params.id;
             console.log("Updating product with ID:", id);
 
-            // Convertir formData en un objet JSON
-            const jsonData = {
-                nom: formData.get("nom"),
-                description: formData.get("description"),
-                quantité: formData.get("quantité"),
-            };
+            // Vérifier si file_product est vide et, dans ce cas, l'exclure
+            if (typeof formData.get("file_product") == "string") {
+                console.log("file_product is empty or not a string, it will be excluded from the request");
+                formData.delete("file_product");
+            }
 
-            // Si tu as des fichiers, tu peux les ajouter à la requête autrement
-            //if (formData.get("image")) {
-              //  jsonData.image = formData.get("image");
-            //}
-
-
+            // Envoyer le FormData directement
             axios
-                .put(`/api/produits/${id}`, jsonData)
+                .post(`/api/produits/${id}?_method=POST`, formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data", // Spécifier multipart/form-data pour le traitement des fichiers
+                    },
+                })
                 .then((response) => {
+                    console.log("Produit mis à jour :", response.data);
                     this.produit = response.data;
                     this.showSuccessToast("Produit modifié avec succès !");
                     this.$router.push("/admin/produits");
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.error("Erreur lors de la modification du produit :", error.response || error);
                     this.showErrorToast("Erreur lors de la modification du produit.");
                 });
         },
+
+
 
 
         showSuccessToast(message) {

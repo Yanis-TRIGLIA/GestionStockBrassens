@@ -1,5 +1,5 @@
 <template>
-    <h3 class="text-xl font-bold mt-6 mb-4">📍Lieu (Zone)</h3>
+    <h3 class="text-2xl font-bold mb-4">📍Lieu (Zone)</h3>
 
     <div>
 

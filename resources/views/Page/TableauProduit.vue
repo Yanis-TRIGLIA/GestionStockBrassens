@@ -121,7 +121,7 @@ export default {
             // Filtrage par recherche
             if (searchQuery.value) {
                 data = data.filter((produit) =>
-                    produit.produit.nom
+                    produit.nom
                         .toLowerCase()
                         .includes(searchQuery.value.toLowerCase())
                 );
@@ -159,7 +159,7 @@ export default {
         const exportToCSV = () => {
             const headers = columnscsv.map((col) => col.label);
             const rows = filteredAndSortedData.value.map((produit) => [
-                produit.produit.nom,
+                produit.nom,
                 produit.quantité,
             ]);
 

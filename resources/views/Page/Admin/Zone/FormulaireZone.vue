@@ -74,6 +74,9 @@ export default {
             if (this.formData.image) {
                 formData.append("image", this.formData.image);
             }
+            if (this.formData.type) {
+                formData.append("type", this.formData.type);
+            }
             this.$emit("submit", formData);
         },
     },

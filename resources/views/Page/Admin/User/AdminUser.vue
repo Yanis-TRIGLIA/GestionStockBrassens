@@ -1,37 +1,35 @@
 <template>
     <div>
-        <h2 class="text-2xl font-bold mb-4">Liste des Produits</h2>
+        <h2 class="text-2xl font-bold mb-4">🧑 Liste des utilisateurs</h2>
         <button
-            @click="$router.push('/admin/produits/create')"
+            @click="$router.push('/admin/utilisateur/create')"
             class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
         >
-            Créez votre produit
+            Créer un utilisateur
         </button>
 
         <table class="min-w-full border-collapse border border-gray-300">
             <thead>
             <tr>
-                <th class="border border-gray-300 px-4 py-2">ID</th>
                 <th class="border border-gray-300 px-4 py-2">Nom</th>
-                <th class="border border-gray-300 px-4 py-2">Quantité</th>
+                <th class="border border-gray-300 px-4 py-2">Email</th>
                 <th class="border border-gray-300 px-4 py-2">Actions</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="produit in produits" :key="produit.id">
-                <td class="border border-gray-300 px-4 py-2">{{ produit.id }}</td>
-                <td class="border border-gray-300 px-4 py-2">{{ produit.nom }}</td>
-                <td class="border border-gray-300 px-4 py-2">{{ produit.quantité }}</td>
+            <tr v-for="user in users" :key="user.id">
+                <td class="border border-gray-300 px-4 py-2">{{ user.name }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ user.email }}</td>
                 <td class="border border-gray-300 px-4 py-2 flex space-x-4">
                     <button
-                        @click="$router.push(`/admin/produits/edit/${produit.id}`)"
-                        class="text-blue-600"
+                        @click="$router.push(`/admin/utilisateur/edit/${user.id}`)"
+                        class="text-blue-600 hover:underline"
                     >
                         Modifier
                     </button>
                     <button
-                        @click="supprimerProduit(produit.id)"
-                        class="text-red-600"
+                        @click="supprimerUser(user.id)"
+                        class="text-red-600 hover:underline"
                     >
                         Supprimer
                     </button>
@@ -39,92 +37,95 @@
             </tr>
             </tbody>
         </table>
+
+
     </div>
 </template>
-
 
 <script>
 import axios from "../../../../../axios.config.js";
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
-import FormulaireProduit from "./FormulaireProduit.vue";
+import FormulaireUser from "./FormulaireUser.vue";
 
 export default {
     name: "AdminUser",
-    components: {FormulaireProduit},
+    components: { FormulaireUser },
     data() {
         return {
-            produits: [],
+            users: [],
             isFormVisible: false,
             isEditMode: false,
-            currentProduit: null,
+            currentUser: null,
         };
     },
     methods: {
         openCreateForm() {
             this.isFormVisible = true;
             this.isEditMode = false;
-            this.currentProduit = {
-                nom: "",
-                description: "",
-                quantité: 0,
-                image_url: "",
-                file_product: null,
+            this.currentUser = {
+                name: "",
+                email: "",
+                password: "",
+                is_admin: false,
             };
         },
-        openEditForm(produit) {
+        openEditForm(user) {
             this.isFormVisible = true;
             this.isEditMode = true;
-            this.currentProduit = {...produit};
+            this.currentUser = { ...user };
+            this.currentUser.password = ""; // On ne montre pas le mot de passe
         },
         closeForm() {
             this.isFormVisible = false;
-            this.currentProduit = null;
+            this.currentUser = null;
         },
         handleFormSubmit(formData) {
             if (this.isEditMode) {
                 axios
-                    .put(`/api/produits/${formData.id}`, formData)
+                    .put(`/api/users/${formData.id}`, formData)
                     .then(() => {
-                        this.showSuccessToast("Produit modifié avec succès !");
-                        this.fetchProduits();
+                        this.showSuccessToast("Utilisateur modifié avec succès !");
+                        this.fetchUsers();
                         this.closeForm();
                     })
                     .catch(() => {
-                        this.showErrorToast("Erreur lors de la modification du produit.");
+                        this.showErrorToast("Erreur lors de la modification de l'utilisateur.");
                     });
             } else {
                 axios
-                    .post("/api/produits", formData)
+                    .post("/api/users", formData)
                     .then(() => {
-                        this.showSuccessToast("Produit créé avec succès !");
-                        this.fetchProduits();
+                        this.showSuccessToast("Utilisateur créé avec succès !");
+                        this.fetchUsers();
                         this.closeForm();
                     })
                     .catch(() => {
-                        this.showErrorToast("Erreur lors de la création du produit.");
+                        this.showErrorToast("Erreur lors de la création de l'utilisateur.");
                     });
             }
         },
-        supprimerProduit(id) {
-            axios
-                .delete(`/api/produits/${id}`)
-                .then(() => {
-                    this.showSuccessToast("Produit supprimé avec succès !");
-                    this.fetchProduits();
-                })
-                .catch(() => {
-                    this.showErrorToast("Erreur lors de la suppression du produit.");
-                });
+        supprimerUser(id) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+                axios
+                    .delete(`/api/users/${id}`)
+                    .then(() => {
+                        this.showSuccessToast("Utilisateur supprimé avec succès !");
+                        this.fetchUsers();
+                    })
+                    .catch(() => {
+                        this.showErrorToast("Erreur lors de la suppression de l'utilisateur.");
+                    });
+            }
         },
-        fetchProduits() {
+        fetchUsers() {
             axios
-                .get("/api/produits")
+                .get("/api/users")
                 .then((response) => {
-                    this.produits = response.data;
+                    this.users = response.data;
                 })
                 .catch((error) => {
-                    console.error("Erreur lors de la récupération des produits:", error);
+                    console.error("Erreur lors de la récupération des utilisateurs:", error);
                 });
         },
         showSuccessToast(message) {
@@ -151,7 +152,11 @@ export default {
         },
     },
     mounted() {
-        this.fetchProduits();
+        this.fetchUsers();
     },
 };
 </script>
+
+<style scoped>
+/* Ajoutez vos styles ici */
+</style>

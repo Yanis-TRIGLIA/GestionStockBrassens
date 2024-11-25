@@ -26,6 +26,15 @@ import CreateZones from '../views/Page/Admin/Zone/CreateZone.vue';
 import AdminAgent from '../views/Page/Admin/Agents/AdminAgent.vue';
 import CreateAgent from '../views/Page/Admin/Agents/CreateAgent.vue';
 
+import AdminUsers from '../views/Page/Admin/User/AdminUser.vue';
+import EditUser from '../views/Page/Admin/User/EditUser.vue';
+import CreateUser from '../views/Page/Admin/User/CreateUser.vue';
+
+
+import AdminCategories from '../views/Page/Admin/Categories/AdminCategories.vue';
+import EditCategorie from '../views/Page/Admin/Categories/EditCategorie.vue';
+import CreateCategorie from '../views/Page/Admin/Categories/CreateCategorie.vue';
+
 // Componenet
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
@@ -95,6 +104,27 @@ const routes = [
                 path: 'agent/create',
                 component: CreateAgent,
             },
+            { path: "utilisateurs", component: AdminUsers },
+            {
+                path: 'utilisateur/create',
+                component: CreateUser,
+            },
+            {
+                path: 'utilisateur/edit/:id',
+                component: EditUser,
+            },
+            { path: "categories", component: AdminCategories },
+            {
+                path: 'categorie/create',
+                component: CreateCategorie,
+            },
+            {
+                path: 'categorie/edit/:id',
+                component: EditCategorie,
+            },
+
+
+
 
         ],
     },

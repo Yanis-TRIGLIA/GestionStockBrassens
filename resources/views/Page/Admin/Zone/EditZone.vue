@@ -41,13 +41,13 @@ export default {
                 });
         },
         handleSubmit(formData) {
-            const jsonData = {
-                nom: formData.get("nom"),
-                type: formData.get("type"),
-            };
-            axios.put(`/api/zones/${this.$route.params.id}`, jsonData)
+
+            axios.post(`/api/zones/${this.$route.params.id}`, formData)
                 .then(() => {
-                    this.$router.push("/admin/zones");
+                    if(formData.get("type") === "zone")
+                        this.$router.push("/admin/zones");
+                    else
+                        this.$router.push("/admin/agent");
                 })
                 .catch(error => {
                     console.error("Erreur lors de la modification de la zone :", error);
