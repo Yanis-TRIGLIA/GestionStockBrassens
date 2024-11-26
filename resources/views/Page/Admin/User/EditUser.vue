@@ -32,15 +32,9 @@ export default {
         },
         updateUser(formData) {
             const userId = this.$route.params.id;
-            const dataToSend = {
-                name: formData.get("name"),
-                email: formData.get("email"),
-                password: formData.get("password"),
-                is_admin: JSON.parse(formData.get("is_admin"))
 
-            };
             axios
-                .put(`/api/users/${userId}`, dataToSend)
+                .post(`/api/users/${userId}`, formData)
                 .then(() => {
                     this.showSuccessToast("Utilisateur modifié avec succès !");
                     this.$router.push("/admin/utilisateurs"); // Rediriger vers la liste des utilisateurs

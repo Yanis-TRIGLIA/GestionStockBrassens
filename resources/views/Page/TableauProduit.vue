@@ -15,18 +15,23 @@
                 <!-- Bouton Actualiser -->
                 <button
                     @click="refreshData"
-                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center space-x-2"
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                    <i class="pi pi-refresh"></i>
-                    <span>Actualiser</span>
+                    Actualiser
                 </button>
                 <!-- Bouton Exporter en CSV -->
                 <button
                     @click="exportToCSV"
-                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center space-x-2"
+                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
-                    <i class="pi pi-download"></i>
-                    <span>Exporter en CSV</span>
+                    Exporter en CSV
+                </button>
+                <!-- Bouton Imprimer -->
+                <button
+                    @click="printTable"
+                    class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                >
+                    Imprimer
                 </button>
             </div>
         </div>
@@ -36,39 +41,38 @@
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
                 <!-- En-tête des colonnes avec tri -->
                 <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
-                <tr>
-                    <th
-                        v-for="col in columns"
-                        :key="col.key"
-                        @click="sortData(col.key)"
-                        class="px-6 py-3 border-b text-left cursor-pointer hover:bg-gray-300"
-                    >
-                        {{ col.label }}
-                        <span v-if="sortColumn === col.key">
+                    <tr>
+                        <th
+                            v-for="col in columns"
+                            :key="col.key"
+                            @click="sortData(col.key)"
+                            class="px-6 py-3 border-b text-left cursor-pointer hover:bg-gray-300"
+                        >
+                            {{ col.label }}
+                            <span v-if="sortColumn === col.key">
                                 <i :class="sortOrder === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down'"></i>
                             </span>
-                    </th>
-                </tr>
+                        </th>
+                    </tr>
                 </thead>
                 <!-- Corps du tableau -->
                 <tbody>
-                <tr
-                    v-for="produit in filteredAndSortedData"
-                    :key="produit.id"
-                    class="even:bg-gray-100 hover:bg-gray-50"
-                >
-                    <td class="px-6 py-4 border-b text-gray-700">{{ produit.nom }}</td>
-                    <td class="px-6 py-4 border-b">
-                        <img
-                            v-if="produit.image_url"
-                            :src="`http://127.0.0.1:8000/storage/${produit.image_url}`"
-                            alt="Image du produit"
-                            class="w-16 h-16 object-cover rounded"
-                        />
-                    </td>
-                    <td class="px-6 py-4 border-b text-gray-700">{{ produit.quantité }}</td>
-
-                </tr>
+                    <tr
+                        v-for="produit in filteredAndSortedData"
+                        :key="produit.id"
+                        class="even:bg-gray-100 hover:bg-gray-50"
+                    >
+                        <td class="px-6 py-4 border-b text-gray-700">{{ produit.nom }}</td>
+                        <td class="px-6 py-4 border-b">
+                            <img
+                                v-if="produit.image_url"
+                                :src="`http://127.0.0.1:8000/storage/${produit.image_url}`"
+                                alt="Image du produit"
+                                class="w-16 h-16 object-cover rounded"
+                            />
+                        </td>
+                        <td class="px-6 py-4 border-b text-gray-700">{{ produit.quantité }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -112,8 +116,6 @@ export default {
         const refreshData = () => {
             fetchData();
         };
-
-
 
         const filteredAndSortedData = computed(() => {
             let data = produits.value;
@@ -177,6 +179,37 @@ export default {
             document.body.removeChild(link);
         };
 
+        const printTable = () => {
+            const printContent = `
+                <table border="1" style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Nom du Produit</th>
+                            <th>Quantité</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredAndSortedData.value
+                            .map((produit) => {
+                                return `
+                                    <tr>
+                                        <td>${produit.nom}</td>
+                                        <td>${produit.quantité}</td>
+                                    </tr>
+                                `;
+                            })
+                            .join("")}
+                    </tbody>
+                </table>
+            `;
+            const win = window.open("", "", "width=900,height=700");
+            win.document.write("<html><head><title>Impression du Tableau</title></head><body>");
+            win.document.write(printContent);
+            win.document.write("</body></html>");
+            win.document.close();
+            win.print();
+        };
+
         onMounted(() => {
             fetchData();
         });
@@ -186,6 +219,7 @@ export default {
             searchQuery,
             refreshData,
             exportToCSV,
+            printTable,
             filteredAndSortedData,
             sortData,
             columns,

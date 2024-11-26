@@ -77,7 +77,9 @@ export default {
                     <div>
                         <h3 class="text-lg font-semibold mb-2">Catégorie:</h3>
                         <ul class="list-disc list-inside text-gray-700">
-                            <li>En cours...</li>
+                            <li v-for="categorie in produit.categories" :key="categorie.id">
+                                {{ categorie.nom }}
+                            </li>
                         </ul>
                     </div>
                 </div>

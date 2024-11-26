@@ -43,7 +43,8 @@ export default {
             axios
                 .post(`/api/produits/${this.id_produit}/retirer-stock`, {
                     "zone_id": this.selectedItem,
-                    "quantité": this.quantity
+                    "quantité": this.quantity,
+                    "observation": this.observation
                 })
                 .then(() => {
                     this.showSuccessToast("Stock retiré avec succès !");
@@ -131,6 +132,11 @@ export default {
                     <div class="mb-4">
                         <label for="quantity" class="block text-gray-600 font-medium mb-2">Quantité à enlever</label>
                         <input type="number" id="quantity" v-model="quantity" min="1" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="observation" class="block text-gray-600 font-medium mb-2">Observation(s) (facultatif)</label>
+                        <input type="text" id="	observation" v-model="observation" min="1" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                     </div>
 
                     <div class="flex justify-center">

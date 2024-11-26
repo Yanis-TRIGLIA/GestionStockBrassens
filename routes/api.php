@@ -27,6 +27,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+Route::get('/login', function () {
+    return response()->json(['message' => 'Veuillez vous connecter'], 401);
+})->name('login');
+
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -47,9 +52,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/zones/{id}', [ZoneController::class, 'update']);
     Route::delete('/zones/{id}', [ZoneController::class, 'destroy']);
 });
+Route::get('/categorie', [CategoriesController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/categorie', [CategoriesController::class, 'index']);
     Route::post('/categorie', [CategoriesController::class, 'store']);
     Route::get('/categorie/{id}', [CategoriesController::class, 'show']);
     Route::post('/categorie/{id}', [CategoriesController::class, 'update']);
@@ -69,10 +74,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::post('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 });
 
 Route::get('/admin/stats', [AdminController::class, 'stats']);
-
-

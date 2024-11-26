@@ -15,7 +15,7 @@ export default {
     components: { FormulaireProduit },
     methods: {
         createProduit(formData) {
-            // Convertir formData en JSON
+            console.log(formData.get("nom")); // il affiche bien le nom rentrrée dans l'input dans la cosnole donc formdata posséde les bonne donnée
             axios
                 .post("/api/produits", formData) // Axios envoie des données en JSON par défaut si c'est un objet JavaScript
                 .then(() => {

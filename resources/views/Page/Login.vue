@@ -61,26 +61,39 @@ export default {
             errorMessage: "",
         };
     },
+    mounted() {
+        // Vérifier si un token est présent dans le localStorage lors du montage du composant
+        const token = localStorage.getItem("auth_token");
+        if (token) {
+            // Si un token est trouvé, rediriger directement vers la page d'accueil
+            this.$router.push('/');
+        }
+    },
     methods: {
         async login() {
             try {
+                // Envoi des informations de connexion à l'API
                 const response = await axios.post("/api/login", {
                     email: this.email,
                     password: this.password,
                 });
 
+                // Stockage du token dans le localStorage
                 const token = response.data.access_token;
-
                 localStorage.setItem("auth_token", token);
                 localStorage.setItem(
                     "auth_token_expiration",
                     Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 jours
                 );
 
-
+                // Rafraîchissement de la page pour mettre à jour le header
                 window.location.reload();
+
+                // Redirection vers la page d'accueil
                 this.$router.push("/");
+
             } catch (error) {
+                // Gérer les erreurs de connexion
                 this.errorMessage =
                     error.response.data.message || "Erreur lors de la connexion";
             }

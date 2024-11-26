@@ -3,36 +3,22 @@
         <!-- Nom -->
         <div class="mb-4">
             <label for="nom" class="block text-gray-700">Nom</label>
-            <input
-                v-model="formData.nom"
-                type="text"
-                id="nom"
-                class="border rounded w-full py-2 px-3"
-                placeholder="Nom du produit"
-            />
+            <input v-model="formData.nom" type="text" id="nom" class="border rounded w-full py-2 px-3"
+                placeholder="Nom du produit" />
         </div>
 
         <!-- Description -->
         <div class="mb-4">
             <label for="description" class="block text-gray-700">Description</label>
-            <textarea
-                v-model="formData.description"
-                id="description"
-                class="border rounded w-full py-2 px-3"
-                placeholder="Description du produit"
-            ></textarea>
+            <textarea v-model="formData.description" id="description" class="border rounded w-full py-2 px-3"
+                placeholder="Description du produit"></textarea>
         </div>
 
         <!-- Quantité -->
         <div class="mb-4">
             <label for="quantité" class="block text-gray-700">Quantité</label>
-            <input
-                v-model="formData.quantité"
-                type="number"
-                id="quantité"
-                class="border rounded w-full py-2 px-3"
-                placeholder="Quantité"
-            />
+            <input v-model="formData.quantité" type="number" id="quantité" class="border rounded w-full py-2 px-3"
+                placeholder="Quantité" />
         </div>
 
         <!-- Catégories (Dropdown personnalisé) -->
@@ -40,49 +26,29 @@
             <label for="categories" class="block text-gray-700 mb-2">Catégories</label>
 
             <!-- Dropdown button -->
-            <button
-                @click="toggleDropdown"
-                type="button"
-                class="border rounded w-full py-2 px-3 text-left bg-white flex justify-between items-center"
-            >
-        <span>
-          <span v-if="formData.categories.length === 0">Sélectionner des catégories</span>
-          <span v-else>
-            {{ selectedCategories.join(", ") }}
-          </span>
-        </span>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 transform"
-                    :class="{ 'rotate-180': isDropdownOpen }"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
+            <button @click="toggleDropdown" type="button"
+                class="border rounded w-full py-2 px-3 text-left bg-white flex justify-between items-center">
+                <span>
+                    <span v-if="formData.categories.length === 0">Sélectionner des catégories</span>
+                    <span v-else>
+                        {{ selectedCategories.join(", ") }}
+                    </span>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform"
+                    :class="{ 'rotate-180': isDropdownOpen }" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd"
-                    />
+                        clip-rule="evenodd" />
                 </svg>
             </button>
 
             <!-- Dropdown content -->
-            <div
-                v-if="isDropdownOpen"
-                class="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-y-auto"
-            >
-                <div
-                    v-for="categorie in categories"
-                    :key="categorie.id"
-                    class="px-4 py-2 flex items-center hover:bg-gray-100"
-                >
-                    <input
-                        type="checkbox"
-                        :value="categorie.id"
-                        v-model="formData.categories"
-                        class="mr-2"
-                        id="categorie-{{ categorie.id }}"
-                    />
+            <div v-if="isDropdownOpen"
+                class="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-y-auto">
+                <div v-for="categorie in categories" :key="categorie.id"
+                    class="px-4 py-2 flex items-center hover:bg-gray-100">
+                    <input type="checkbox" :value="categorie.id" v-model="formData.categories" class="mr-2"
+                        id="categorie-{{ categorie.id }}" />
                     <label :for="`categorie-${categorie.id}`" class="cursor-pointer">
                         {{ categorie.nom }}
                     </label>
@@ -93,32 +59,19 @@
         <!-- Image -->
         <div class="mb-4">
             <label for="image" class="block text-gray-700">Image du produit</label>
-            <input
-                type="file"
-                id="image"
-                @change="handleImageChange"
-                class="border rounded w-full py-2 px-3"
-                accept="image/*"
-            />
+            <input type="file" id="image" @change="handleImageChange" class="border rounded w-full py-2 px-3"
+                accept="image/*" />
         </div>
 
         <!-- Fichier technique -->
         <div class="mb-4">
             <label for="file_product" class="block text-gray-700">Fichier technique (PDF)</label>
-            <input
-                type="file"
-                id="file_product"
-                @change="handleFileChange"
-                class="border rounded w-full py-2 px-3"
-                accept=".pdf"
-            />
+            <input type="file" id="file_product" @change="handleFileChange" class="border rounded w-full py-2 px-3"
+                accept=".pdf" />
         </div>
 
         <!-- Bouton d'enregistrement -->
-        <button
-            type="submit"
-            class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-        >
+        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
             Enregistrer
         </button>
     </form>
@@ -217,8 +170,8 @@ export default {
         submitForm() {
             const formData = new FormData();
             formData.append("nom", this.formData.nom);
-            formData.append("description", this.formData.description);
-            formData.append("quantité", this.formData.quantité);
+            formData.append("description", this.formData.description || ""); // Gestion du champ nullable
+            formData.append("quantité", parseInt(this.formData.quantité, 10)); // Conversion en entier
 
             if (this.formData.image) {
                 formData.append("image", this.formData.image);
@@ -228,9 +181,14 @@ export default {
                 formData.append("file_product", this.formData.file_product);
             }
 
-            formData.append("categories", JSON.stringify(this.formData.categories));
+            // Ajout des catégories (tableau compatible avec Laravel)
+            this.formData.categories.forEach((categorieId, index) => {
+                formData.append(`categories[${index}]`, categorieId);
+            });
+
             this.$emit("submit", formData);
-        },
+        }
+
     },
 
     mounted() {

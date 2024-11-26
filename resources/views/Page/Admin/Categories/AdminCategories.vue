@@ -41,7 +41,6 @@
         <table class="min-w-full border-collapse border border-gray-300">
             <thead>
             <tr>
-                <th class="border border-gray-300 px-4 py-2">ID</th>
                 <th class="border border-gray-300 px-4 py-2">Image</th>
                 <th class="border border-gray-300 px-4 py-2">Nom</th>
                 <th class="border border-gray-300 px-4 py-2">Actions</th>
@@ -49,7 +48,6 @@
             </thead>
             <tbody>
             <tr v-for="categorie in paginatedCategories" :key="categorie.id">
-                <td class="border border-gray-300 px-4 py-2">{{ categorie.id }}</td>
                 <td class="border border-gray-300 px-4 py-2">
                     <img v-if="categorie.image" :src="`/storage/${categorie.image}`" alt="Image" class="w-16 h-16 object-cover rounded">
                 </td>

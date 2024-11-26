@@ -12,7 +12,7 @@ class ProduitController extends Controller
 {
     public function index()
     {
-        $produits = Produit::all();
+        $produits = Produit::with('categories')->get();
         return response()->json($produits);
     }
 
@@ -20,9 +20,10 @@ class ProduitController extends Controller
 
     public function show($id)
     {
-        $produit = Produit::findOrFail($id);
+        $produit = Produit::with('categories')->findOrFail($id);
         return response()->json($produit);
     }
+    
 
 
     public function store(Request $request)

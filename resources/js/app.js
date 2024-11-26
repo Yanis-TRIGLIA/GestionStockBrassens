@@ -35,6 +35,9 @@ import AdminCategories from '../views/Page/Admin/Categories/AdminCategories.vue'
 import EditCategorie from '../views/Page/Admin/Categories/EditCategorie.vue';
 import CreateCategorie from '../views/Page/Admin/Categories/CreateCategorie.vue';
 
+
+import UserPage from '../views/Page/UserPage.vue';
+
 // Componenet
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
@@ -55,6 +58,11 @@ const routes = [
         path: '/connexion',
         component: Login,
         meta: { requiresAuth: false },
+    },
+    {
+        path: '/page_compte',
+        component: UserPage,
+        meta: { requiresAuth: true },
     },
     {
         path: '/liste_produit',
