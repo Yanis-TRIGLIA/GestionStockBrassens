@@ -67,22 +67,22 @@ const routes = [
     {
         path: '/liste_produit',
         component: Produits,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: false },
     },
     {
         path: '/prod/:id',
         component: Produit,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: false },
     },
     {
         path: '/sortie_produit',
         component: TableauSortie,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: false },
     },
     {
         path: '/tableau_produit',
         component: TableauProduits,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: false },
     },
     {
         path: "/admin",

@@ -39,11 +39,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/produits', [ProduitController::class, 'store']);
-    Route::get('/produits/{id}', [ProduitController::class, 'show']);
     Route::post('/produits/{id}', [ProduitController::class, 'update']);
     Route::delete('/produits/{id}', [ProduitController::class, 'destroy']);
 });
 Route::get('/produits', [ProduitController::class, 'index']);
+Route::get('/produits/{id}', [ProduitController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/zones', [ZoneController::class, 'index']);
@@ -63,7 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/sorties', function () {
     return response()->json(\App\Models\Sortie::with('produit', 'zone')->latest()->get());
-})->middleware('auth:sanctum');
+})->middleware();
 
 
 Route::middleware('auth:sanctum')->group(function () {
