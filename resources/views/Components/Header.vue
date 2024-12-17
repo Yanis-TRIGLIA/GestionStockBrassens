@@ -43,7 +43,7 @@ export default {
 </script>
 
 <template>
-    <nav class="bg-white sticky top-0 z-50 p-2 border-b border-gray-200 shadow-lg">
+    <nav class="bg-white sticky top-0 z-50 p-2 border-b border-gray-200 shadow-lg" style="z-index: revert-layer;">
         <div class="w-full  flex flex-wrap items-center justify-between mx-auto p-4">
             <!-- Logo -->
             <a href="/" class="flex items-center space-x-10 rtl:space-x-reverse justify-start">

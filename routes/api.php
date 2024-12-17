@@ -68,6 +68,7 @@ Route::get('/sorties', function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/produits/{id}/retirer-stock', [StockController::class, 'retirerStock']); // Retirer du stock
+    Route::delete('/cancel_sortie/{id}', [StockController::class, 'supprimerSortie']); // Supprimer sortie
 });
 
 Route::middleware('auth:sanctum')->group(function () {

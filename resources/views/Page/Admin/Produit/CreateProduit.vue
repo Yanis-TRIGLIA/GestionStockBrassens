@@ -15,9 +15,9 @@ export default {
     components: { FormulaireProduit },
     methods: {
         createProduit(formData) {
-            console.log(formData.get("nom")); // il affiche bien le nom rentrrée dans l'input dans la cosnole donc formdata posséde les bonne donnée
+            console.log(formData.get("nom")); 
             axios
-                .post("/api/produits", formData) // Axios envoie des données en JSON par défaut si c'est un objet JavaScript
+                .post("/api/produits", formData) 
                 .then(() => {
                     this.showSuccessToast("Produit créé avec succès !");
                     this.$router.push("/admin/produits");

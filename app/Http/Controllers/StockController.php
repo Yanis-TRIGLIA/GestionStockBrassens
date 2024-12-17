@@ -13,7 +13,7 @@ class StockController extends Controller
         $request->validate([
             'quantité' => 'required|integer|min:1',
             'zone_id' => 'nullable|exists:zones,id',
-            'observation' => 'nullable|string', 
+            'observation' => 'nullable|string',
         ]);
 
         // Récupérer le produit à partir de l'ID
@@ -41,5 +41,23 @@ class StockController extends Controller
 
         // Retourner une réponse de succès
         return response()->json(['message' => 'Stock mis à jour', 'produit' => $produit]);
+    }
+
+
+    public function supprimerSortie($sortieId)
+    {
+        $sortie = Sortie::findOrFail($sortieId);
+        $produit = Produit::findOrFail($sortie->produit_id);
+
+        $produit->quantité += $sortie->quantité;
+
+        $produit->save();
+
+        $sortie->delete();
+
+        return response()->json([
+            'message' => 'Sortie supprimée et stock réincrémenté avec succès.',
+            'produit' => $produit,
+        ]);
     }
 }

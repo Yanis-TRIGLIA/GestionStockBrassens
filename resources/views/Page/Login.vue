@@ -1,5 +1,5 @@
 <template>
-    <div class="relative h-screen bg-cover bg-center bg-fixed">
+    <div class="relative h-screen bg-cover bg-center bg-fixed ">
         <!-- Image de fond avec effet de flou -->
         <div class="absolute inset-0 bg-image-blur"></div>
 

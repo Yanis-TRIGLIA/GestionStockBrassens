@@ -122,11 +122,11 @@ export default {
                     </div>
 
                     <div class="mb-4">
-                        <label for="item" class="block text-gray-600 font-medium mb-2">Sélectionner un élément</label>
-                        <select id="item" v-model="selectedItem" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <label for="item" class="block text-gray-600 font-medium mb-2">Sélectionner ou placer le produit</label>
+                        <select required id="item" v-model="selectedItem" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">Sélectionnez un élément</option>
                             <option v-for="item in filteredItems" :key="item.id" :value="item.id">{{ item.nom }}</option>
-                        </select>
+                        </select >
                     </div>
 
                     <div class="mb-4">

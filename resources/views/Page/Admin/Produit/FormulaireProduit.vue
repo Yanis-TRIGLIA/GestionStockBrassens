@@ -56,18 +56,35 @@
             </div>
         </div>
 
+        <!-- Fiches techniques -->
+        <div class="mb-4">
+            <label for="fiches_techniques" class="block text-gray-700">Fiches techniques (PDF)</label>
+            <input type="file" id="fiches_techniques" multiple @change="handleFichesTechniquesChange"
+                class="border rounded w-full py-2 px-3" accept=".pdf" />
+            <!-- Liste des fichiers sélectionnés -->
+            <div v-if="formData.fiches_techniques && formData.fiches_techniques.length > 0" class="mt-2">
+                <p v-for="(file, index) in formData.fiches_techniques" :key="index" class="text-sm text-gray-600">
+                    {{ file.name }}
+                </p>
+            </div>
+        </div>
+
+
+        <div v-if="produit && produit.file_product" class="mt-2 mb-4 p-4 space-x-2">
+            <router-link v-for="(file, index) in JSON.parse(produit.file_product)" :to="`/storage/${file}`"
+                target="_blank">
+                <p class="text-sm font-semibold underline text-gray-600">{{ file.slice(6, 50) }}</p>
+            </router-link>
+        </div>
         <!-- Image -->
         <div class="mb-4">
             <label for="image" class="block text-gray-700">Image du produit</label>
             <input type="file" id="image" @change="handleImageChange" class="border rounded w-full py-2 px-3"
                 accept="image/*" />
-        </div>
-
-        <!-- Fichier technique -->
-        <div class="mb-4">
-            <label for="file_product" class="block text-gray-700">Fichier technique (PDF)</label>
-            <input type="file" id="file_product" @change="handleFileChange" class="border rounded w-full py-2 px-3"
-                accept=".pdf" />
+            <div class="w-full flex justify-center">
+                <img v-if="formData.image_url" class="text-sm text-gray-600 mt-2 w-1/2  h-96 rounded-lg"
+                    :src="`http://127.0.0.1:8000/storage/${produit.image_url}`" />
+            </div>
         </div>
 
         <!-- Bouton d'enregistrement -->
@@ -77,7 +94,9 @@
     </form>
 </template>
 
+
 <script>
+import { Image } from "primevue";
 import axios from "../../../../../axios.config.js";
 
 export default {
@@ -103,6 +122,7 @@ export default {
                 quantité: null,
                 image: null,
                 file_product: null,
+                fiches_techniques: [],
                 categories: [], // Catégories sélectionnées
             },
             categories: [], // Liste des catégories disponibles
@@ -167,11 +187,34 @@ export default {
             }
         },
 
+        handleFichesTechniquesChange(event) {
+            const files = Array.from(event.target.files);
+
+            // Vérifie et initialise le tableau si nécessaire
+            if (!Array.isArray(this.formData.fiches_techniques)) {
+                this.formData.fiches_techniques = [];
+            }
+
+            // Ajoute les fichiers au tableau
+            this.formData.fiches_techniques.push(...files);
+
+            console.log("Fichiers ajoutés :", this.formData.fiches_techniques.map(file => file.name));
+        },
+
+
+
         submitForm() {
             const formData = new FormData();
             formData.append("nom", this.formData.nom);
             formData.append("description", this.formData.description || ""); // Gestion du champ nullable
             formData.append("quantité", parseInt(this.formData.quantité, 10)); // Conversion en entier
+
+            if (this.formData.fiches_techniques) {
+                this.formData.fiches_techniques.forEach((file, index) => {
+                    formData.append(`fiches_techniques[${index}]`, file);
+                });
+            }
+
 
             if (this.formData.image) {
                 formData.append("image", this.formData.image);

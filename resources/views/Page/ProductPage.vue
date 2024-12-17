@@ -26,7 +26,7 @@
         </div>
 
         <!-- Affichage des produits sous forme de cartes -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div v-for="produit in produitsFiltres" :key="produit.id"
                 class="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
                 <a class="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl" href="#">
@@ -35,7 +35,7 @@
                 </a>
                 <div class="mt-4 px-5 pb-5">
                     <a href="#">
-                        <h5 class="text-xl tracking-tight text-slate-900 text-center">
+                        <h5 class="text-xl tracking-tight text-slate-900 text-center break-words truncate">
                             {{ produit.nom }}
                         </h5>
                     </a>
@@ -51,8 +51,8 @@
                         <p v-else class="text-red-500">{{ produit.quantité }}</p>
                     </div>
                     <router-link :to="`/prod/${produit.id}`"
-                        class="flex items-center justify-center rounded-md bg-slate-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300">
-                        Accéder à {{ produit.nom }}
+                        class=" flex items-center justify-center rounded-md bg-slate-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        Accéder à {{ produit.nom.slice(0,15) }}
                     </router-link>
                 </div>
             </div>

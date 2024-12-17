@@ -29,6 +29,7 @@
                     </button>
                     <button
                         @click="supprimerUser(user.id)"
+                        v-if="!user.is_admin"
                         class="text-red-600 hover:underline"
                     >
                         Supprimer
