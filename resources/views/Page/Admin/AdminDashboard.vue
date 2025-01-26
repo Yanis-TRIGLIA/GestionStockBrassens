@@ -22,7 +22,40 @@ export default {
     methods: {
         async loadStats() {
             try {
-                const {data} = await axios.get("/api/admin/stats");
+                // Récupérer toutes les sorties
+                const { data } = await axios.get("/api/sorties");
+
+                // Initialiser un objet pour compter le nombre de sorties par personne
+                const sortiesParPersonne = {};
+
+                // Traiter les données des sorties
+                data.forEach((sortie) => {
+                    const personneId = sortie.personne.id; 
+                    const personneNom = sortie.personne.nom; 
+                    const personnePhoto = sortie.personne.image_url ? "http://127.0.0.1:8000/storage/" + sortie.personne.image_url : ""; 
+                    
+                    // Si la personne n'existe pas encore dans l'objet, on l'ajoute
+                    if (!sortiesParPersonne[personneId]) {
+                        sortiesParPersonne[personneId] = {
+                            name: personneNom,
+                            photo: personnePhoto,
+                            sorties: 0,
+                        };
+                    }
+
+                    // Incrémenter le nombre de sorties
+                    sortiesParPersonne[personneId].sorties++;
+                });
+
+                // Convertir l'objet en tableau pour le graphique
+                const names = [];
+                const photos = [];
+                const sorties = [];
+                for (let id in sortiesParPersonne) {
+                    names.push(sortiesParPersonne[id].name);
+                    photos.push(sortiesParPersonne[id].photo);
+                    sorties.push(sortiesParPersonne[id].sorties);
+                }
 
                 // Initialiser le graphique
                 const chartDom = document.getElementById("newProductsChart");
@@ -31,7 +64,7 @@ export default {
                 // Options du graphique
                 const options = {
                     title: {
-                        text: "Nouveaux Produits",
+                        text: "Nombre de Sorties par Personne",
                         left: "center",
                         textStyle: {
                             fontSize: 18,
@@ -40,15 +73,15 @@ export default {
                         },
                     },
                     tooltip: {
-                        trigger: "axis",
-                        axisPointer: {
-                            type: "line",
+                        trigger: "item",
+                        formatter: (params) => {
+                            const person = sortiesParPersonne[params.dataIndex];
+                            return `${person.name} : ${person.sorties} sorties`;
                         },
                     },
                     xAxis: {
                         type: "category",
-                        boundaryGap: false,
-                        data: data.newProducts.map((item) => item.date),
+                        data: names,
                         axisLine: {
                             lineStyle: {
                                 color: "#ccc",
@@ -58,6 +91,7 @@ export default {
                             rotate: 45,
                             fontSize: 12,
                             color: "#666",
+                            fontWeight: "bold",
                         },
                     },
                     yAxis: {
@@ -80,21 +114,33 @@ export default {
                     },
                     series: [
                         {
-                            name: "Nouveaux produits",
-                            type: "line",
-                            data: data.newProducts.map((item) => item.count),
-                            smooth: true,
-                            lineStyle: {
-                                color: "#42A5F5",
-                                width: 3,
-                            },
-                            areaStyle: {
-                                color: "rgba(66, 165, 245, 0.3)",
-                            },
+                            name: "Sorties",
+                            type: "bar",
+                            data: sorties,
+                            barWidth: "50%",
+                            
                             itemStyle: {
-                                color: "#42A5F5",
-                                borderColor: "#fff",
-                                borderWidth: 2,
+                                // Appliquer l'image comme fond de la barre, étirée et centrée
+                                color: (params) => {
+                                    return {
+                                        type: "image",
+                                        image: photos[params.dataIndex],
+                                   
+                                        //on centre l'image
+                                        x: -50,
+                                        y: -50,
+                                        //on étire l'image
+                                        width: 100,
+                                        
+                                    
+                                    };
+                                },
+                            },
+                            label: {
+                                show: true,
+                                position: "top",
+                                fontSize: 0,
+                                color: "#333",
                             },
                         },
                     ],
@@ -116,9 +162,9 @@ export default {
 </script>
 
 <style scoped>
-/* Ajout de styles pour améliorer la présentation */
+/* Améliorer la présentation du graphique */
 #newProductsChart {
     margin: 0 auto;
-    max-width: 600px;
+    max-width: 800px;
 }
 </style>

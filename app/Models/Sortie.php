@@ -12,6 +12,7 @@ class Sortie extends Model
     protected $fillable = [
         'produit_id',
         'zone_id',
+        'personne_id',
         'quantité',
         'date_sortie',
         'number_after_reduce',
@@ -27,4 +28,10 @@ class Sortie extends Model
     {
         return $this->belongsTo(Zone::class);
     }
+
+    public function personne(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+{
+    return $this->belongsTo(Zone::class, 'personne_id');
+}
+
 }

@@ -13,6 +13,7 @@ class StockController extends Controller
         $request->validate([
             'quantité' => 'required|integer|min:1',
             'zone_id' => 'nullable|exists:zones,id',
+            'personne_id' => 'nullable|exists:zones,id',
             'observation' => 'nullable|string',
         ]);
 
@@ -34,6 +35,7 @@ class StockController extends Controller
         Sortie::create([
             'produit_id' => $produitId,
             'zone_id' => $request->zone_id,
+            'personne_id' => $request->personne_id,
             'quantité' => $request->quantité,
             'number_after_reduce' => $produit->quantité, // Stock restant après la sortie
             'observation' => $request->observation,

@@ -68,7 +68,7 @@
                                 v-if="produit.image_url"
                                 :src="`http://127.0.0.1:8000/storage/${produit.image_url}`"
                                 alt="Image du produit"
-                                class="w-16 h-16 object-cover rounded"
+                                class="w-24 h-24 object-cover rounded-lg mx-auto"
                             />
                         </td>
                         <td class="px-6 py-4 border-b text-gray-700">{{ produit.quantité }}</td>
@@ -231,10 +231,36 @@ export default {
 </script>
 
 <style scoped>
+/* Style amélioré pour le tableau */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #f3f4f6;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+/* Agrandir l'image du produit */
 img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
     transition: transform 0.2s ease-in-out;
 }
+
 img:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 </style>

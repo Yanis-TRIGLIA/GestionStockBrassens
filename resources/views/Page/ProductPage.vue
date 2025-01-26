@@ -25,40 +25,40 @@
             </select>
         </div>
 
-        <!-- Affichage des produits sous forme de cartes -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            <div v-for="produit in produitsFiltres" :key="produit.id"
-                class="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
-                <a class="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl" href="#">
-                    <img class="object-cover" :src="`http://127.0.0.1:8000/storage/${produit.image_url}`"
-                        alt="Image du produit" />
-                </a>
-                <div class="mt-4 px-5 pb-5">
-                    <a href="#">
-                        <h5 class="text-xl tracking-tight text-slate-900 text-center break-words truncate">
-                            {{ produit.nom }}
-                        </h5>
-                    </a>
-                    <div class="mt-2 mb-5 items-center flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48"
-                            viewBox="0 0 48 48">
-                            <path fill="#FF9800"
-                                d="M40,42H8c-1.1,0-2-0.9-2-2V8c0-1.1,0.9-2,2-2h32c1.1,0,2,0.9,2,2v32C42,41.1,41.1,42,40,42z">
-                            </path>
-                            <path fill="#FFB74D" d="M21 6H27V13H21z"></path>
-                        </svg>
-                        <p v-if="produit.quantité > 2" class="text-green-500">{{ produit.quantité }}</p>
-                        <p v-else class="text-red-500">{{ produit.quantité }}</p>
-                    </div>
-                    <router-link :to="`/prod/${produit.id}`"
-                        class=" flex items-center justify-center rounded-md bg-slate-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300">
-                        Accéder à {{ produit.nom.slice(0,15) }}
-                    </router-link>
-                </div>
-            </div>
-        </div>
+        <!-- Affichage des produits sous forme de lignes -->
+        <table class="w-full table-auto border-collapse border border-gray-300 shadow-md rounded-lg">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border border-gray-300 px-6 py-4 text-left">Image</th>
+                    <th class="border border-gray-300 px-6 py-4 text-left">Nom</th>
+                    <th class="border border-gray-300 px-6 py-4 text-left">Quantité</th>
+                    <th class="border border-gray-300 px-6 py-4 text-left">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="produit in produitsFiltres" :key="produit.id" class="hover:bg-gray-50">
+                    <td class="border border-gray-300 px-6 py-4">
+                        <img :src="`http://127.0.0.1:8000/storage/${produit.image_url}`" alt="Image du produit"
+                            class="w-24 h-24 object-cover rounded-lg mx-auto" />
+                    </td>
+                    <td class="border border-gray-300 px-6 py-4">{{ produit.nom }}</td>
+                    <td class="border border-gray-300 px-6 py-4">
+                        <span :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
+                            {{ produit.quantité }}
+                        </span>
+                    </td>
+                    <td class="border border-gray-300 px-6 py-4">
+                        <router-link :to="`/prod/${produit.id}`"
+                            class="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-gray-700">
+                            Voir Détails
+                        </router-link>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-        <!-- Pagination -->
+        <!-- Suppression de la pagination -->
+        <!--
         <div class="flex justify-center mt-6">
             <button v-for="page in pages" :key="page" @click="changerPage(page)"
                 class="mx-1 px-3 py-1 border rounded-md" :class="{
@@ -68,8 +68,10 @@
                 {{ page }}
             </button>
         </div>
+        -->
     </div>
 </template>
+
 
 <script>
 import axios from "axios";
@@ -150,21 +152,35 @@ export default {
 };
 </script>
 
+
+
+
 <style scoped>
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
+/* Amélioration de la table */
+table th, table td {
+    text-align: left;
+    padding: 12px;
+    font-size: 16px;
 }
 
-.pagination button {
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+table th {
+    background-color: #f9fafb;
+    font-weight: bold;
 }
 
-.pagination button.active {
-    background-color: #007bff;
-    color: white;
+table tr:nth-child(even) {
+    background-color: #f3f4f6;
+}
+
+table tr:hover {
+    background-color: #e0e7ff;
+}
+
+/* Image du produit */
+img {
+    transition: transform 0.2s ease-in-out;
+}
+img:hover {
+    transform: scale(1.1);
 }
 </style>

@@ -65,10 +65,10 @@
             <div v-if="formData.fiches_techniques && formData.fiches_techniques.length > 0" class="mt-2">
                 <p v-for="(file, index) in formData.fiches_techniques" :key="index" class="text-sm text-gray-600">
                     {{ file.name }}
+                    <span @click="removeFile(index)" class="text-red-500 cursor-pointer ml-2">✖</span>
                 </p>
             </div>
         </div>
-
 
         <div v-if="produit && produit.file_product" class="mt-2 mb-4 p-4 space-x-2">
             <router-link v-for="(file, index) in JSON.parse(produit.file_product)" :to="`/storage/${file}`"
@@ -76,6 +76,7 @@
                 <p class="text-sm font-semibold underline text-gray-600">{{ file.slice(6, 50) }}</p>
             </router-link>
         </div>
+
         <!-- Image -->
         <div class="mb-4">
             <label for="image" class="block text-gray-700">Image du produit</label>
@@ -93,7 +94,6 @@
         </button>
     </form>
 </template>
-
 
 <script>
 import { Image } from "primevue";
@@ -201,7 +201,10 @@ export default {
             console.log("Fichiers ajoutés :", this.formData.fiches_techniques.map(file => file.name));
         },
 
-
+        // Supprimer un fichier de la liste
+        removeFile(index) {
+            this.formData.fiches_techniques.splice(index, 1);
+        },
 
         submitForm() {
             const formData = new FormData();
@@ -214,7 +217,6 @@ export default {
                     formData.append(`fiches_techniques[${index}]`, file);
                 });
             }
-
 
             if (this.formData.image) {
                 formData.append("image", this.formData.image);
@@ -231,7 +233,6 @@ export default {
 
             this.$emit("submit", formData);
         }
-
     },
 
     mounted() {

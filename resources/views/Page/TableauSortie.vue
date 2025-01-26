@@ -83,9 +83,9 @@
                             {{ sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun' }}
                         </td>
 
-                        <!-- Personne Concernée, affichage conditionnel -->
+                        <!-- A effectuer la sortie, affichage conditionnel -->
                         <td class="px-6 py-4 border-b text-gray-700">
-                            {{ sortie.zone.type === 'personne' ? sortie.zone.nom : 'Aucun(e)' }}
+                            {{ sortie.personne.nom }}
                         </td>
 
                         <!-- Observation -->
@@ -185,7 +185,7 @@ export default {
             { key: "updated_at", label: "Date de Sortie" },
             { key: "number_after_reduce", label: "Stock Actuel" },
             { key: "zone.nom", label: "Zone Concernée" },
-            { key: "zone.nom", label: "Personne Concernée" },
+            { key: "zone.nom", label: "A effectuer la sortie" },
             { key: "observation", label: "Observation" },
             { key: "delete", label: "Supprimer cette sortie" }
         ];
@@ -196,7 +196,7 @@ export default {
             { key: "updated_at", label: "Date de Sortie" },
             { key: "number_after_reduce", label: "Stock Actuel" },
             { key: "zone.nom", label: "Zone Concernée" },
-            { key: "zone.nom", label: "Personne Concernée" },
+            { key: "zone.nom", label: "A effectuer la sortie" },
             { key: "observation", label: "Observation" } // Nouvelle colonne Observation pour CSV
         ];
 
@@ -205,6 +205,7 @@ export default {
                 .get(`/api/sorties`)
                 .then((response) => {
                     sorties.value = response.data;
+                    console.log(sorties.value)
                 })
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des sorties:", error);
@@ -321,7 +322,7 @@ export default {
                             <th>Date de Sortie</th>
                             <th>Stock Actuel</th>
                             <th>Zone Concernée</th>
-                            <th>Personne Concernée</th>
+                            <th>A effectuer la sortie</th>
                             <th>Observation</th>
                         </tr>
                     </thead>
