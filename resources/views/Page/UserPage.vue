@@ -14,7 +14,7 @@
             <div class="flex justify-center">
               <img
                 v-if="user.photo_profil"
-                :src="`http://127.0.0.1:8000/storage/${user.photo_profil}`"
+                :src="`${baseUrl}/storage/${user.photo_profil}`"
                 alt="Photo de Profil"
                 class="w-32 h-32 rounded-full object-cover"
               />
@@ -170,6 +170,7 @@
   
       return {
         user,
+        baseUrl: import.meta.env.VITE_APP_URL,
         password,
         isUpdating,
         photoFile,

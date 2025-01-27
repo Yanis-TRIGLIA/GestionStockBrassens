@@ -69,7 +69,7 @@
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit.nom }}</td>
                         <td class="px-6 py-4 border-b">
                             <img v-if="sortie.produit.image_url"
-                                :src="`http://127.0.0.1:8000/storage/${sortie.produit.image_url}`"
+                                :src="`${baseUrl}/storage/${sortie.produit.image_url}`"
                                 alt="Image du produit" class="w-16 h-16 object-cover rounded" />
                         </td>
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.quantité }}</td>
@@ -353,6 +353,7 @@ export default {
 
         return {
             sorties,
+            baseUrl: import.meta.env.VITE_APP_URL,
             searchQuery,
             refreshData,
             exportToCSV,

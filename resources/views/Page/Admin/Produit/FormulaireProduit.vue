@@ -84,7 +84,7 @@
                 accept="image/*" />
             <div class="w-full flex justify-center">
                 <img v-if="formData.image_url" class="text-sm text-gray-600 mt-2 w-1/2  h-96 rounded-lg"
-                    :src="`http://127.0.0.1:8000/storage/${produit.image_url}`" />
+                    :src="`${baseUrl}/storage/${produit.image_url}`" />
             </div>
         </div>
 
@@ -116,6 +116,7 @@ export default {
     data() {
         return {
             isDropdownOpen: false, // État du menu déroulant
+            baseUrl: import.meta.env.VITE_APP_URL,
             formData: {
                 nom: "",
                 description: "",

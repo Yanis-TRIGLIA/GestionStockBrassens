@@ -9,10 +9,11 @@ export default {
     data() {
         return {
             produit: [],
+            baseUrl: import.meta.env.VITE_APP_URL,
             showPopup: false,
             id_produit: null,
             tokenExists: false,
-            fileProduct: [], 
+            fileProduct: [],
         };
     },
     mounted() {
@@ -49,8 +50,9 @@ export default {
             <div class="flex flex-wrap -mx-4 mt-14">
                 <!-- Product Images -->
                 <div class="w-full md:w-1/2 px-4 mb-8">
-                    <img :src="`http://127.0.0.1:8000/storage/${produit.image_url}`" alt="Product"
+                    <img :src="`${baseUrl}/storage/${produit.image_url}`" alt="Product"
                         class="w-full h-auto rounded-lg shadow-md mb-4" id="mainImage">
+
                 </div>
 
                 <!-- Product Details -->

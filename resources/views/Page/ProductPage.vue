@@ -38,7 +38,7 @@
             <tbody>
                 <tr v-for="produit in produitsFiltres" :key="produit.id" class="hover:bg-gray-50">
                     <td class="border border-gray-300 px-6 py-4">
-                        <img :src="`http://127.0.0.1:8000/storage/${produit.image_url}`" alt="Image du produit"
+                        <img :src="`${baseUrl}/storage/${produit.image_url}`" alt="Image du produit"
                             class="w-24 h-24 object-cover rounded-lg mx-auto" />
                     </td>
                     <td class="border border-gray-300 px-6 py-4">{{ produit.nom }}</td>
@@ -87,6 +87,7 @@ export default {
             triCategorie: "", // Pour le tri par catégorie
             pageActuelle: 1,
             produitsParPage: 10,
+            baseUrl: import.meta.env.VITE_APP_URL,
         };
     },
     computed: {

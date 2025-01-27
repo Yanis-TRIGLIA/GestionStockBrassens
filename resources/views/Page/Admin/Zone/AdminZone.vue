@@ -24,7 +24,7 @@
             <tbody>
             <tr v-for="zone in paginatedZonesZone" :key="zone.id">
                 <td class="border border-gray-300 px-4 py-2">
-                    <img v-if="zone.image_url" :src="`http://127.0.0.1:8000/storage/${zone.image_url}`" alt="Image" class="w-16 h-16 object-cover rounded">
+                    <img v-if="zone.image_url" :src="`${baseUrl}/storage/${zone.image_url}`" alt="Image" class="w-16 h-16 object-cover rounded">
                 </td>
                 <td class="border border-gray-300 px-4 py-2">{{ zone.nom }}</td>
                 <td class="border-t border-gray-300 px-4 py-2 flex space-x-4">
@@ -105,6 +105,7 @@ export default {
     name: "Adminzones",
     data() {
         return {
+            baseUrl: import.meta.env.VITE_APP_URL,
             zones: [],
             currentPagePersonne: 1,
             currentPageZone: 1,

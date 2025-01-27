@@ -1,6 +1,6 @@
 <template>
     <div class="p-6 bg-gray-50 min-h-screen">
-        <h2 class="text-3xl font-bold text-gray-700 mb-6">Statistiques Admin</h2>
+        <h2 class="text-3xl font-bold text-gray-700 mb-6"> 📊 Statistiques Admin</h2>
 
         <div
             id="newProductsChart"
@@ -32,8 +32,8 @@ export default {
                 data.forEach((sortie) => {
                     const personneId = sortie.personne.id; 
                     const personneNom = sortie.personne.nom; 
-                    const personnePhoto = sortie.personne.image_url ? "http://127.0.0.1:8000/storage/" + sortie.personne.image_url : ""; 
-                    
+                    const personnePhoto = sortie.personne.image_url ? `${import.meta.env.VITE_APP_URL}/storage/${sortie.personne.image_url}` : "";
+
                     // Si la personne n'existe pas encore dans l'objet, on l'ajoute
                     if (!sortiesParPersonne[personneId]) {
                         sortiesParPersonne[personneId] = {
@@ -117,7 +117,7 @@ export default {
                             name: "Sorties",
                             type: "bar",
                             data: sorties,
-                            barWidth: "50%",
+                            barWidth: "20%",
                             
                             itemStyle: {
                                 // Appliquer l'image comme fond de la barre, étirée et centrée
