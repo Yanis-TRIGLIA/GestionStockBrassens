@@ -71,7 +71,7 @@
         </div>
 
         <div v-if="produit && produit.file_product" class="mt-2 mb-4 p-4 space-x-2">
-            <router-link v-for="(file, index) in JSON.parse(produit.file_product)" :to="`/storage/${file}`"
+            <router-link v-for="(file, index) in JSON.parse(produit.file_product)" :to="`/${file}`"
                 target="_blank">
                 <p class="text-sm font-semibold underline text-gray-600">{{ file.slice(6, 50) }}</p>
             </router-link>
@@ -84,7 +84,7 @@
                 accept="image/*" />
             <div class="w-full flex justify-center">
                 <img v-if="formData.image_url" class="text-sm text-gray-600 mt-2 w-1/2  h-96 rounded-lg"
-                    :src="`${baseUrl}/storage/${produit.image_url}`" />
+                    :src="`${baseUrl}/${produit.image_url}`" />
             </div>
         </div>
 

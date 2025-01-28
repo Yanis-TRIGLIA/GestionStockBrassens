@@ -50,7 +50,7 @@ export default {
             <div class="flex flex-wrap -mx-4 mt-14">
                 <!-- Product Images -->
                 <div class="w-full md:w-1/2 px-4 mb-8">
-                    <img :src="`${baseUrl}/storage/${produit.image_url}`" alt="Product"
+                    <img :src="`${baseUrl}/${produit.image_url}`" alt="Product"
                         class="w-full h-auto rounded-lg shadow-md mb-4" id="mainImage">
 
                 </div>
@@ -76,7 +76,7 @@ export default {
 
                     </div>
                     <div class="mt-2 columns-2 ">
-                        <router-link v-for="(file, index) in fileProduct" :key="index" :to="`/storage/${file}`"
+                        <router-link v-for="(file, index) in fileProduct" :key="index" :to="`/${file}`"
                             target="_blank">
                             <button
                                 class="bg-blue-700 mb-2 flex gap-2 items-center text-white px-6 py-2 rounded-md focus:outline-none focus:ring-2 hover:bg-indigo-700 focus:ring-gray-500 focus:ring-offset-2">

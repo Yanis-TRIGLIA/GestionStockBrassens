@@ -38,7 +38,7 @@
             <tbody>
                 <tr v-for="produit in produitsFiltres" :key="produit.id" class="hover:bg-gray-50">
                     <td class="border border-gray-300 px-6 py-4">
-                        <img :src="`${baseUrl}/storage/${produit.image_url}`" alt="Image du produit"
+                        <img :src="`${baseUrl}/${produit.image_url}`" alt="Image du produit"
                             class="w-24 h-24 object-cover rounded-lg mx-auto" />
                     </td>
                     <td class="border border-gray-300 px-6 py-4">{{ produit.nom }}</td>

@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -32,19 +31,24 @@ class UserController extends Controller
         // Hash du mot de passe
         $validated['password'] = Hash::make($validated['password']);
 
-        // Sauvegarde du fichier photo_profil si présent
+        // Sauvegarde de la photo de profil
         if ($request->hasFile('photo_profil')) {
-            $photoPath = $request->file('photo_profil')->store('profile_photos', 'public');
-            $validated['photo_profil'] = $photoPath;
+            $image = $request->file('photo_profil');
+            $filename = 'profile_photos/' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/profile_photos'), $filename);
+
+            // Sauvegarde du chemin relatif dans la base
+            $validated['photo_profil'] = 'storage/' . $filename;
         }
 
         // Création de l'utilisateur dans la base de données
         $user = User::create($validated);
 
+        Log::info('Utilisateur créé avec succès : ', $user->toArray());
         return response()->json($user, 201);
     }
-
-
 
     // Affiche un utilisateur spécifique
     public function show($id)
@@ -65,36 +69,47 @@ class UserController extends Controller
             'photo_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Gestion de la photo de profil
         if ($request->hasFile('photo_profil')) {
             // Supprimer l'ancienne image si elle existe
-            if ($user->photo_profil && Storage::exists('public/' . $user->photo_profil)) {
-                Storage::delete('public/' . $user->photo_profil);
+            if ($user->photo_profil && file_exists(public_path($user->photo_profil))) {
+                unlink(public_path($user->photo_profil));
             }
 
-            $validated['photo_profil'] = $request->file('photo_profil')->store('profiles', 'public');
+            $image = $request->file('photo_profil');
+            $filename = 'profile_photos/' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/profile_photos'), $filename);
+
+            // Sauvegarde du chemin relatif dans la base
+            $validated['photo_profil'] = 'storage/' . $filename;
         }
 
+        // Mise à jour du mot de passe
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($validated['password']);
         }
 
         $user->update($validated);
 
+        Log::info('Utilisateur mis à jour avec succès : ', $user->toArray());
         return response()->json($user);
     }
-
 
     // Supprime un utilisateur
     public function destroy($id)
     {
         $user = User::findOrFail($id);
 
-        if ($user->photo_profil && Storage::exists('public/' . $user->photo_profil)) {
-            Storage::delete('public/' . $user->photo_profil);
+        // Supprimer la photo de profil associée si elle existe
+        if ($user->photo_profil && file_exists(public_path($user->photo_profil))) {
+            unlink(public_path($user->photo_profil));
         }
 
         $user->delete();
 
+        Log::info('Utilisateur supprimé avec succès : ', ['id' => $id]);
         return response()->json(['message' => 'Utilisateur supprimé avec succès']);
     }
 }

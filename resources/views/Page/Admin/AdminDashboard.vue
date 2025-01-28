@@ -32,7 +32,7 @@ export default {
                 data.forEach((sortie) => {
                     const personneId = sortie.personne.id; 
                     const personneNom = sortie.personne.nom; 
-                    const personnePhoto = sortie.personne.image_url ? `${import.meta.env.VITE_APP_URL}/storage/${sortie.personne.image_url}` : "";
+                    const personnePhoto = sortie.personne.image_url ? `${import.meta.env.VITE_APP_URL}/${sortie.personne.image_url}` : "";
 
                     // Si la personne n'existe pas encore dans l'objet, on l'ajoute
                     if (!sortiesParPersonne[personneId]) {

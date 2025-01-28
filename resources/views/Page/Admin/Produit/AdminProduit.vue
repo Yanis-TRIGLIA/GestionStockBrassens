@@ -41,7 +41,7 @@
                     <td class="border border-gray-300 px-4 py-2">{{ produit.nom }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ produit.quantité }}</td>
                     <td class="border border-gray-300 px-4 py-2">
-                        <img v-if="produit.image_url" :src="`${baseUrl}/storage/${produit.image_url}`"
+                        <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`"
                             alt="Image" class="w-16 h-16 object-cover rounded">
                     </td>
                     <td class="border border-gray-300 px-4 py-2">

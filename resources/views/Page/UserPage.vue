@@ -14,7 +14,7 @@
             <div class="flex justify-center">
               <img
                 v-if="user.photo_profil"
-                :src="`${baseUrl}/storage/${user.photo_profil}`"
+                :src="`${baseUrl}/${user.photo_profil}`"
                 alt="Photo de Profil"
                 class="w-32 h-32 rounded-full object-cover"
               />

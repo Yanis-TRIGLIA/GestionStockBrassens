@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Categories;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class CategoriesController
 {
-
     // Liste toutes les categories
     public function index()
     {
@@ -25,15 +24,23 @@ class CategoriesController
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories/images', 'public');
+            $image = $request->file('image');
+            $filename = 'categories/images/' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/categories/images'), $filename);
+
+            // Sauvegarde du chemin dans la base
+            $validated['image'] = 'storage/' . $filename;
         }
 
         $categorie = Categories::create($validated);
 
+        Log::info('Catégorie créée avec succès : ', $categorie->toArray());
         return response()->json($categorie, 201);
     }
 
-    // Mise à jour d'un categorie
+    // Mise à jour d'une catégorie
     public function update(Request $request, $id)
     {
         $categorie = Categories::findOrFail($id);
@@ -46,42 +53,46 @@ class CategoriesController
         // Gestion de l'image
         if ($request->hasFile('image')) {
             // Supprimer l'ancienne image si elle existe
-            if ($categorie->image_url) {
-                Storage::disk('public')->delete($categorie->image_url);
+            if ($categorie->image && file_exists(public_path($categorie->image))) {
+                unlink(public_path($categorie->image));
             }
 
-            // Stocker la nouvelle image
-            $validated['image'] = $request->file('image')->store('categories/images', 'public');
-        }
+            $image = $request->file('image');
+            $filename = 'categories/images/' . uniqid() . '.' . $image->getClientOriginalExtension();
 
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/categories/images'), $filename);
+
+            // Sauvegarde du nouveau chemin
+            $validated['image'] = 'storage/' . $filename;
+        }
 
         $categorie->update($validated);
 
-
+        Log::info('Catégorie mise à jour avec succès : ', $categorie->toArray());
         return response()->json($categorie);
     }
 
-
-    // Affiche une categorie spécifique
+    // Affiche une catégorie spécifique
     public function show($id)
     {
         $categorie = Categories::findOrFail($id);
         return response()->json($categorie);
     }
 
-    // Supprime une categorie spécifique
+    // Supprime une catégorie spécifique
     public function destroy($id)
     {
         $categorie = Categories::findOrFail($id);
 
         // Supprimer l'image associée si elle existe
-        if ($categorie->image_url) {
-            Storage::disk('public')->delete($categorie->image_url);
+        if ($categorie->image && file_exists(public_path($categorie->image))) {
+            unlink(public_path($categorie->image));
         }
 
         $categorie->delete();
 
-        return response()->json(['message' => 'Categories supprimée avec succès']);
+        Log::info('Catégorie supprimée avec succès : ', ['id' => $id]);
+        return response()->json(['message' => 'Catégorie supprimée avec succès']);
     }
-
 }

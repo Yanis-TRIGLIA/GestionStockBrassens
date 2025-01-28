@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Zone;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ZoneController extends Controller
 {
@@ -26,11 +26,19 @@ class ZoneController extends Controller
 
         // Gestion de l'upload de l'image
         if ($request->hasFile('image')) {
-            $validated['image_url'] = $request->file('image')->store('zones/images', 'public');
+            $image = $request->file('image');
+            $filename = 'zones/images/' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/zones/images'), $filename);
+
+            // Sauvegarde du chemin dans la base
+            $validated['image_url'] = 'storage/' . $filename;
         }
 
         $zone = Zone::create($validated);
 
+        Log::info('Zone créée avec succès : ', $zone->toArray());
         return response()->json($zone, 201);
     }
 
@@ -47,16 +55,23 @@ class ZoneController extends Controller
         // Gestion de l'upload de l'image
         if ($request->hasFile('image')) {
             // Supprimer l'ancienne image si elle existe
-            if ($zone->image_url) {
-                Storage::disk('public')->delete($zone->image_url);
+            if ($zone->image_url && file_exists(public_path($zone->image_url))) {
+                unlink(public_path($zone->image_url));
             }
 
-            // Stocker la nouvelle image
-            $validated['image_url'] = $request->file('image')->store('zones/images', 'public');
+            $image = $request->file('image');
+            $filename = 'zones/images/' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/zones/images'), $filename);
+
+            // Sauvegarde du chemin dans la base
+            $validated['image_url'] = 'storage/' . $filename;
         }
 
         $zone->update($validated);
 
+        Log::info('Zone mise à jour avec succès : ', $zone->toArray());
         return response()->json($zone);
     }
 
@@ -73,12 +88,13 @@ class ZoneController extends Controller
         $zone = Zone::findOrFail($id);
 
         // Supprimer l'image associée si elle existe
-        if ($zone->image_url) {
-            Storage::disk('public')->delete($zone->image_url);
+        if ($zone->image_url && file_exists(public_path($zone->image_url))) {
+            unlink(public_path($zone->image_url));
         }
 
         $zone->delete();
 
+        Log::info('Zone supprimée avec succès : ', ['id' => $id]);
         return response()->json(['message' => 'Zone supprimée avec succès']);
     }
 }

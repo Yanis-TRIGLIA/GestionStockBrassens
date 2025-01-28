@@ -24,109 +24,123 @@ class ProduitController extends Controller
     }
 
     // Crée un nouveau produit
-    public function store(Request $request)
-    {
-        try {
-            // Validation des données
-            $validated = $request->validate([
-                'nom' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'quantité' => 'required|integer',
-                'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
-                'fiches_techniques.*' => 'nullable|file|mimes:pdf|max:5120',
-                'categories' => 'required|array',
-                'categories.*' => 'exists:categories,id',
-            ]);
+    // Crée un nouveau produit
+public function store(Request $request)
+{
+    // Log des données reçues
+    Log::info('Données reçues : ', $request->all());
 
-            Log::info('Validation réussie', $validated);
+    try {
+        // Validation des données
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'quantité' => 'required|integer',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+            'fiches_techniques.*' => 'nullable|file|mimes:pdf|max:5120',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+        ]);
 
-            if ($request->hasFile('image')) {
-                $validated['image_url'] = $request->file('image')->store('images', 'public');
-                Log::info('Image ajoutée : ' . $validated['image_url']);
-            }
+        // Gestion des fichiers
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = 'images/' . uniqid() . '.' . $image->getClientOriginalExtension();
 
-            $fichesTechniquesPaths = [];
-            if ($request->hasFile('fiches_techniques')) {
-                foreach ($request->file('fiches_techniques') as $file) {
-                    $path = $file->store('files', 'public');
-                    $fichesTechniquesPaths[] = $path;
-                    Log::info('Fiche technique ajoutée : ' . $path);
-                }
-            }
+            // Copie manuelle dans public/storage
+            $image->move(public_path('storage/images'), $filename);
 
-            // Création du produit
-            $produit = Produit::create([
-                'nom' => $validated['nom'],
-                'description' => $validated['description'] ?? null,
-                'quantité' => $validated['quantité'],
-                'image_url' => $validated['image_url'] ?? null,
-                'file_product' => json_encode($fichesTechniquesPaths),
-            ]);
-
-            Log::info('Produit créé avec succès : ', $produit->toArray());
-
-            // Association des catégories
-            $produit->categories()->sync($validated['categories']);
-            Log::info('Catégories associées : ', $validated['categories']);
-
-            return response()->json($produit->load('categories'), 201);
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la création du produit : ' . $e->getMessage());
-            return response()->json(['error' => 'Une erreur est survenue lors de la création du produit.'], 500);
+            // Sauvegarde du chemin dans la base
+            $validated['image_url'] = 'storage/' . $filename;
         }
+
+        $fichesTechniquesPaths = [];
+        if ($request->hasFile('fiches_techniques')) {
+            foreach ($request->file('fiches_techniques') as $file) {
+                $filename = 'files/' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                // Copie manuelle dans public/storage
+                $file->move(public_path('storage/files'), $filename);
+
+                $fichesTechniquesPaths[] = 'storage/' . $filename;
+            }
+        }
+
+        // Création du produit
+        $produit = Produit::create([
+            'nom' => $validated['nom'],
+            'description' => $validated['description'] ?? null,
+            'quantité' => $validated['quantité'],
+            'image_url' => $validated['image_url'] ?? null,
+            'file_product' => json_encode($fichesTechniquesPaths),
+        ]);
+
+        Log::info('Produit créé avec succès : ', $produit->toArray());
+
+        // Association des catégories
+        $produit->categories()->sync($validated['categories']);
+        Log::info('Catégories associées : ', $validated['categories']);
+
+        return response()->json($produit->load('categories'), 201);
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de la création du produit : ' . $e->getMessage());
+        return response()->json(['error' => 'Une erreur est survenue lors de la création du produit.'], 500);
     }
+}
+
 
 
     // Met à jour un produit existant
     // Met à jour un produit existant
     public function update(Request $request, $id)
-    {
-        $produit = Produit::findOrFail($id);
+{
+    $produit = Produit::findOrFail($id);
 
-        $validated = $request->validate([
-            'nom' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'quantité' => 'sometimes|integer',
-            'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
-            'file_product' => 'nullable|file|mimes:pdf|max:5120',
-            'fiches_techniques' => 'nullable|array', 
-            'fiches_techniques.*' => 'file|mimes:pdf|max:5120',
-            'categories' => 'required|array',
-            'categories.*' => 'exists:categories,id',
-        ]);
+    $validated = $request->validate([
+        'nom' => 'sometimes|string|max:255',
+        'description' => 'nullable|string',
+        'quantité' => 'sometimes|integer',
+        'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+        'file_product' => 'nullable|file|mimes:pdf|max:5120',
+        'fiches_techniques' => 'nullable|array',
+        'fiches_techniques.*' => 'file|mimes:pdf|max:5120',
+        'categories' => 'required|array',
+        'categories.*' => 'exists:categories,id',
+    ]);
 
-        // Mise à jour des fichiers
-        if ($request->hasFile('image')) {
-            if ($produit->image_url) {
-                Storage::disk('public')->delete($produit->image_url);
-            }
-            $validated['image_url'] = $request->file('image')->store('images', 'public');
+    // Mise à jour des fichiers
+    if ($request->hasFile('image')) {
+        // Supprimer l'image précédente
+        if ($produit->image_url && file_exists(public_path($produit->image_url))) {
+            unlink(public_path($produit->image_url));
         }
 
-        if ($request->hasFile('file_product')) {
-            if ($produit->file_product) {
-                Storage::disk('public')->delete($produit->file_product);
-            }
-            $validated['file_product'] = $request->file('file_product')->store('files', 'public');
-        }
+        $image = $request->file('image');
+        $filename = 'images/' . uniqid() . '.' . $image->getClientOriginalExtension();
 
-        // Mise à jour des fiches techniques
-        if ($request->hasFile('fiches_techniques')) {
-            $fichesTechniquesPaths = [];
-            foreach ($request->file('fiches_techniques') as $file) {
-                $path = $file->store('files', 'public');
-                $fichesTechniquesPaths[] = $path;
-            }
-            $validated['file_product'] = json_encode($fichesTechniquesPaths); 
-        }
-
-        $produit->update($validated);
-
-        $produit->categories()->sync($validated['categories']);
-
-        Log::info('Produit mis à jour avec succès : ', $produit->toArray());
-        return response()->json($produit->load('categories'));
+        // Copie dans public/storage
+        $image->move(public_path('storage/images'), $filename);
+        $validated['image_url'] = 'storage/' . $filename;
     }
+
+    if ($request->hasFile('fiches_techniques')) {
+        $fichesTechniquesPaths = [];
+        foreach ($request->file('fiches_techniques') as $file) {
+            $filename = 'files/' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Copie manuelle
+            $file->move(public_path('storage/files'), $filename);
+            $fichesTechniquesPaths[] = 'storage/' . $filename;
+        }
+        $validated['file_product'] = json_encode($fichesTechniquesPaths);
+    }
+
+    $produit->update($validated);
+    $produit->categories()->sync($validated['categories']);
+
+    Log::info('Produit mis à jour avec succès : ', $produit->toArray());
+    return response()->json($produit->load('categories'));
+}
 
 
     // Supprime un produit spécifique

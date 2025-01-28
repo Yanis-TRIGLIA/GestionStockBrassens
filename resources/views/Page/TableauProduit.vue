@@ -66,7 +66,7 @@
                         <td class="px-6 py-4 border-b">
                             <img
                                 v-if="produit.image_url"
-                                :src="`${baseUrl}/storage/${produit.image_url}`"
+                                :src="`${baseUrl}/${produit.image_url}`"
                                 alt="Image du produit"
                                 class="w-24 h-24 object-cover rounded-lg mx-auto"
                             />
