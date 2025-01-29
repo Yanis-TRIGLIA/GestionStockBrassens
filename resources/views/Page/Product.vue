@@ -6,6 +6,8 @@ export default {
     name: "Product",
     components: { PopupExit },
     urlParts: window.location.pathname.split("/"),
+    quantite: 1,
+    addedToCart: false,
     data() {
         return {
             produit: [],
@@ -14,6 +16,9 @@ export default {
             id_produit: null,
             tokenExists: false,
             fileProduct: [],
+            quantity: 1,  // Variable pour la quantité
+            addedToCart: false,
+            panier_verif: [],
         };
     },
     mounted() {
@@ -29,16 +34,81 @@ export default {
             .catch((error) => {
                 console.error("Erreur lors de la récupération des produits:", error);
             });
+        this.loadPanier();
     },
     methods: {
         openPopup() {
             this.showPopup = true;
         },
+
+        ajouterAuPanier() {
+            this.addToCart(); // Appel de la méthode d'ajout au panier
+
+            this.addedToCart = true; // Affiche le message de confirmation
+            setTimeout(() => {
+                this.addedToCart = false; // Cache le message après 3 secondes
+            }, 3000);
+            //on reload la page
+            window.location.reload();
+        },
+
+        loadPanier() {
+            const token = localStorage.getItem("auth_token");
+            if (!token) return;
+
+            axios.get("/api/panier", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                }
+            })
+                .then(response => {
+
+                    this.panier_verif = response.data.id;
+
+                })
+                .catch(error => {
+                    console.error("Erreur chargement panier:", error);
+                });
+
+
+        },
+
         closePopup() {
             this.showPopup = false;
+        },
+
+        async addToCart() {
+            try {
+                const token = localStorage.getItem("auth_token");
+
+                if (!token) {
+                    console.error("Aucun token trouvé, l'utilisateur n'est pas authentifié.");
+                    return;
+                }
+
+                await axios.post("/api/panier/ajouter",
+                    {
+                        produit_id: this.id_produit,
+                        quantite: this.quantity,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: "application/json"
+                        },
+                        withCredentials: true
+                    }
+                );
+
+            } catch (error) {
+                console.error("Erreur ajout au panier:", error);
+            }
         }
     }
+
 }
+
 </script>
 
 <template>
@@ -52,7 +122,6 @@ export default {
                 <div class="w-full md:w-1/2 px-4 mb-8">
                     <img :src="`${baseUrl}/${produit.image_url}`" alt="Product"
                         class="w-full h-auto rounded-lg shadow-md mb-4" id="mainImage">
-
                 </div>
 
                 <!-- Product Details -->
@@ -61,6 +130,27 @@ export default {
                     <p class="text-gray-600 mb-4 font-semibold">⚖️ Quantité : {{ produit.quantité }}</p>
                     <p class="text-gray-700 mb-6"><span class="font-medium">📃 Description :</span> {{
                         produit.description }}</p>
+
+                    <!-- Section Ajouter au Panier -->
+                    <h3 class="font-bold">🛒 Panier</h3>
+                    <div class="mb-6 mt-2" v-if="panier_verif">
+                        <span class="text-green-500 font-bold mb-9 mx-2  ">✅ Déjà dans le panier</span>
+                    </div>
+                    <div v-if="!panier_verif" class="flex items-center mb-6 bg-white p-4 rounded-lg shadow-md w-80">
+                        <label for="quantity" class="text-lg font-semibold mr-4">📦 Quantité :</label>
+                        <input type="number" v-model="quantity" :max="produit.quantité" min="1"
+                            class="w-20 p-2 border rounded-md text-center" id="quantity" />
+
+                        <button @click="ajouterAuPanier()"
+                            class="ml-4 bg-green-400 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            🛒
+                        </button>
+                    </div>
+
+                    <!-- Message de confirmation -->
+                    <div v-if="addedToCart == true" class="mt-4 text-green-600 font-semibold mb-8">
+                        ✅ Le produit {{ produit.nom }} a été ajouté au panier !
+                    </div>
 
                     <div class="flex space-x-4 mb-6">
                         <button v-if="tokenExists" @click="openPopup"
@@ -73,15 +163,14 @@ export default {
                             </svg>
                             Effectuer une sortie
                         </button>
-
                     </div>
+
                     <div class="mt-2 columns-2 ">
-                        <router-link v-for="(file, index) in fileProduct" :key="index" :to="`/${file}`"
-                            target="_blank">
+                        <router-link v-for="(file, index) in fileProduct" :key="index" :to="`/${file}`" target="_blank">
                             <button
                                 class="bg-blue-700 mb-2 flex gap-2 items-center text-white px-6 py-2 rounded-md focus:outline-none focus:ring-2 hover:bg-indigo-700 focus:ring-gray-500 focus:ring-offset-2">
                                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACIklEQVR4nO3Xz0sUYRzH8flX/EWidkihgymeBDt4dbRskTLBxENkIBGUEGR2i4oQC0IXL+IhCnQR0VsImh6ENsNCyeUxYoksf637jseHddLFIvN5dh96PjDM7GHh+5r5PvN9xvNcXPQGPxctR11Ot7WAZOsZcwg0ALbfzpK8UmEGoQUgYuYQ6AKYQqATIAwgtAOEZoQRgNCIMAYQmhBGAUIDwjhA7EdkJeBvDs8BfPcEsK+F7oRgZRF+rEG420LAlxh7Se5Aa7lFgEulQfHzr9W557JFgPMnYCehCl9+ZyHAz4UP80H7yHTWWgYI3wvaKJGAULFlgOYy2NpQgPdzRy6ejE7imXEFiE5DfZ5lgIYCiK8GbdR308JBJrO9tXvaHWjtVRYBJoZU4cMPYSqirmMfoeW0BYDmMtj4rmZBWyVcPAXLCwqx8EY9nWe3YeQ5jA1CJAyPrsG5giwBDD1QxcpFLH931EBkgD9mcjgLAE0n4VtcFRSdAbG0v8jUmkhlZRGWoup6cz3DALmFeNmXfmdl+7zoha4GaCxUQ04u6oOZncwQoD4fem/A509BMbJA2d+HbSHkhu9xB7x6CqP96v+hkgwArlarhflr5OSVrXSUt5dvEnCrDta+pvf49bPHVjzaAHLSplomLoJd5+D9Yy0ebYALRelvFDm8/mHPg/EWetKp7r78fOy/e+ggyl6Ab+bwHMB3TwDXQv91C7m4eL/NT9rWaYTkzttuAAAAAElFTkSuQmCC"
-                                    alt="pdf">Visualiser la fiche technique {{ index + 1 }}
+                                    alt="pdf">Fiche Technique {{ index + 1 }}
                             </button>
                         </router-link>
                     </div>
@@ -99,3 +188,16 @@ export default {
         </div>
     </div>
 </template>
+
+
+
+<style scoped>
+/* Personnalisation de la section ajouter au panier */
+.bg-white {
+    background-color: #ffffff;
+}
+
+button:hover {
+    background-color: #4c6ef5;
+}
+</style>

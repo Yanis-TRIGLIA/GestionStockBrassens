@@ -7,7 +7,6 @@
             <input v-model="rechercheNom" type="text" placeholder="Rechercher par nom"
                 class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
-            <!-- Tri par catégorie -->
             <select v-model="triCategorie"
                 class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Trier par catégorie</option>
@@ -16,7 +15,6 @@
                 </option>
             </select>
 
-            <!-- Tri par quantité -->
             <select v-model="triQuantite"
                 class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Trier par quantité</option>
@@ -25,163 +23,247 @@
             </select>
         </div>
 
-        <!-- Affichage des produits sous forme de lignes -->
-        <table class="w-full table-auto border-collapse border border-gray-300 shadow-md rounded-lg">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="border border-gray-300 px-6 py-4 text-left">Image</th>
-                    <th class="border border-gray-300 px-6 py-4 text-left">Nom</th>
-                    <th class="border border-gray-300 px-6 py-4 text-left">Quantité</th>
-                    <th class="border border-gray-300 px-6 py-4 text-left">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="produit in produitsFiltres" :key="produit.id" class="hover:bg-gray-50">
-                    <td class="border border-gray-300 px-6 py-4">
-                        <img :src="`${baseUrl}/${produit.image_url}`" alt="Image du produit"
-                            class="w-24 h-24 object-cover rounded-lg mx-auto" />
-                    </td>
-                    <td class="border border-gray-300 px-6 py-4">{{ produit.nom }}</td>
-                    <td class="border border-gray-300 px-6 py-4">
-                        <span :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
-                            {{ produit.quantité }}
-                        </span>
-                    </td>
-                    <td class="border border-gray-300 px-6 py-4">
-                        <router-link :to="`/prod/${produit.id}`"
-                            class="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-gray-700">
-                            Voir Détails
-                        </router-link>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Tableau responsive -->
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto border-collapse border border-gray-300 shadow-md rounded-lg">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-3">Image</th>
+                        <th class="border border-gray-300 px-4 py-3">Nom</th>
+                        <th class="border border-gray-300 px-4 py-3">Quantité</th>
+                        <th v-if="user" class="border border-gray-300 px-4 py-3">🛒 Panier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="produit in produitsFiltres" :key="produit.id" class="hover:bg-gray-50 cursor-pointer"
+                        @click="$router.push(`/prod/${produit.id}`)">
 
-        <!-- Suppression de la pagination -->
-        <!--
-        <div class="flex justify-center mt-6">
-            <button v-for="page in pages" :key="page" @click="changerPage(page)"
-                class="mx-1 px-3 py-1 border rounded-md" :class="{
-                    'bg-blue-500 text-white': page === pageActuelle,
-                    'bg-gray-200': page !== pageActuelle,
-                }">
-                {{ page }}
-            </button>
+                        <td class="border border-gray-300 px-4 py-3">
+                            <img :src="`${baseUrl}/${produit.image_url}`" alt="Image du produit"
+                                class="w-20 h-20 object-cover rounded-lg mx-auto" />
+                        </td>
+                        <td class="border border-gray-300 px-4 py-3 font-semibold">{{ produit.nom }}</td>
+                        <td class="border border-gray-300 px-4 py-3">
+                            <span :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
+                                {{ produit.quantité }}
+                            </span>
+                        </td>
+                        <td v-if="user " class="border border-gray-300 px-4 py-3 text-center" @click.stop>
+                            <div class="flex items-center justify-center space-x-2">
+                                <button @click="modifierQuantite(produit, -1)"
+                                    class="bg-red-500 text-white px-2 py-1 rounded">-</button>
+                                <input type="number" v-model="panier[produit.id]" min="1"
+                                    class="w-12 text-center border border-gray-300 rounded-lg" />
+                                <button @click="modifierQuantite(produit, 1)"
+                                    class="bg-green-500 text-white px-2 py-1 rounded">+</button>
+                            </div>
+
+                            <!-- Afficher le texte si le produit est déjà dans le panier -->
+                            <div v-if="produit['id'] == panier_verif">
+                                
+                                <span class="text-green-500 font-bold">Déjà dans le panier</span>
+                            </div>
+
+                            <!-- Sinon, afficher le bouton "Ajouter au panier" -->
+                            <div v-else>
+                                <!-- On affiche l'id du produit" -->
+                                <button @click="ajouterAuPanier(produit)"
+                                    class="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                    Ajouter au panier
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        -->
     </div>
 </template>
 
-
 <script>
 import axios from "axios";
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
+
 
 export default {
     name: "Produits",
     data() {
         return {
             produits: [],
-            categories: [], // Liste des catégories
+            categories: [],
             rechercheNom: "",
             triQuantite: "",
-            triCategorie: "", // Pour le tri par catégorie
-            pageActuelle: 1,
-            produitsParPage: 10,
+            triCategorie: "",
             baseUrl: import.meta.env.VITE_APP_URL,
+            user: localStorage.getItem("auth_token"),
+            panier: {},
+            panier_verif:[],
         };
     },
+
     computed: {
         produitsFiltres() {
             let filtres = this.produits;
 
-            // Filtrage par nom
             if (this.rechercheNom) {
                 filtres = filtres.filter((produit) =>
                     produit.nom.toLowerCase().includes(this.rechercheNom.toLowerCase())
                 );
             }
 
-            // Filtrage par catégorie
             if (this.triCategorie) {
                 filtres = filtres.filter((produit) =>
                     produit.categories.some(categorie => categorie.id === parseInt(this.triCategorie))
                 );
             }
 
-            // Tri par quantité
             if (this.triQuantite === "asc") {
                 filtres.sort((a, b) => a.quantité - b.quantité);
             } else if (this.triQuantite === "desc") {
                 filtres.sort((a, b) => b.quantité - a.quantité);
             }
 
-            return filtres.slice(
-                (this.pageActuelle - 1) * this.produitsParPage,
-                this.pageActuelle * this.produitsParPage
-            );
-        },
-        pages() {
-            return Math.ceil(this.produits.length / this.produitsParPage);
-        },
+            return filtres;
+        }
     },
     methods: {
-        changerPage(page) {
-            this.pageActuelle = page;
+        modifierQuantite(produit, valeur) {
+            let nouvelleQuantite = (this.panier[produit.id] || 1) + valeur;
+            if (nouvelleQuantite < 1) nouvelleQuantite = 1;
+            this.panier[produit.id] = nouvelleQuantite;
         },
+
+        
+
+
+        loadPanier() {
+            const token = localStorage.getItem("auth_token");
+            if (!token) return;
+
+            axios.get("/api/panier", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                }
+            })
+                .then(response => {
+
+                    this.panier_verif = response.data.id;
+                
+                })
+                .catch(error => {
+                    console.error("Erreur chargement panier:", error);
+                });
+                
+
+        },
+
+        async ajouterAuPanier(produit) {
+            try {
+                const token = localStorage.getItem("auth_token");
+
+                if (!token) {
+                    console.error("Aucun token trouvé, l'utilisateur n'est pas authentifié.");
+                    return;
+                }
+
+                await axios.post("/api/panier/ajouter",
+                    {
+                        produit_id: produit.id,
+                        quantite: this.panier[produit.id] || 1
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: "application/json"
+                        },
+                        withCredentials: true
+                    }
+                );
+
+                this.showSuccessToast("Produit ajouté au panier avec succès !");
+
+            } catch (error) {
+                console.error("Erreur ajout au panier:", error);
+            }
+        },
+
+        showSuccessToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+                stopOnFocus: true
+            }).showToast();
+            //on reload
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        },
+        showErrorToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#FF0000",
+                stopOnFocus: true
+            }).showToast();
+        }
+
     },
     mounted() {
-        // Récupérer les produits et les catégories
-        axios
-            .get("/api/produits")
-            .then((response) => {
-                this.produits = response.data;
-            })
-            .catch((error) => {
-                console.error("Erreur lors de la récupération des produits:", error);
-            });
+        axios.get("/api/produits")
+            .then((response) => { this.produits = response.data; })
+            .catch((error) => { console.error("Erreur produits:", error); });
 
-        axios
-            .get("/api/categorie")
-            .then((response) => {
-                this.categories = response.data;
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.error("Erreur lors de la récupération des catégories:", error);
-            });
-    },
+        axios.get("/api/categorie")
+            .then((response) => { this.categories = response.data; })
+            .catch((error) => { console.error("Erreur catégories:", error); });
+
+        this.loadPanier();
+
+    }
 };
 </script>
 
-
-
-
 <style scoped>
-/* Amélioration de la table */
-table th, table td {
-    text-align: left;
-    padding: 12px;
-    font-size: 16px;
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-table th {
+th,
+td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
     background-color: #f9fafb;
     font-weight: bold;
 }
 
-table tr:nth-child(even) {
-    background-color: #f3f4f6;
-}
-
-table tr:hover {
+tr:hover {
     background-color: #e0e7ff;
 }
 
-/* Image du produit */
-img {
-    transition: transform 0.2s ease-in-out;
-}
-img:hover {
-    transform: scale(1.1);
+/* Responsive */
+@media (max-width: 768px) {
+    table {
+        font-size: 14px;
+    }
+
+    img {
+        width: 50px;
+        height: 50px;
+    }
 }
 </style>

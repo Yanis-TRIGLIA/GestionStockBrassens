@@ -40,6 +40,8 @@ public function store(Request $request)
             'fiches_techniques.*' => 'nullable|file|mimes:pdf|max:5120',
             'categories' => 'required|array',
             'categories.*' => 'exists:categories,id',
+            'prix' => 'nullable|numeric',
+            'reference' => 'nullable|string|unique:produits,reference',
         ]);
 
         // Gestion des fichiers
@@ -73,6 +75,9 @@ public function store(Request $request)
             'quantité' => $validated['quantité'],
             'image_url' => $validated['image_url'] ?? null,
             'file_product' => json_encode($fichesTechniquesPaths),
+            'prix' => $validated['prix']?? null,
+            'reference' => $validated['reference']?? null,
+
         ]);
 
         Log::info('Produit créé avec succès : ', $produit->toArray());
@@ -106,6 +111,8 @@ public function store(Request $request)
         'fiches_techniques.*' => 'file|mimes:pdf|max:5120',
         'categories' => 'required|array',
         'categories.*' => 'exists:categories,id',
+        'prix' => 'nullable|numeric',
+        'reference' => 'nullable|string|unique:produits,reference,'. $id,
     ]);
 
     // Mise à jour des fichiers

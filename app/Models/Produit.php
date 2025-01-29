@@ -15,6 +15,8 @@ class Produit extends Model
         'quantité',
         'image_url',
         'file_product',
+        'prix',      
+        'reference'   
     ];
 
     // Dans le modèle Produit
@@ -23,5 +25,10 @@ class Produit extends Model
         return $this->belongsToMany(Categories::class, 'categorie_produit', 'produit_id', 'categorie_id');
     }
 
-
+    public function paniers()
+    {
+        return $this->belongsToMany(Panier::class, 'panier_produit')
+            ->withPivot('quantite')
+            ->withTimestamps();
+    }
 }

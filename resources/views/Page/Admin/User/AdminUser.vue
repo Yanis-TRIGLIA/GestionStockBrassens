@@ -1,41 +1,34 @@
 <template>
     <div>
         <h2 class="text-2xl font-bold mb-4">🧑 Liste des utilisateurs</h2>
-        <button
-            @click="$router.push('/admin/utilisateur/create')"
-            class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
+        <button @click="$router.push('/admin/utilisateur/create')"
+            class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             Créer un utilisateur
         </button>
 
         <table class="min-w-full border-collapse border border-gray-300">
             <thead>
-            <tr>
-                <th class="border border-gray-300 px-4 py-2">Nom</th>
-                <th class="border border-gray-300 px-4 py-2">Email</th>
-                <th class="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2">Nom</th>
+                    <th class="border border-gray-300 px-4 py-2">Email</th>
+                    <th class="border border-gray-300 px-4 py-2">Actions</th>
+                </tr>
             </thead>
             <tbody>
-            <tr v-for="user in users" :key="user.id">
-                <td class="border border-gray-300 px-4 py-2">{{ user.name }}</td>
-                <td class="border border-gray-300 px-4 py-2">{{ user.email }}</td>
-                <td class="border border-gray-300 px-4 py-2 flex space-x-4">
-                    <button
-                        @click="$router.push(`/admin/utilisateur/edit/${user.id}`)"
-                        class="text-blue-600 hover:underline"
-                    >
-                        Modifier
-                    </button>
-                    <button
-                        @click="supprimerUser(user.id)"
-                        v-if="!user.is_admin"
-                        class="text-red-600 hover:underline"
-                    >
-                        Supprimer
-                    </button>
-                </td>
-            </tr>
+                <tr v-for="user in users" :key="user.id">
+                    <td class="border border-gray-300 px-4 py-2">{{ user.name }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ user.email }}</td>
+                    <td class="border border-gray-300 px-4 py-2 flex space-x-4">
+                        <button @click="$router.push(`/admin/utilisateur/edit/${user.id}`)"
+                            class="text-blue-600 hover:underline">
+                            Modifier
+                        </button>
+                        <button @click="supprimerUser(user.id)" v-if="!user.is_admin"
+                            class="text-red-600 hover:underline">
+                            Supprimer
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
 
@@ -109,7 +102,9 @@ export default {
         supprimerUser(id) {
             if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
                 axios
-                    .delete(`/api/users/${id}`)
+                    .post(`/api/users/${id}/delete`, {}, {
+                        _method: 'DELETE'
+                    })
                     .then(() => {
                         this.showSuccessToast("Utilisateur supprimé avec succès !");
                         this.fetchUsers();

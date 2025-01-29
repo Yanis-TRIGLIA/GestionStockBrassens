@@ -6,6 +6,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\PanierController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -40,7 +41,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/produits', [ProduitController::class, 'store']);
     Route::post('/produits/{id}', [ProduitController::class, 'update']);
-    Route::delete('/produits/{id}', [ProduitController::class, 'destroy']);
+    Route::post('/produits/{id}/delete', [ProduitController::class, 'destroy']);
 });
 Route::get('/produits', [ProduitController::class, 'index']);
 Route::get('/produits/{id}', [ProduitController::class, 'show']);
@@ -50,7 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/zones', [ZoneController::class, 'store']);
     Route::get('/zones/{id}', [ZoneController::class, 'show']);
     Route::post('/zones/{id}', [ZoneController::class, 'update']);
-    Route::delete('/zones/{id}', [ZoneController::class, 'destroy']);
+    Route::post('/zones/{id}/delete', [ZoneController::class, 'destroy']);
 });
 Route::get('/categorie', [CategoriesController::class, 'index']);
 
@@ -58,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/categorie', [CategoriesController::class, 'store']);
     Route::get('/categorie/{id}', [CategoriesController::class, 'show']);
     Route::post('/categorie/{id}', [CategoriesController::class, 'update']);
-    Route::delete('/categorie/{id}', [CategoriesController::class, 'destroy']);
+    Route::post('/categorie/{id}/delete', [CategoriesController::class, 'destroy']);
 });
 
 Route::get('/sorties', function () {
@@ -68,7 +69,7 @@ Route::get('/sorties', function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/produits/{id}/retirer-stock', [StockController::class, 'retirerStock']); // Retirer du stock
-    Route::delete('/cancel_sortie/{id}', [StockController::class, 'supprimerSortie']); // Supprimer sortie
+    Route::post('/cancel_sortie/{id}/delete', [StockController::class, 'supprimerSortie']); // Supprimer sortie
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -76,7 +77,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::post('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+    Route::post('/users/{id}/delete', [UserController::class, 'destroy']);
 });
 
 Route::get('/admin/stats', [AdminController::class, 'stats']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/panier', [PanierController::class, 'show']); // Voir le panier
+    Route::post('/panier/ajouter', [PanierController::class, 'addProduct']); // Ajouter un produit
+    Route::post('/panier/supprimer/{produitId}', [PanierController::class, 'removeProduct']);
+    Route::put('/panier/update/{produitId}', [PanierController::class, 'updateProductQuantity']);
+    Route::post('/panier/vider', [PanierController::class, 'clear']); // Vider le panier
+});

@@ -68,8 +68,7 @@
                         class="even:bg-gray-100 hover:bg-gray-50">
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit.nom }}</td>
                         <td class="px-6 py-4 border-b">
-                            <img v-if="sortie.produit.image_url"
-                                :src="`${baseUrl}/${sortie.produit.image_url}`"
+                            <img v-if="sortie.produit.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
                                 alt="Image du produit" class="w-16 h-16 object-cover rounded" />
                         </td>
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.quantité }}</td>
@@ -91,8 +90,9 @@
                         <!-- Observation -->
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.observation || 'Aucune' }}</td>
 
-                        <td><a @click="confirmDelete(sortie)" class="cursor-pointer"><svg class="w-full text-center " xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-                                    width="50" height="50" viewBox="0 0 100 100">
+                        <td><a @click="confirmDelete(sortie)" class="cursor-pointer"><svg class="w-full text-center "
+                                    xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50"
+                                    viewBox="0 0 100 100">
                                     <path fill="#8b8bc1"
                                         d="M77,32L77,32H23h-5v5l5,5v33.308C23,82.288,28.295,86,34.766,86h30.269	C71.616,86,77,82.288,77,75.308V41.917L82,37v-5H77z">
                                     </path>
@@ -175,7 +175,7 @@ export default {
         const sortColumn = ref("");
         const sortOrder = ref("asc");
 
-        
+
         const sortieToDelete = ref(null);
 
         const columns = [
@@ -215,13 +215,15 @@ export default {
         const confirmDelete = (sortie) => {
             sortieToDelete.value = sortie;
             showDeletePopup.value = true;
-            console.log( showDeletePopup.value)
+            console.log(showDeletePopup.value)
         };
 
         const deleteSortie = () => {
             if (sortieToDelete.value) {
                 axios
-                    .delete(`/api/cancel_sortie/${sortieToDelete.value.id}`)
+                    .post(`/api/cancel_sortie/${sortieToDelete.value.id}/delete`, {}, {
+                        _method: 'DELETE'
+                    })
                     .then(() => {
                         sorties.value = sorties.value.filter(
                             (s) => s.id !== sortieToDelete.value.id
@@ -293,8 +295,8 @@ export default {
                 sortie.quantité,
                 new Date(sortie.updated_at).toLocaleString(),
                 sortie.number_after_reduce,
-                sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun',  
-                sortie.zone.type === 'personne' ? sortie.zone.nom : 'Aucun',  
+                sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun',
+                sortie.zone.type === 'personne' ? sortie.zone.nom : 'Aucun',
                 sortie.observation || 'Aucune'  // Observation
             ]);
 

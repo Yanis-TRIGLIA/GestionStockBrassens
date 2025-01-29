@@ -35,6 +35,8 @@ import AdminCategories from '../views/Page/Admin/Categories/AdminCategories.vue'
 import EditCategorie from '../views/Page/Admin/Categories/EditCategorie.vue';
 import CreateCategorie from '../views/Page/Admin/Categories/CreateCategorie.vue';
 
+import Cart from '../views/Page/Cart.vue';
+
 
 import UserPage from '../views/Page/UserPage.vue';
 
@@ -62,6 +64,11 @@ const routes = [
     {
         path: '/page_compte',
         component: UserPage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/panier',
+        component: Cart,
         meta: { requiresAuth: true },
     },
     {

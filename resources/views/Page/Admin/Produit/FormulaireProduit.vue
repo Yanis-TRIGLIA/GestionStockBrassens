@@ -14,6 +14,20 @@
                 placeholder="Description du produit"></textarea>
         </div>
 
+        <!-- Prix -->
+         <div class="mb-4">
+            <label for="prix" class="block text-gray-700">Prix</label>
+            <input v-model.number="formData.prix" type="number" id="prix" class="border rounded w-full py-2 px-3"
+                placeholder="Prix" />
+        </div>
+
+        <!-- Reference-->
+         <div class="mb-4">
+            <label for="reference" class="block text-gray-700">Référence</label>
+            <input v-model="formData.reference" type="text" id="reference" class="border rounded w-full py-2 px-3"
+                placeholder="Référence" />
+        </div>
+
         <!-- Quantité -->
         <div class="mb-4">
             <label for="quantité" class="block text-gray-700">Quantité</label>
@@ -120,6 +134,8 @@ export default {
             formData: {
                 nom: "",
                 description: "",
+                prix: null,
+                reference: "",
                 quantité: null,
                 image: null,
                 file_product: null,
@@ -211,6 +227,8 @@ export default {
             const formData = new FormData();
             formData.append("nom", this.formData.nom);
             formData.append("description", this.formData.description || ""); // Gestion du champ nullable
+            formData.append("prix", parseFloat(this.formData.prix)); // Conversion en nombre flottant
+            formData.append("reference", this.formData.reference); // Gestion du champ nullable
             formData.append("quantité", parseInt(this.formData.quantité, 10)); // Conversion en entier
 
             if (this.formData.fiches_techniques) {
