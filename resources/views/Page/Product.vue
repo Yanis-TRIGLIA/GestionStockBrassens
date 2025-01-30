@@ -12,6 +12,7 @@ export default {
         return {
             produit: [],
             baseUrl: import.meta.env.VITE_APP_URL,
+            url_pdf: import.meta.env.VITE_APP_URL_PDF,
             showPopup: false,
             id_produit: null,
             tokenExists: false,
@@ -52,6 +53,7 @@ export default {
             window.location.reload();
         },
 
+        
         loadPanier() {
             const token = localStorage.getItem("auth_token");
             if (!token) return;
@@ -63,14 +65,13 @@ export default {
                 }
             })
                 .then(response => {
-
-                    this.panier_verif = response.data.id;
-
+                    this.panier_verif = response.data.produits.map(produit => produit.id);
+                
                 })
                 .catch(error => {
                     console.error("Erreur chargement panier:", error);
                 });
-
+                
 
         },
 
@@ -128,15 +129,17 @@ export default {
                 <div class="w-full md:w-1/2 px-4">
                     <h2 class="text-3xl font-bold mb-2">{{ produit.nom }}</h2>
                     <p class="text-gray-600 mb-4 font-semibold">⚖️ Quantité : {{ produit.quantité }}</p>
+                    <p class="text-gray-700 mb-6"><span class="font-medium">🎫  Référence :</span> {{
+                        produit.reference }}</p>
                     <p class="text-gray-700 mb-6"><span class="font-medium">📃 Description :</span> {{
                         produit.description }}</p>
 
                     <!-- Section Ajouter au Panier -->
-                    <h3 class="font-bold">🛒 Panier</h3>
-                    <div class="mb-6 mt-2" v-if="panier_verif">
+                    <h3 v-if="panier_verif && !panier_verif.includes(produit.id)" class="font-bold" >🛒 Panier</h3>
+                    <div class="mb-6 mt-2" v-if="panier_verif && panier_verif.includes(produit.id)" >
                         <span class="text-green-500 font-bold mb-9 mx-2  ">✅ Déjà dans le panier</span>
                     </div>
-                    <div v-if="!panier_verif" class="flex items-center mb-6 bg-white p-4 rounded-lg shadow-md w-80">
+                    <div v-else class="flex items-center mb-6 bg-white p-4 rounded-lg shadow-md w-80 mt-5">
                         <label for="quantity" class="text-lg font-semibold mr-4">📦 Quantité :</label>
                         <input type="number" v-model="quantity" :max="produit.quantité" min="1"
                             class="w-20 p-2 border rounded-md text-center" id="quantity" />

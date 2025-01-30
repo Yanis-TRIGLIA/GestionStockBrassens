@@ -20,27 +20,27 @@
 
 
         <!-- En-tête et contrôles -->
-        <div class="flex items-center justify-between mb-4">
+        <div class="md:flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-700">Sortie de Produits</h1>
-            <div class="flex space-x-2">
+            <div class="md:flex space-x-2">
                 <!-- Input de recherche -->
                 <input v-model="searchQuery" @input="filterData" type="text" placeholder="Rechercher un produit..."
                     class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300" />
                 <!-- Bouton Actualiser -->
                 <button @click="refreshData"
-                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center ">
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center md:mt-0 md:mb-0 mt-2 mb-2 ">
                     <i class="pi pi-refresh"></i>
                     <span>Actualiser</span>
                 </button>
                 <!-- Bouton Exporter en CSV -->
                 <button @click="exportToCSV"
-                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center ">
+                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center md:mt-0 md:mb-0 mt-2 mb-2">
                     <i class="pi pi-download"></i>
                     <span>Exporter en CSV</span>
                 </button>
                 <!-- Bouton Imprimer -->
                 <button @click="printTable"
-                    class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 flex items-center ">
+                    class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 flex items-center md:mt-0 md:mb-0 mt-2 mb-2">
                     <i class="pi pi-print"></i>
                     <span>Imprimer</span>
                 </button>

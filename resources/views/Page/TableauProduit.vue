@@ -1,9 +1,9 @@
 <template>
     <div class="p-6 bg-gray-50 rounded shadow-lg">
         <!-- En-tête et contrôles -->
-        <div class="flex items-center justify-between mb-4">
+        <div class="md:flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-700">Tableau des produits</h1>
-            <div class="flex space-x-2">
+            <div class="md:flex space-x-2 ">
                 <!-- Input de recherche -->
                 <input
                     v-model="searchQuery"

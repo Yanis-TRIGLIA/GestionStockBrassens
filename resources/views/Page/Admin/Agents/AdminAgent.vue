@@ -7,41 +7,44 @@
             Créez un Agent
         </button>
 
-        <!-- Tableau pour les zones de type "personne" -->
-        <table class="min-w-full border-collapse border border-gray-300 mt-2">
-            <thead>
-                <tr>
-                    <th class="border border-gray-300 px-4 py-2">Image</th>
-                    <th class="border border-gray-300 px-4 py-2">Nom</th>
-                    <th class="border border-gray-300 px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="zone in paginatedZonesPersonne" :key="zone.id">
-                    <td class="border border-gray-300 px-4 py-2">
-                        <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image"
-                            class="w-16 h-16 object-cover rounded">
-                    </td>
-                    <td class="border border-gray-300 px-4 py-2">{{ zone.nom }}</td>
-                    <td class="border-t border-gray-300 px-4 py-2 flex space-x-4">
-                        <button @click="$router.push(`/admin/zones/edit/${zone.id}`)"
-                            class="text-blue-600 hover:text-blue-800">
-                            Modifier
-                        </button>
-                        <button @click="confirmDeletion(zone.id)" class="text-red-600 hover:text-red-800">
-                            Supprimer
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Tableau responsive pour les zones de type "personne" -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full border-collapse border border-gray-300 mt-2">
+                <thead>
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2">Image</th>
+                        <th class="border border-gray-300 px-4 py-2">Nom</th>
+                        <th class="border border-gray-300 px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="zone in paginatedZonesPersonne" :key="zone.id">
+                        <td class="border border-gray-300 px-4 py-2">
+                            <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image"
+                                class="w-16 h-16 object-cover rounded">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">{{ zone.nom }}</td>
+                        <td class="border-t border-gray-300 px-4 py-2 flex flex-col sm:flex-row sm:space-x-4">
+                            <button @click="$router.push(`/admin/zones/edit/${zone.id}`)"
+                                class="text-blue-600 hover:text-blue-800 mb-2 sm:mb-0">
+                                Modifier
+                            </button>
+                            <button @click="confirmDeletion(zone.id)" class="text-red-600 hover:text-red-800">
+                                Supprimer
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
+        <!-- Pagination responsive -->
         <div class="flex justify-between items-center mt-4">
             <button @click="previousPagePersonne" :disabled="currentPagePersonne === 1"
                 class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300">
                 Précédent
             </button>
-            <select v-model="currentPagePersonne" @change="changePagePersonne" class="px-4 py-2 border rounded mx-2">
+            <select v-model="currentPagePersonne" @change="changePagePersonne" class="px-4 py-2 border rounded mx-2 text-sm">
                 <option v-for="page in totalPagesPersonne" :key="page" :value="page">
                     {{ page }}
                 </option>
@@ -51,8 +54,6 @@
                 Suivant
             </button>
         </div>
-
-
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal"
@@ -101,7 +102,6 @@ export default {
         totalPagesPersonne() {
             return Math.ceil(this.zones.filter(zone => zone.type === "personne").length / this.zonesPerPage);
         },
-
     },
     methods: {
         confirmDeletion(zoneId) {
@@ -184,6 +184,7 @@ export default {
 </script>
 
 <style scoped>
+/* Amélioration de la responsivité */
 .fixed {
     display: flex;
     justify-content: center;
@@ -209,7 +210,6 @@ button:hover {
     background-color: #f0f0f0;
 }
 
-
 .table th,
 .table td {
     padding: 10px;
@@ -225,5 +225,37 @@ button:hover {
     max-width: 100%;
     height: auto;
     border-radius: 4px;
+}
+
+/* Adaptation sur mobile */
+@media (max-width: 640px) {
+    .table th,
+    .table td {
+        padding: 8px;
+    }
+
+    .table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .table td img {
+        max-width: 40%;
+        margin-bottom: 10px;
+    }
+
+    .table td:first-child {
+        font-weight: bold;
+    }
+
+    .table td:last-child {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .table td:last-child button {
+        margin-bottom: 10px;
+    }
 }
 </style>

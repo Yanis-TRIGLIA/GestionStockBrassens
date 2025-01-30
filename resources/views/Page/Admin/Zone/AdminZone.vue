@@ -8,10 +8,32 @@
             Créez votre zone
         </button>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
+            <div v-for="zone in paginatedZonesZone" :key="zone.id" class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
+                
+                <!-- Image -->
+                <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Zone" class="w-32 h-32 object-cover rounded mb-3">
+                
+                <!-- Nom -->
+                <h3 class="text-lg font-semibold">{{ zone.nom }}</h3>
+
+                <!-- Actions -->
+                <div class="mt-4 flex space-x-4">
+                    <button @click="$router.push(`/admin/zones/edit/${zone.id}`)" class="text-blue-600 hover:text-blue-800">
+                        ✏ Modifier
+                    </button>
+                    <button @click="confirmDeletion(zone.id)" class="text-red-600 hover:text-red-800">
+                        🗑 Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
 
 
-        <!-- Tableau pour les zones de type "zone" -->
-        <table class="min-w-full border-collapse border border-gray-300 mt-2">
+
+
+         <!-- Tableau pour les zones de type "zone" -->
+         <table class="min-w-full border-collapse border border-gray-300 mt-2 hidden md:table">
             <thead>
                 <tr>
                     <th class="border border-gray-300 px-4 py-2">Image</th>

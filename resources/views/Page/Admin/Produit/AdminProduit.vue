@@ -7,65 +7,99 @@
         </button>
 
         <!-- Pagination -->
-        <div class="flex justify-between items-center mb-4">
-            <span class="text-sm text-gray-700">Page: {{ currentPage }} / {{ totalPages }}</span>
-            <div class="flex items-center">
+        <div class="flex justify-between items-center mb-4 flex-wrap">
+            <span class="text-sm text-gray-700 w-full sm:w-auto mb-2 sm:mb-0">Page: {{ currentPage }} / {{ totalPages }}</span>
+            <div class="flex items-center w-full sm:w-auto justify-between sm:justify-start">
                 <button @click="previousPage" :disabled="currentPage === 1"
-                    class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300">
+                    class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300 w-full sm:w-auto mb-2 sm:mb-0">
                     Précédent
                 </button>
-                <select v-model="currentPage" @change="changePage" class="px-4 py-2 border rounded mx-2">
+                <select v-model="currentPage" @change="changePage" class="px-4 py-2 border rounded mx-2 w-full sm:w-auto mb-2 sm:mb-0">
                     <option v-for="page in totalPages" :key="page" :value="page">
                         {{ page }}
                     </option>
                 </select>
                 <button @click="nextPage" :disabled="currentPage === totalPages"
-                    class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300">
+                    class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300 w-full sm:w-auto">
                     Suivant
                 </button>
             </div>
         </div>
 
-        <table class="min-w-full border-collapse border border-gray-300">
-            <thead>
-                <tr>
-                    <th class="border border-gray-300 px-4 py-2">Nom</th>
-                    <th class="border border-gray-300 px-4 py-2">Quantité</th>
-                    <th class="border border-gray-300 px-4 py-2">Image</th>
-                    <th class="border border-gray-300 px-4 py-2">Categorie</th>
-                    <th class="border border-gray-300 px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="produit in paginatedProduits" :key="produit.id">
-                    <td class="border border-gray-300 px-4 py-2">{{ produit.nom }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ produit.quantité }}</td>
-                    <td class="border border-gray-300 px-4 py-2">
-                        <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Image"
-                            class="w-16 h-16 object-cover rounded">
-                    </td>
-                    <td class="border border-gray-300 px-4 py-2">
-                        <ul class="list-disc pl-5">
-                            <li v-for="categorie in produit.categories" :key="categorie.id">
-                                {{ categorie.nom }}
-                            </li>
-                        </ul>
-                    </td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">
-                        <div class="flex justify-center items-center space-x-4">
-                            <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
-                                class="text-blue-600 hover:text-blue-800">
-                                Modifier
-                            </button>
-                            <button @click="confirmDeletion(produit.id)" class="text-red-600 hover:text-red-800">
-                                Supprimer
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Grid Layout -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
+            <div v-for="produit in paginatedProduits" :key="produit.id" class="bg-white p-4 shadow-md rounded-lg">
+                
+                <!-- Image -->
+                <div class="flex justify-center">
+                    <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Produit" class="w-32 h-32 object-cover rounded">
+                </div>
 
+                <!-- Infos -->
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg font-semibold">{{ produit.nom }}</h3>
+                    <p class="text-gray-600">Quantité : {{ produit.quantité }}</p>
+                    
+                    <div class="mt-2">
+                        <span v-for="categorie in produit.categories" :key="categorie.id" class="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full mr-1">
+                            {{ categorie.nom }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4 flex justify-around">
+                    <button @click="$router.push(`/admin/produits/edit/${produit.id}`)" class="text-blue-600 hover:text-blue-800">
+                        ✏ Modifier
+                    </button>
+                    <button @click="confirmDeletion(produit.id)" class="text-red-600 hover:text-red-800">
+                        🗑 Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto hidden md:block">
+            <table class="min-w-full border-collapse border border-gray-300">
+                <thead>
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2">Nom</th>
+                        <th class="border border-gray-300 px-4 py-2">Quantité</th>
+                        <th class="border border-gray-300 px-4 py-2">Image</th>
+                        <th class="border border-gray-300 px-4 py-2">Categorie</th>
+                        <th class="border border-gray-300 px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="produit in paginatedProduits" :key="produit.id">
+                        <td class="border border-gray-300 px-4 py-2">{{ produit.nom }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ produit.quantité }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Image"
+                                class="w-16 h-16 object-cover rounded">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <ul class="list-disc pl-5">
+                                <li v-for="categorie in produit.categories" :key="categorie.id">
+                                    {{ categorie.nom }}
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2 text-center">
+                            <div class="flex justify-center items-center space-x-4">
+                                <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
+                                    class="text-blue-600 hover:text-blue-800 text-xs sm:text-sm">
+                                    Modifier
+                                </button>
+                                <button @click="confirmDeletion(produit.id)" class="text-red-600 hover:text-red-800 text-xs sm:text-sm">
+                                    Supprimer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal"
@@ -189,7 +223,6 @@ export default {
                     this.showConfirmationModal = false;
                 });
         },
-
 
         fetchProduits() {
             axios

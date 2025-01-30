@@ -2,6 +2,8 @@
 import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
 
 export default {
     name: "Cart",
@@ -9,10 +11,64 @@ export default {
         return {
             panier: [],
             total: 0,
+            user: {},
             baseUrl: import.meta.env.VITE_APP_URL,
+            showConfirmationModal: false,
+            //on déclare un int 
+            id_tmp: 0
         };
     },
     methods: {
+
+        confirmDeletion(id_tmp) {
+            this.showConfirmationModal = true;
+            this.id_tmp = id_tmp;
+        },
+        cancelDeletion() {
+            this.showConfirmationModal = false;
+        },
+
+        async fetchUserData(token) {
+            try {
+                const response = await axios.get('/api/user', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                this.user = response.data;
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données utilisateur:', error);
+                this.isLoggedIn = false;
+                localStorage.removeItem('auth_token');
+            }
+        },
+
+        showSuccessToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+                stopOnFocus: true
+            }).showToast();
+            //on reload
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        },
+        showErrorToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#FF0000",
+                stopOnFocus: true
+            }).showToast();
+        },
         loadPanier() {
             const token = localStorage.getItem("auth_token");
             if (!token) return;
@@ -38,7 +94,7 @@ export default {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(response => {
-                    this.panier = response.data.panier.produits; // Mettre à jour le panier
+                    this.panier = response.data.panier.produits;
                     this.calculateTotal();
                 })
                 .catch(error => {
@@ -46,23 +102,30 @@ export default {
                 });
         },
 
-        removeProduct(produitId) {
-            if (confirm("Êtes-vous sûr de vouloir supprimer ce produit du panier ?")) {
-                axios
-                    .post(`/panier/supprimer/${produitId}`, {
-                        _method: "DELETE"
-                    })
-                    .then(() => {
-                        this.showSuccessToast("Produit supprimé du panier !");
-                        this.panier = this.panier.filter(p => p.id !== produitId);
-                        this.calculateTotal();
-                    })
-                    .catch((error) => {
-                        console.error(error);  // More detailed error logging
-                        this.showErrorToast("Erreur lors de la suppression du produit.");
-                    });
-            }
+        removeProduct() {
+            this.cancelDeletion();
+            const token = localStorage.getItem("auth_token");
+            console.log(this.id_tmp);
+
+            axios.post(`/api/panier/supprimer/${this.id_tmp}`, {}, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+
+                .then(() => {
+                    this.showSuccessToast("Produit supprimé du panier !");
+                    this.panier = this.panier.filter(p => p.id !== this.id_tmp);
+                    this.calculateTotal();
+
+                })
+                .catch(error => {
+                    console.error("Erreur suppression produit:", error);
+                    this.showErrorToast("Erreur lors de la suppression du produit.");
+                });
+
         },
+
 
 
 
@@ -76,37 +139,50 @@ export default {
 
             const rows = this.panier.map(produit => [
                 produit.nom,
+                produit.reference,
                 produit.prix + "€",
                 produit.pivot.quantite,
                 (produit.prix * produit.pivot.quantite) + "€"
             ]);
 
             doc.autoTable({
-                head: [["Produit", "Prix unitaire", "Quantité", "Total"]],
+                head: [["Produit", "Référence", "Prix unitaire", "Quantité", "Total"]],
                 body: rows
             });
 
             doc.text(`Total: ${this.total.toFixed(2)}€`, 20, doc.autoTable.previous.finalY + 10);
-            doc.save("Panier.pdf");
+            //on enregistre le panier avec la date du jour Panier_ladate_lenomdelutilisateur.pdf
+            doc.save(`Panier_${new Date().toISOString().split('T')[0]}_${this.user.name}.pdf`);
         }
     },
+
+
+
     mounted() {
+        this.fetchUserData(localStorage.getItem('auth_token'));
         this.loadPanier();
+
+
     }
 };
 </script>
 
 <template>
-    <div class="cart-container ">
+    <div class="cart-container " style="margin-top: 2%;">
         <h1>🛒 Votre panier</h1>
 
         <div v-if="panier.length" class="cart-items">
             <div v-for="produit in panier" :key="produit.id" class="cart-item">
                 <img :src="`${baseUrl}/${produit.image_url}`" :alt="produit.nom" class="product-image">
 
+
+
                 <div class="product-info">
-                    <h3>{{ produit.nom }}</h3>
-                    <p class="price">{{ produit.prix }}€</p>
+                    <a :href="`/prod/${produit.id}`">
+                        <h3 class="text-xl">{{ produit.nom }}</h3>
+                    </a>
+                    <p class="price text-end text-xl">{{ produit.prix }}€</p>
+                    <p class="text-sm"><span class="font-bold ">réf :</span> {{ produit.reference }}</p>
 
                     <div class="quantity-controls">
                         <button @click="updateQuantity(produit, -1)">➖</button>
@@ -114,10 +190,14 @@ export default {
                         <button @click="updateQuantity(produit, 1)">➕</button>
                     </div>
 
-                    <button @click="removeProduct(produit.id)" class="remove">🗑️ Supprimer</button>
+                    <button @click="confirmDeletion(produit.id)" class="remove">🗑️ Supprimer</button>
                 </div>
             </div>
+
+
         </div>
+
+
 
         <p v-else class="empty-message">Votre panier est vide.</p>
 
@@ -126,6 +206,23 @@ export default {
             <button @click="generatePDF" class="generate-pdf">📄 Générer PDF</button>
         </div>
     </div>
+
+    <div v-if="showConfirmationModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-4">Confirmer la suppression</h3>
+            <p>Êtes-vous sûr de vouloir supprimer ce produit du panier?</p>
+            <div class="flex justify-between mt-4">
+                <button @click="removeProduct" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    Oui, Supprimer
+                </button>
+                <button @click="cancelDeletion" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
+                    Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 </template>
 
 <style scoped>
@@ -170,8 +267,8 @@ h1 {
 
 /* Image du produit */
 .product-image {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     object-fit: cover;
     border-radius: 8px;
     margin-right: 15px;

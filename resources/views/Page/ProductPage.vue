@@ -1,6 +1,6 @@
 <template>
     <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold text-center mb-6">Liste des Produits</h1>
+        <h1 class="text-2xl font-bold text-center mb-6">📋 Liste des Produits</h1>
 
         <!-- Filtres et recherche -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -21,6 +21,9 @@
                 <option value="asc">Quantité : Croissante</option>
                 <option value="desc">Quantité : Décroissante</option>
             </select>
+
+            <input v-model.number="quantiteMax" type="number" placeholder="Max Quantité ou Moins"
+                class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <!-- Tableau responsive -->
@@ -59,10 +62,12 @@
                             </div>
 
                             <!-- Afficher le texte si le produit est déjà dans le panier -->
-                            <div v-if="produit['id'] == panier_verif">
+                            <div v-if="panier_verif.includes(produit.id)">
                                 
                                 <span class="text-green-500 font-bold">Déjà dans le panier</span>
+                                 
                             </div>
+                           
 
                             <!-- Sinon, afficher le bouton "Ajouter au panier" -->
                             <div v-else>
@@ -95,6 +100,7 @@ export default {
             categories: [],
             rechercheNom: "",
             triQuantite: "",
+            quantiteMax: null,
             triCategorie: "",
             baseUrl: import.meta.env.VITE_APP_URL,
             user: localStorage.getItem("auth_token"),
@@ -125,6 +131,10 @@ export default {
                 filtres.sort((a, b) => b.quantité - a.quantité);
             }
 
+            if (this.quantiteMax !== null && this.quantiteMax !== "") {
+                filtres = filtres.filter(produit => produit.quantité <= this.quantiteMax);
+            }
+
             return filtres;
         }
     },
@@ -149,8 +159,7 @@ export default {
                 }
             })
                 .then(response => {
-
-                    this.panier_verif = response.data.id;
+                    this.panier_verif = response.data.produits.map(produit => produit.id);
                 
                 })
                 .catch(error => {
