@@ -1,36 +1,23 @@
 <template>
-    <div class="p-6 bg-gray-50 rounded shadow-lg">
+    <SkeletonLoader v-if="isLoading" />
+    <div v-else class="p-6 bg-gray-50 rounded shadow-lg">
         <!-- En-tête et contrôles -->
         <div class="md:flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-700">Tableau des produits</h1>
             <div class="md:flex space-x-2 ">
                 <!-- Input de recherche -->
-                <input
-                    v-model="searchQuery"
-                    @input="filterData"
-                    type="text"
-                    placeholder="Rechercher un produit..."
-                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
-                />
+                <input v-model="searchQuery" @input="filterData" type="text" placeholder="Rechercher un produit..."
+                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300" />
                 <!-- Bouton Actualiser -->
-                <button
-                    @click="refreshData"
-                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
+                <button @click="refreshData" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                     Actualiser
                 </button>
                 <!-- Bouton Exporter en CSV -->
-                <button
-                    @click="exportToCSV"
-                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
+                <button @click="exportToCSV" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
                     Exporter en CSV
                 </button>
                 <!-- Bouton Imprimer -->
-                <button
-                    @click="printTable"
-                    class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
-                >
+                <button @click="printTable" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">
                     Imprimer
                 </button>
             </div>
@@ -42,12 +29,8 @@
                 <!-- En-tête des colonnes avec tri -->
                 <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
                     <tr>
-                        <th
-                            v-for="col in columns"
-                            :key="col.key"
-                            @click="sortData(col.key)"
-                            class="px-6 py-3 border-b text-left cursor-pointer hover:bg-gray-300"
-                        >
+                        <th v-for="col in columns" :key="col.key" @click="sortData(col.key)"
+                            class="px-6 py-3 border-b text-left cursor-pointer hover:bg-gray-300">
                             {{ col.label }}
                             <span v-if="sortColumn === col.key">
                                 <i :class="sortOrder === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down'"></i>
@@ -57,19 +40,12 @@
                 </thead>
                 <!-- Corps du tableau -->
                 <tbody>
-                    <tr
-                        v-for="produit in filteredAndSortedData"
-                        :key="produit.id"
-                        class="even:bg-gray-100 hover:bg-gray-50"
-                    >
+                    <tr v-for="produit in filteredAndSortedData" :key="produit.id"
+                        class="even:bg-gray-100 hover:bg-gray-50">
                         <td class="px-6 py-4 border-b text-gray-700">{{ produit.nom }}</td>
                         <td class="px-6 py-4 border-b">
-                            <img
-                                v-if="produit.image_url"
-                                :src="`${baseUrl}/${produit.image_url}`"
-                                alt="Image du produit"
-                                class="w-24 h-24 object-cover rounded-lg mx-auto"
-                            />
+                            <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`"
+                                alt="Image du produit" class="w-24 h-24 object-cover rounded-lg mx-auto" />
                         </td>
                         <td class="px-6 py-4 border-b text-gray-700">{{ produit.quantité }}</td>
                     </tr>
@@ -82,14 +58,17 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import axios from "../../../axios.config.js";
+import SkeletonLoader from './SkeletonLoader.vue';
 
 export default {
     name: "TableauProduit",
+    components: { SkeletonLoader },
     setup() {
         const produits = ref([]);
         const searchQuery = ref("");
         const sortColumn = ref("");
         const sortOrder = ref("asc");
+        const isLoading = ref(true);
 
         const columns = [
             { key: "nom", label: "Nom du Produit" },
@@ -111,6 +90,9 @@ export default {
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des produits:", error);
                 });
+
+            isLoading.value = false;
+
         };
 
         const refreshData = () => {
@@ -190,15 +172,15 @@ export default {
                     </thead>
                     <tbody>
                         ${filteredAndSortedData.value
-                            .map((produit) => {
-                                return `
+                    .map((produit) => {
+                        return `
                                     <tr>
                                         <td>${produit.nom}</td>
                                         <td>${produit.quantité}</td>
                                     </tr>
                                 `;
-                            })
-                            .join("")}
+                    })
+                    .join("")}
                     </tbody>
                 </table>
             `;
@@ -216,6 +198,7 @@ export default {
 
         return {
             produits,
+            isLoading,
             searchQuery,
             baseUrl: import.meta.env.VITE_APP_URL,
             refreshData,
@@ -238,7 +221,8 @@ table {
     width: 100%;
 }
 
-th, td {
+th,
+td {
     padding: 12px;
     text-align: left;
 }

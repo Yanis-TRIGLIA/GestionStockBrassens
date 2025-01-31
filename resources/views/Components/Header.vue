@@ -61,6 +61,7 @@ export default {
 
 <template>
     <nav class="bg-white sticky top-0 z-50 p-4 border-b shadow-lg">
+        
         <div class="flex justify-between items-center w-full mx-auto">
             <!-- Logo -->
             <a href="/" class="flex items-center">
@@ -93,7 +94,7 @@ export default {
                             {{ panierCount }}
                         </span>
                     </a>
-                    <span class="font-medium">👋 Bonjour, {{ user?.name || 'Utilisateur' }}</span>
+                    <a href="/page_compte" class="font-medium">👋 Bonjour, {{ user?.name || 'Utilisateur' }}</a>
 
                     <button @click="logout"
                         class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">Déconnexion</button>

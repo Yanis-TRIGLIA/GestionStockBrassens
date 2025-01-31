@@ -1,5 +1,6 @@
 <template>
-    <div class="container mx-auto p-4">
+    <SkeletonLoader v-if="isLoading" />
+    <div v-else class="container mx-auto p-4">
         <h1 class="text-2xl font-bold text-center mb-6">📋 Liste des Produits</h1>
 
         <!-- Filtres et recherche -->
@@ -90,16 +91,20 @@
 import axios from "axios";
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
+import SkeletonLoader from './SkeletonLoader.vue';
 
 
 export default {
     name: "Produits",
+    components: { SkeletonLoader },
+   
     data() {
         return {
             produits: [],
             categories: [],
             rechercheNom: "",
             triQuantite: "",
+            isLoading: true,
             quantiteMax: null,
             triCategorie: "",
             baseUrl: import.meta.env.VITE_APP_URL,
@@ -237,6 +242,9 @@ export default {
             .catch((error) => { console.error("Erreur catégories:", error); });
 
         this.loadPanier();
+        
+
+        this.isLoading = false;
 
     }
 };

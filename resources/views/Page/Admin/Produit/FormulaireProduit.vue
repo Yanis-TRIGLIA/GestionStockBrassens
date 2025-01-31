@@ -17,7 +17,7 @@
         <!-- Prix -->
          <div class="mb-4">
             <label for="prix" class="block text-gray-700">Prix</label>
-            <input v-model.number="formData.prix" type="number" id="prix" class="border rounded w-full py-2 px-3"
+            <input v-model.number="formData.prix" type="number" min="0" max="1000" step="0.5" id="prix" class="border rounded w-full py-2 px-3"
                 placeholder="Prix" />
         </div>
 

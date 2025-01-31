@@ -35,6 +35,7 @@ import AdminCategories from '../views/Page/Admin/Categories/AdminCategories.vue'
 import EditCategorie from '../views/Page/Admin/Categories/EditCategorie.vue';
 import CreateCategorie from '../views/Page/Admin/Categories/CreateCategorie.vue';
 
+
 import Cart from '../views/Page/Cart.vue';
 
 
@@ -46,8 +47,13 @@ import DataTable from 'primevue/datatable';
 import Column from "primevue/column";
 import PrimeVue from 'primevue/config';
 
+import PopupCriticalProduct from '../views/Components/PopupCriticalProduct.vue';
+
+import NotFound from '../views/Page/NotFound.vue';
 
 
+
+let is_admin = false;
 
 // Définir les routes
 const routes = [
@@ -94,6 +100,7 @@ const routes = [
     {
         path: "/admin",
         component: AdminLayout,
+        meta: { is_admin: true },
         children: [
             { path: "", component: AdminDashboard },
             { path: "produits", component: AdminProduits },
@@ -143,7 +150,31 @@ const routes = [
 
         ],
     },
+    {
+        path: "/:pathMatch(.*)*",
+        component: NotFound,
+    },
 ];
+import axios from 'axios';
+async function fetchUserData(token) {
+    try {
+        const response = await axios.get('/api/user', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const user = response.data;
+        console.log(user);
+        localStorage.setItem('user', JSON.stringify(user)); 
+        return user; 
+    } catch (error) {
+        console.error('Erreur lors de la récupération des données utilisateur:', error);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        return null;
+    }
+}
+
+
 
 // Configuration du routeur
 const router = createRouter({
@@ -151,27 +182,51 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.onError((error) => {
+    console.error("Erreur de navigation :", error);
+});
+
+router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem('auth_token');
     const tokenExpiration = localStorage.getItem('auth_token_expiration');
     const isLoggedIn = token && Date.now() < tokenExpiration;
 
-    if (to.meta.requiresAuth && !isLoggedIn) {
-        next('/connexion');
-    } else {
-        next();
+    let user = JSON.parse(localStorage.getItem('user')); 
+    if (!user && token) {
+        user = await fetchUserData(token); 
     }
+
+    console.log(user);
+
+    const isAdmin = user && user.is_admin === 1;
+
+    if (to.meta.is_admin && !isAdmin) {
+        return next('/404');
+    }
+
+    if (to.meta.requiresAuth && !isLoggedIn) {
+        return next('/connexion');
+    }
+
+    next();
 });
 
+
+
+
 const App = {
-    components: { Header },
+    components: { Header, PopupCriticalProduct  },
     template: `
-        <div>
+   
+        <div> 
             <Header />
+            <PopupCriticalProduct />
             <router-view />
         </div>
+        
     `,
 };
+
 
 const app = createApp(App);
 
@@ -182,6 +237,8 @@ app.component('Column', Column);
 
 // Utiliser le routeur
 app.use(router);
+
+
 
 // Monter l'application
 app.mount('#app');

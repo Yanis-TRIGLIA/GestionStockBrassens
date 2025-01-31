@@ -1,5 +1,7 @@
 <template>
-    <div class="p-6 bg-gray-50 rounded shadow-lg">
+
+    <SkeletonLoader v-if="isLoading" />
+    <div v-else class="p-6 bg-gray-50 rounded shadow-lg">
 
         <!-- Pop-up de confirmation -->
         <div v-if="showDeletePopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -164,16 +166,22 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import axios from "../../../axios.config.js";
+import SkeletonLoader from './SkeletonLoader.vue';
 
 
 export default {
     name: "TableauSortie",
+    components: { SkeletonLoader },
+
+
+
     setup() {
         const showDeletePopup = ref(false);
         const sorties = ref([]);
         const searchQuery = ref("");
         const sortColumn = ref("");
         const sortOrder = ref("asc");
+        const isLoading = ref(true);
 
 
         const sortieToDelete = ref(null);
@@ -210,6 +218,9 @@ export default {
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des sorties:", error);
                 });
+
+            isLoading.value = false;
+
         };
 
         const confirmDelete = (sortie) => {
@@ -351,10 +362,12 @@ export default {
 
         onMounted(() => {
             fetchData();
+
         });
 
         return {
             sorties,
+            isLoading,
             baseUrl: import.meta.env.VITE_APP_URL,
             searchQuery,
             refreshData,
