@@ -50,7 +50,7 @@
         </div>
 
         <!-- Tableau -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
                 <!-- En-tête des colonnes avec tri -->
                 <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
@@ -160,6 +160,45 @@
                 </tbody>
             </table>
         </div>
+
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:hidden">
+            <div v-for="sortie in filteredAndSortedData" :key="sortie.id"
+                class="bg-white p-4 rounded-lg shadow-md border hover:shadow-lg transition">
+
+                <!-- Image -->
+                <div class="flex justify-center">
+                    <img v-if="sortie.produit.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
+                        alt="Image du produit" class="w-32 h-32 object-cover rounded-lg" />
+                </div>
+
+                <!-- Infos principales -->
+                <div class="mt-4">
+                    <h2 class="text-lg font-semibold text-gray-800">{{ sortie.produit.nom }}</h2>
+                    <p class="text-sm text-gray-600">Quantité : <strong>{{ sortie.quantité }}</strong></p>
+                    <p class="text-sm text-gray-600">Stock restant : <strong>{{ sortie.number_after_reduce }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-600">Sortie par : <strong>{{ sortie.personne.nom }}</strong></p>
+                </div>
+
+                <!-- Détails supplémentaires -->
+                <div class="mt-2 text-sm text-gray-500">
+                    <p>Dernière mise à jour : {{ new Date(sortie.updated_at).toLocaleString() }}</p>
+                    <p>Zone concernée : <strong>{{ sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun' }}</strong>
+                    </p>
+                    <p>Observation : <span>{{ sortie.observation || 'Aucune' }}</span></p>
+                </div>
+
+                <!-- Bouton Supprimer -->
+                <div class="mt-4 flex justify-end">
+                    <button @click="confirmDelete(sortie)" class="text-red-500 hover:text-red-700 flex items-center">
+                        <i class="pi pi-trash"></i>
+                        <span class="ml-1">Supprimer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 

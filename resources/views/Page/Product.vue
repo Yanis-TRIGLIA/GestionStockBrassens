@@ -5,7 +5,7 @@ import SkeletonLoader from './SkeletonLoader.vue';
 
 export default {
     name: "Product",
-    components: { PopupExit , SkeletonLoader },
+    components: { PopupExit, SkeletonLoader },
     urlParts: window.location.pathname.split("/"),
     quantite: 1,
     addedToCart: false,
@@ -143,7 +143,7 @@ export default {
 
                     <p class="text-xl font-bold text-green-600 dark:text-green-400 mb-6">💰 Prix : {{ produit.prix }} €
                     </p>
-
+                    <h2 class="text-white font-semibold mb-4">🧺 Panier :</h2>
                     <!-- MESSAGE "DÉJÀ DANS LE PANIER" -->
                     <div v-if="panier_verif && panier_verif.includes(produit.id)"
                         class="bg-green-100 text-green-700 dark:bg-green-700 dark:text-white font-bold p-3 rounded-lg mb-4 md:w-4/12 ">
@@ -151,13 +151,15 @@ export default {
                     </div>
 
                     <!-- AJOUTER AU PANIER -->
-                    <div v-else class="flex items-center gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md md:w-7/12">
+
+                    <div v-else
+                        class="flex items-center gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md md:w-7/12">
                         <label for="quantity" class="text-lg font-semibold">📦 Quantité :</label>
                         <input type="number" v-model="quantity" :max="produit.quantité" min="1"
                             class="w-20 p-2 border rounded-md text-center" id="quantity">
 
                         <button @click="ajouterAuPanier()"
-                            class="bg-green-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-600 transition duration-200 flex items-center gap-2">
+                            class="bg-blue-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-600 transition duration-200 flex items-center gap-2">
                             🛒 Ajouter
                         </button>
                     </div>

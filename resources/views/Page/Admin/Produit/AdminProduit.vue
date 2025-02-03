@@ -6,29 +6,11 @@
             Créez votre produit
         </button>
 
-        <!-- Pagination -->
-        <div class="flex justify-between items-center mb-4 flex-wrap">
-            <span class="text-sm text-gray-700 w-full sm:w-auto mb-2 sm:mb-0">Page: {{ currentPage }} / {{ totalPages }}</span>
-            <div class="flex items-center w-full sm:w-auto justify-between sm:justify-start">
-                <button @click="previousPage" :disabled="currentPage === 1"
-                    class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300 w-full sm:w-auto mb-2 sm:mb-0">
-                    Précédent
-                </button>
-                <select v-model="currentPage" @change="changePage" class="px-4 py-2 border rounded mx-2 w-full sm:w-auto mb-2 sm:mb-0">
-                    <option v-for="page in totalPages" :key="page" :value="page">
-                        {{ page }}
-                    </option>
-                </select>
-                <button @click="nextPage" :disabled="currentPage === totalPages"
-                    class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300 w-full sm:w-auto">
-                    Suivant
-                </button>
-            </div>
-        </div>
+       
 
         <!-- Grid Layout -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
-            <div v-for="produit in paginatedProduits" :key="produit.id" class="bg-white p-4 shadow-md rounded-lg">
+            <div v-for="produit in paginatedProduits" :key="produit.id" class="bg-white p-4 shadow-md rounded-lg w-[80%] justify-self-center ">
                 
                 <!-- Image -->
                 <div class="flex justify-center">
@@ -99,6 +81,26 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+         <!-- Pagination -->
+         <div class="flex justify-between items-center mb-4 flex-wrap mt-10">
+            <span class="text-sm text-gray-700 w-full sm:w-auto mb-2 sm:mb-0">Page: {{ currentPage }} / {{ totalPages }}</span>
+            <div class="flex items-center w-full sm:w-auto justify-between sm:justify-start">
+                <button @click="previousPage" :disabled="currentPage === 1"
+                    class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300 w-full sm:w-auto mb-2 sm:mb-0">
+                    Précédent
+                </button>
+                <select v-model="currentPage" @change="changePage" class="px-4 py-2 border rounded mx-2 w-full sm:w-auto mb-2 sm:mb-0">
+                    <option v-for="page in totalPages" :key="page" :value="page">
+                        {{ page }}
+                    </option>
+                </select>
+                <button @click="nextPage" :disabled="currentPage === totalPages"
+                    class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300 w-full sm:w-auto">
+                    Suivant
+                </button>
+            </div>
         </div>
 
         <!-- Modal de confirmation de suppression -->

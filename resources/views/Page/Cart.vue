@@ -172,7 +172,7 @@ export default {
         <h1>🛒 Votre panier</h1>
 
         <div v-if="panier.length" class="cart-items">
-            <div v-for="produit in panier" :key="produit.id" class="cart-item">
+            <div v-for="produit in panier" :key="produit.id" class="cart-item w-[80%] self-center md:w-full " >
                 <img :src="`${baseUrl}/${produit.image_url}`" :alt="produit.nom" class="product-image">
 
 

@@ -1,6 +1,7 @@
 <template>
     <SkeletonLoader v-if="isLoading" />
-    <div v-else class="container mx-auto p-4">
+    <popup-exit :id_prod="idselected" v-if="showPopup" @close="closePopup"></popup-exit>
+        <div v-else class="container mx-auto p-4">
         <h1 class="text-2xl font-bold text-center mb-6">📋 Liste des Produits</h1>
 
         <!-- Filtres et recherche -->
@@ -28,13 +29,14 @@
         </div>
 
         <!-- Tableau responsive -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block">
             <table class="w-full table-auto border-collapse border border-gray-300 shadow-md rounded-lg">
                 <thead class="bg-gray-100">
                     <tr>
                         <th class="border border-gray-300 px-4 py-3">Image</th>
                         <th class="border border-gray-300 px-4 py-3">Nom</th>
                         <th class="border border-gray-300 px-4 py-3">Quantité</th>
+                        <th v-if="user" class="border border-gray-300 px-4 py-3">Sortie </th>
                         <th v-if="user" class="border border-gray-300 px-4 py-3">🛒 Panier</th>
                     </tr>
                 </thead>
@@ -52,7 +54,14 @@
                                 {{ produit.quantité }}
                             </span>
                         </td>
-                        <td v-if="user " class="border border-gray-300 px-4 py-3 text-center" @click.stop>
+                        <td v-if="user" class="border border-gray-300 py-3" @click.stop>
+                            <button v-if="user" @click="openPopup(produit.id)"
+                                class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition duration-200  items-center gap-2">
+                                🚀 Effectuer une sortie
+                            </button>
+
+                        </td>
+                        <td v-if="user" class="border border-gray-300 px-4 py-3 text-center" @click.stop>
                             <div class="flex items-center justify-center space-x-2">
                                 <button @click="modifierQuantite(produit, -1)"
                                     class="bg-red-500 text-white px-2 py-1 rounded">-</button>
@@ -64,11 +73,11 @@
 
                             <!-- Afficher le texte si le produit est déjà dans le panier -->
                             <div v-if="panier_verif.includes(produit.id)">
-                                
+
                                 <span class="text-green-500 font-bold">Déjà dans le panier</span>
-                                 
+
                             </div>
-                           
+
 
                             <!-- Sinon, afficher le bouton "Ajouter au panier" -->
                             <div v-else>
@@ -83,6 +92,30 @@
                     </tr>
                 </tbody>
             </table>
+
+
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden ">
+            <div v-for="produit in produitsFiltres" :key="produit.id" @click="$router.push(`/prod/${produit.id}`)"
+                class="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center">
+                <img :src="`${baseUrl}/${produit.image_url}`" alt="Produit"
+                    class="w-32 h-32 object-cover rounded-lg mb-3" />
+                <h2 class="text-lg font-bold">{{ produit.nom }}</h2>
+                <p :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
+                    Quantité: {{ produit.quantité }}
+                </p>
+
+                <div v-if="panier_verif.includes(produit.id)">
+
+                    <span class="text-green-500 font-bold">✅ Déjà dans le panier</span>
+
+                </div>
+                <button v-else @click="ajouterAuPanier(produit)"
+                    class="mt-3 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Ajouter au panier
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -92,29 +125,36 @@ import axios from "axios";
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
 import SkeletonLoader from './SkeletonLoader.vue';
+import PopupExit from "../Components/PopupExit.vue";
+import { number } from "echarts";
+
 
 
 export default {
     name: "Produits",
-    components: { SkeletonLoader },
-   
+    components: { SkeletonLoader , PopupExit },
+
     data() {
         return {
             produits: [],
             categories: [],
             rechercheNom: "",
             triQuantite: "",
+            showPopup: false,
+            idselected : number,
             isLoading: true,
             quantiteMax: null,
             triCategorie: "",
             baseUrl: import.meta.env.VITE_APP_URL,
             user: localStorage.getItem("auth_token"),
             panier: {},
-            panier_verif:[],
+            panier_verif: [],
         };
     },
 
     computed: {
+
+        
         produitsFiltres() {
             let filtres = this.produits;
 
@@ -150,7 +190,16 @@ export default {
             this.panier[produit.id] = nouvelleQuantite;
         },
 
-        
+        openPopup(id_select_produit) {
+            this.showPopup = true;
+            this.idselected = id_select_produit;
+            
+        },
+        closePopup() {
+            this.showPopup = false;
+        },
+
+
 
 
         loadPanier() {
@@ -165,12 +214,12 @@ export default {
             })
                 .then(response => {
                     this.panier_verif = response.data.produits.map(produit => produit.id);
-                
+
                 })
                 .catch(error => {
                     console.error("Erreur chargement panier:", error);
                 });
-                
+
 
         },
 
@@ -242,7 +291,7 @@ export default {
             .catch((error) => { console.error("Erreur catégories:", error); });
 
         this.loadPanier();
-        
+
 
         this.isLoading = false;
 
