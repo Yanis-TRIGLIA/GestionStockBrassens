@@ -24,13 +24,13 @@ export default {
     },
     mounted() {
 
-            if (this.id_prod == null || this.id_prod == undefined ) {
-                console.log(this.id_prod)
-                this.id_produit = window.location.pathname.split("/").pop();
-            } else {
-                this.id_produit = this.id_prod;
-                
-            }
+        if (this.id_prod == null || this.id_prod == undefined) {
+            console.log(this.id_prod)
+            this.id_produit = window.location.pathname.split("/").pop();
+        } else {
+            this.id_produit = this.id_prod;
+
+        }
 
 
         // Récupérer les zones
@@ -47,6 +47,10 @@ export default {
     methods: {
         closePopup() {
             document.getElementById('modelConfirm').classList.add('hidden');
+  
+            if (window.innerWidth <= 768) {
+                location.reload();
+            }
         },
         validateForm() {
             if (!this.selectedZone || !this.selectedPerson) {
@@ -56,46 +60,46 @@ export default {
 
             axios
                 .post(`/api/produits/${this.id_produit}/retirer-stock`, {
-            "zone_id": this.selectedZone,
-            "personne_id": this.selectedPerson,
-            "quantité": this.quantity,
-            "observation": this.observation
-        })
-            .then(() => {
-                this.showSuccessToast("Stock retiré avec succès !");
-                this.closePopup();
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            })
-            .catch((error) => {
-                console.error("Erreur lors de la mise à jour des données:", error);
-                this.showErrorToast("Erreur lors du retrait du stock !");
-            });
-    },
-    showSuccessToast(message) {
-        Toastify({
-            text: message,
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#4CAF50",
-            stopOnFocus: true
-        }).showToast();
-    },
-    showErrorToast(message) {
-        Toastify({
-            text: message,
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#F44336",
-            stopOnFocus: true
-        }).showToast();
+                    "zone_id": this.selectedZone,
+                    "personne_id": this.selectedPerson,
+                    "quantité": this.quantity,
+                    "observation": this.observation
+                })
+                .then(() => {
+                    this.showSuccessToast("Stock retiré avec succès !");
+                    this.closePopup();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                })
+                .catch((error) => {
+                    console.error("Erreur lors de la mise à jour des données:", error);
+                    this.showErrorToast("Erreur lors du retrait du stock !");
+                });
+        },
+        showSuccessToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+                stopOnFocus: true
+            }).showToast();
+        },
+        showErrorToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#F44336",
+                stopOnFocus: true
+            }).showToast();
+        }
     }
-}
 };
 </script>
 

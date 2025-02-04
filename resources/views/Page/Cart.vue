@@ -12,6 +12,7 @@ export default {
             panier: [],
             total: 0,
             user: {},
+            showEmptyCartModal: false,
             baseUrl: import.meta.env.VITE_APP_URL,
             showConfirmationModal: false,
             //on déclare un int 
@@ -42,6 +43,36 @@ export default {
                 localStorage.removeItem('auth_token');
             }
         },
+
+        emptyCart() {
+            this.cancelEmptyCart();
+            const token = localStorage.getItem("auth_token");
+
+            axios.post(`/api/panier/vider`, {}, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+                .then(() => {
+                    this.showSuccessToast("Le panier a été vidé !");
+                    this.panier = [];
+                    this.total = 0;
+                })
+                .catch(error => {
+                    console.error("Erreur vidage du panier:", error);
+                    this.showErrorToast("Erreur lors du vidage du panier.");
+                });
+        },
+
+        calculateTotal() {
+            this.total = this.panier.reduce((sum, produit) => sum + produit.prix * produit.pivot.quantite, 0);
+        },
+
+        confirmEmptyCart() {
+            this.showEmptyCartModal = true;
+        },
+        cancelEmptyCart() {
+            this.showEmptyCartModal = false;
+        },
+
 
         showSuccessToast(message) {
             Toastify({
@@ -172,7 +203,7 @@ export default {
         <h1>🛒 Votre panier</h1>
 
         <div v-if="panier.length" class="cart-items">
-            <div v-for="produit in panier" :key="produit.id" class="cart-item w-[80%] self-center md:w-full " >
+            <div v-for="produit in panier" :key="produit.id" class="cart-item w-[80%] self-center md:w-full ">
                 <img :src="`${baseUrl}/${produit.image_url}`" :alt="produit.nom" class="product-image">
 
 
@@ -201,9 +232,12 @@ export default {
 
         <p v-else class="empty-message">Votre panier est vide.</p>
 
+        
+
         <div class="cart-summary">
             <h2>Total: <span class="total">{{ total.toFixed(2) }}€</span></h2>
             <button @click="generatePDF" class="generate-pdf">📄 Générer PDF</button>
+            <button v-if="panier.length" @click="confirmEmptyCart" class="empty-cart">🗑️ Vider le panier</button>
         </div>
     </div>
 
@@ -216,6 +250,21 @@ export default {
                     Oui, Supprimer
                 </button>
                 <button @click="cancelDeletion" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
+                    Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="showEmptyCartModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-4">Vider le panier</h3>
+            <p>Êtes-vous sûr de vouloir supprimer tous les produits du panier ?</p>
+            <div class="flex justify-between mt-4">
+                <button @click="emptyCart" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    Oui, Vider
+                </button>
+                <button @click="cancelEmptyCart" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </button>
             </div>
@@ -284,6 +333,22 @@ h1 {
     font-size: 18px;
     font-weight: bold;
     color: #ff9900;
+}
+
+.empty-cart {
+    background: #dc3545;
+    color: white;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.2s;
+    margin-left: 10px;
+}
+
+.empty-cart:hover {
+    background: #c82333;
 }
 
 /* Contrôles de quantité */

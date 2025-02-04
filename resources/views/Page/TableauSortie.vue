@@ -5,7 +5,7 @@
 
         <!-- Pop-up de confirmation -->
         <div v-if="showDeletePopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white p-6 rounded shadow-lg w-1/3">
+            <div class="bg-white p-6 rounded shadow-lg w-2/3 md:w-1/3">
                 <h2 class="text-xl font-semibold mb-4">Confirmation</h2>
                 <p class="text-gray-700 mb-6">
                     Êtes-vous sûr de vouloir supprimer cette sortie ?

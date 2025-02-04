@@ -1,7 +1,7 @@
 <template>
     <SkeletonLoader v-if="isLoading" />
     <popup-exit :id_prod="idselected" v-if="showPopup" @close="closePopup"></popup-exit>
-        <div v-else class="container mx-auto p-4">
+    <div v-else class="container mx-auto p-4">
         <h1 class="text-2xl font-bold text-center mb-6">📋 Liste des Produits</h1>
 
         <!-- Filtres et recherche -->
@@ -97,23 +97,40 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden ">
-            <div v-for="produit in produitsFiltres" :key="produit.id" @click="$router.push(`/prod/${produit.id}`)"
+            <div v-for="produit in produitsFiltres" :key="produit.id"
                 class="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center">
-                <img :src="`${baseUrl}/${produit.image_url}`" alt="Produit"
+                <img :src="`${baseUrl}/${produit.image_url}`" alt="Produit" @click="$router.push(`/prod/${produit.id}`)"
                     class="w-32 h-32 object-cover rounded-lg mb-3" />
-                <h2 class="text-lg font-bold">{{ produit.nom }}</h2>
+                <h2 @click="$router.push(`/prod/${produit.id}`)" class="text-lg font-bold">{{ produit.nom }}</h2>
                 <p :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
                     Quantité: {{ produit.quantité }}
                 </p>
+
+
 
                 <div v-if="panier_verif.includes(produit.id)">
 
                     <span class="text-green-500 font-bold">✅ Déjà dans le panier</span>
 
                 </div>
-                <button v-else @click="ajouterAuPanier(produit)"
-                    class="mt-3 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Ajouter au panier
+                <div v-else class="flex space-x-4 mt-5">
+                    <div class="flex items-center justify-center space-x-2 mt-2">
+                        <button @click="modifierQuantite(produit, -1)"
+                            class="bg-red-500 text-white px-2 py-1 rounded">-</button>
+                        <input type="number" v-model="panier[produit.id]" min="1"
+                            class="w-12 text-center border border-gray-300 rounded-lg" />
+                        <button @click="modifierQuantite(produit, 1)"
+                            class="bg-green-500 text-white px-2 py-1 rounded">+</button>
+
+
+                    </div><button @click="ajouterAuPanier(produit)"
+                        class="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                        Ajouter au panier
+                    </button>
+                </div>
+                <button v-if="user" @click="openPopup(produit.id)"
+                    class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition duration-200  items-center gap-2">
+                    🚀 Effectuer une sortie
                 </button>
             </div>
         </div>
@@ -132,7 +149,7 @@ import { number } from "echarts";
 
 export default {
     name: "Produits",
-    components: { SkeletonLoader , PopupExit },
+    components: { SkeletonLoader, PopupExit },
 
     data() {
         return {
@@ -141,7 +158,7 @@ export default {
             rechercheNom: "",
             triQuantite: "",
             showPopup: false,
-            idselected : number,
+            idselected: number,
             isLoading: true,
             quantiteMax: null,
             triCategorie: "",
@@ -154,7 +171,7 @@ export default {
 
     computed: {
 
-        
+
         produitsFiltres() {
             let filtres = this.produits;
 
@@ -193,7 +210,7 @@ export default {
         openPopup(id_select_produit) {
             this.showPopup = true;
             this.idselected = id_select_produit;
-            
+
         },
         closePopup() {
             this.showPopup = false;

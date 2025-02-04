@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2 class="text-2xl font-bold mb-4">📂 Liste des Catégories</h2>
+        <h2 id="topcat" class="text-2xl font-bold mb-4">📂 Liste des Catégories</h2>
         <button @click="$router.push('/admin/categorie/create')"
             class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             Créez votre catégorie
@@ -176,18 +176,27 @@ export default {
                 stopOnFocus: true,
             }).showToast();
         },
+        scrollToTop() {
+            const element = document.getElementById("topcat");
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" }); 
+            }
+        },
         previousPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
+                this.scrollToTop();
             }
         },
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
+                this.scrollToTop();
             }
         },
         changePage() {
             this.fetchCategories();
+            this.scrollToTop();
         },
     },
     mounted() {

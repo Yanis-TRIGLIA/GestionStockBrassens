@@ -1,29 +1,32 @@
 <template>
     <div>
-        <h2 class="text-2xl font-bold mb-4">🧴 Liste des Produits</h2>
+        <h2 id="top" class="text-2xl font-bold mb-4">🧴 Liste des Produits</h2>
         <button @click="$router.push('/admin/produits/create')"
             class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             Créez votre produit
         </button>
 
-       
+
 
         <!-- Grid Layout -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
-            <div v-for="produit in paginatedProduits" :key="produit.id" class="bg-white p-4 shadow-md rounded-lg w-[80%] justify-self-center ">
-                
+            <div v-for="produit in paginatedProduits" :key="produit.id"
+                class="bg-white p-4 shadow-md rounded-lg w-[80%] justify-self-center ">
+
                 <!-- Image -->
                 <div class="flex justify-center">
-                    <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Produit" class="w-32 h-32 object-cover rounded">
+                    <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Produit"
+                        class="w-32 h-32 object-cover rounded">
                 </div>
 
                 <!-- Infos -->
                 <div class="mt-3 text-center">
                     <h3 class="text-lg font-semibold">{{ produit.nom }}</h3>
                     <p class="text-gray-600">Quantité : {{ produit.quantité }}</p>
-                    
+
                     <div class="mt-2">
-                        <span v-for="categorie in produit.categories" :key="categorie.id" class="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full mr-1">
+                        <span v-for="categorie in produit.categories" :key="categorie.id"
+                            class="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full mr-1">
                             {{ categorie.nom }}
                         </span>
                     </div>
@@ -31,7 +34,8 @@
 
                 <!-- Actions -->
                 <div class="mt-4 flex justify-around">
-                    <button @click="$router.push(`/admin/produits/edit/${produit.id}`)" class="text-blue-600 hover:text-blue-800">
+                    <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
+                        class="text-blue-600 hover:text-blue-800">
                         ✏ Modifier
                     </button>
                     <button @click="confirmDeletion(produit.id)" class="text-red-600 hover:text-red-800">
@@ -73,7 +77,8 @@
                                     class="text-blue-600 hover:text-blue-800 text-xs sm:text-sm">
                                     Modifier
                                 </button>
-                                <button @click="confirmDeletion(produit.id)" class="text-red-600 hover:text-red-800 text-xs sm:text-sm">
+                                <button @click="confirmDeletion(produit.id)"
+                                    class="text-red-600 hover:text-red-800 text-xs sm:text-sm">
                                     Supprimer
                                 </button>
                             </div>
@@ -83,15 +88,17 @@
             </table>
         </div>
 
-         <!-- Pagination -->
-         <div class="flex justify-between items-center mb-4 flex-wrap mt-10">
-            <span class="text-sm text-gray-700 w-full sm:w-auto mb-2 sm:mb-0">Page: {{ currentPage }} / {{ totalPages }}</span>
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mb-4 flex-wrap mt-10">
+            <span class="text-sm text-gray-700 w-full sm:w-auto mb-2 sm:mb-0">Page: {{ currentPage }} / {{ totalPages
+                }}</span>
             <div class="flex items-center w-full sm:w-auto justify-between sm:justify-start">
                 <button @click="previousPage" :disabled="currentPage === 1"
                     class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300 w-full sm:w-auto mb-2 sm:mb-0">
                     Précédent
                 </button>
-                <select v-model="currentPage" @change="changePage" class="px-4 py-2 border rounded mx-2 w-full sm:w-auto mb-2 sm:mb-0">
+                <select v-model="currentPage" @change="changePage"
+                    class="px-4 py-2 border rounded mx-2 w-full sm:w-auto mb-2 sm:mb-0">
                     <option v-for="page in totalPages" :key="page" :value="page">
                         {{ page }}
                     </option>
@@ -102,6 +109,8 @@
                 </button>
             </div>
         </div>
+
+     
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal"
@@ -258,18 +267,32 @@ export default {
                 stopOnFocus: true,
             }).showToast();
         },
+        scrollToTop() {
+            const element = document.getElementById("top");
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" }); 
+            }
+        },
+
+
         previousPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
+                this.scrollToTop();
             }
+
         },
+
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
+                this.scrollToTop();
             }
+
         },
         changePage() {
             this.fetchProduits();
+            this.scrollToTop();
         },
     },
     mounted() {

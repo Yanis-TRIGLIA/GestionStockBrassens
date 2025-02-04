@@ -18,7 +18,7 @@
                 <tr v-for="user in users" :key="user.id">
                     <td class="border border-gray-300 px-4 py-2">{{ user.name }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ user.email }}</td>
-                    <td class="border border-gray-300 px-4 py-2 flex space-x-4">
+                    <td class="border border-gray-300 px-4 py-2 md:flex md:space-x-4">
                         <button @click="$router.push(`/admin/utilisateur/edit/${user.id}`)"
                             class="text-blue-600 hover:underline">
                             Modifier

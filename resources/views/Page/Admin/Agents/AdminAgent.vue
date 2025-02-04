@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3 class="text-2xl font-bold mb-4">👨‍⚕️ Agent (Personne)</h3>
+        <h3 id="topagent" class="text-2xl font-bold mb-4">👨‍⚕️ Agent (Personne)</h3>
 
         <button @click="$router.push('/admin/agent/create')"
             class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
@@ -130,18 +130,28 @@ export default {
                 });
         },
 
+        scrollToTop() {
+            const element = document.getElementById("topagent");
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" }); 
+            }
+        },
+
         previousPagePersonne() {
             if (this.currentPagePersonne > 1) {
                 this.currentPagePersonne--;
+                this.scrollToTop();
             }
         },
         nextPagePersonne() {
             if (this.currentPagePersonne < this.totalPagesPersonne) {
                 this.currentPagePersonne++;
+                this.scrollToTop();
             }
         },
         changePagePersonne() {
             this.fetchzones();
+            this.scrollToTop();
         },
 
         fetchzones() {
