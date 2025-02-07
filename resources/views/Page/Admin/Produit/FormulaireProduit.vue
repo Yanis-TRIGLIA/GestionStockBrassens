@@ -17,12 +17,12 @@
         <!-- Prix -->
          <div class="mb-4">
             <label for="prix" class="block text-gray-700">Prix</label>
-            <input v-model.number="formData.prix" type="number" min="0" max="1000" step="0.5" id="prix" class="border rounded w-full py-2 px-3"
-                placeholder="Prix" />
+            <input v-model.number="formData.prix" type="number" step="0.01" min="0" id="prix" class="border rounded w-full py-2 px-3" placeholder="Prix">
+
         </div>
 
         <!-- Reference-->
-         <div class="mb-4">
+         <div class="mb-4"> 
             <label for="reference" class="block text-gray-700">Référence</label>
             <input v-model="formData.reference" type="text" id="reference" class="border rounded w-full py-2 px-3"
                 placeholder="Référence" />
