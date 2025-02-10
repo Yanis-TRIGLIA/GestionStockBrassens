@@ -9,6 +9,7 @@ export default {
     urlParts: window.location.pathname.split("/"),
     quantite: 1,
     addedToCart: false,
+    token :"",
     data() {
         return {
             produit: [],
@@ -25,8 +26,8 @@ export default {
         };
     },
     mounted() {
-        const token = localStorage.getItem('auth_token');
-        this.tokenExists = !!token;
+        this.token = localStorage.getItem('auth_token');
+        this.tokenExists = !!this.token;
         this.id_produit = window.location.pathname.split("/").pop();
         axios
             .get(`/api/produits/${this.id_produit}`)
@@ -134,7 +135,7 @@ export default {
                 <!-- DÉTAILS PRODUIT -->
                 <div class="md:w-1/2">
                     <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">{{ produit.nom }}</h2>
-                    <p v-if="user" class="text-gray-600 dark:text-gray-300 text-lg mb-2">⚖️ Quantité disponible : <span
+                    <p v-if="token" class="text-gray-600 dark:text-gray-300 text-lg mb-2">⚖️ Quantité disponible : <span
                             class="font-semibold">{{ produit.quantité }}</span></p>
                     <p class="text-gray-700 dark:text-gray-300 text-lg mb-2">🎫 Référence : <span
                             class="font-semibold">{{ produit.reference }}</span></p>
@@ -143,7 +144,7 @@ export default {
 
                     <p class="text-xl font-bold text-green-600 dark:text-green-400 mb-6">💰 Prix : {{ produit.prix }} €
                     </p>
-                    <div v-if="user">
+                    <div v-if="token">
                         <h2 class="text-white font-semibold mb-4">🧺 Panier :</h2>
                         <!-- MESSAGE "DÉJÀ DANS LE PANIER" -->
                         <div v-if="panier_verif && panier_verif.includes(produit.id)"
