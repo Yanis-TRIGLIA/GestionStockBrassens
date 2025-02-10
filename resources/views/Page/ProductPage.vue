@@ -17,14 +17,14 @@
                 </option>
             </select>
 
-            <select v-model="triQuantite"
+            <select v-if="user" v-model="triQuantite"
                 class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Trier par quantité</option>
                 <option value="asc">Quantité : Croissante</option>
                 <option value="desc">Quantité : Décroissante</option>
             </select>
 
-            <input v-model.number="quantiteMax" type="number" placeholder="Max Quantité ou Moins"
+            <input v-if="user" v-model.number="quantiteMax" type="number" placeholder="Max Quantité ou Moins"
                 class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
@@ -35,7 +35,7 @@
                     <tr>
                         <th class="border border-gray-300 px-4 py-3">Image</th>
                         <th class="border border-gray-300 px-4 py-3">Nom</th>
-                        <th class="border border-gray-300 px-4 py-3">Quantité</th>
+                        <th v-if="user" class="border border-gray-300 px-4 py-3">Quantité</th>
                         <th v-if="user" class="border border-gray-300 px-4 py-3">Sortie </th>
                         <th v-if="user" class="border border-gray-300 px-4 py-3">🛒 Panier</th>
                     </tr>
@@ -49,7 +49,7 @@
                                 class="w-20 h-20 object-cover rounded-lg mx-auto" />
                         </td>
                         <td class="border border-gray-300 px-4 py-3 font-semibold">{{ produit.nom }}</td>
-                        <td class="border border-gray-300 px-4 py-3">
+                        <td v-if="user" class="border border-gray-300 px-4 py-3">
                             <span :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
                                 {{ produit.quantité }}
                             </span>
@@ -102,19 +102,19 @@
                 <img :src="`${baseUrl}/${produit.image_url}`" alt="Produit" @click="$router.push(`/prod/${produit.id}`)"
                     class="w-32 h-32 object-cover rounded-lg mb-3" />
                 <h2 @click="$router.push(`/prod/${produit.id}`)" class="text-lg font-bold">{{ produit.nom }}</h2>
-                <p :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
+                <p v-if="user" :class="produit.quantité > 2 ? 'text-green-500' : 'text-red-500'">
                     Quantité: {{ produit.quantité }}
                 </p>
 
 
 
-                <div v-if="panier_verif.includes(produit.id)">
+                <div v-if="panier_verif.includes(produit.id) && user">
 
                     <span class="text-green-500 font-bold">✅ Déjà dans le panier</span>
 
                 </div>
                 <div v-else class="flex space-x-4 mt-5">
-                    <div class="flex items-center justify-center space-x-2 mt-2">
+                    <div v-if="user" class="flex items-center justify-center space-x-2 mt-2">
                         <button @click="modifierQuantite(produit, -1)"
                             class="bg-red-500 text-white px-2 py-1 rounded">-</button>
                         <input type="number" v-model="panier[produit.id]" min="1"
@@ -123,7 +123,7 @@
                             class="bg-green-500 text-white px-2 py-1 rounded">+</button>
 
 
-                    </div><button @click="ajouterAuPanier(produit)"
+                    </div><button @click="ajouterAuPanier(produit)" v-if="user"
                         class="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                         Ajouter au panier
                     </button>

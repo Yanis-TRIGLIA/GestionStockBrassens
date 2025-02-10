@@ -25,6 +25,12 @@
         <div class="md:flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-700">Sortie de Produits</h1>
             <div class="md:flex space-x-2">
+              <!--    <select v-model="selectedCategory" @change="filterData"
+                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300">
+                    <option value="">Toutes les catégories</option>
+                    <option v-for="cat in uniqueCategories" :key="cat" :value="cat">{{ cat }}</option>
+                </select>  -->
+
                 <!-- Input de recherche -->
                 <input v-model="searchQuery" @input="filterData" type="text" placeholder="Rechercher un produit..."
                     class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300" />
@@ -77,7 +83,7 @@
                         <td class="px-6 py-4 border-b text-gray-700">
                             {{ new Date(sortie.updated_at).toLocaleString() }}
                         </td>
-                        <td class="px-6 py-4 border-b text-gray-700">{{ sortie.number_after_reduce }}</td>
+                        <td v-if="token" class="px-6 py-4 border-b text-gray-700">{{ sortie.number_after_reduce }}</td>
 
                         <!-- Zone Concernée, affichage conditionnel -->
                         <td class="px-6 py-4 border-b text-gray-700">
@@ -92,9 +98,9 @@
                         <!-- Observation -->
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.observation || 'Aucune' }}</td>
 
-                        <td><a @click="confirmDelete(sortie)" class="cursor-pointer"><svg class="w-full text-center "
-                                    xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50"
-                                    viewBox="0 0 100 100">
+                        <td v-if="token"><a @click="confirmDelete(sortie)" class="cursor-pointer"><svg
+                                    class="w-full text-center " xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                                    width="50" height="50" viewBox="0 0 100 100">
                                     <path fill="#8b8bc1"
                                         d="M77,32L77,32H23h-5v5l5,5v33.308C23,82.288,28.295,86,34.766,86h30.269	C71.616,86,77,82.288,77,75.308V41.917L82,37v-5H77z">
                                     </path>
@@ -176,7 +182,8 @@
                 <div class="mt-4">
                     <h2 class="text-lg font-semibold text-gray-800">{{ sortie.produit.nom }}</h2>
                     <p class="text-sm text-gray-600">Quantité : <strong>{{ sortie.quantité }}</strong></p>
-                    <p class="text-sm text-gray-600">Stock restant : <strong>{{ sortie.number_after_reduce }}</strong>
+                    <p v-if="token" class="text-sm text-gray-600">Stock restant : <strong>{{ sortie.number_after_reduce
+                            }}</strong>
                     </p>
                     <p class="text-sm text-gray-600">Sortie par : <strong>{{ sortie.personne.nom }}</strong></p>
                 </div>
@@ -190,7 +197,7 @@
                 </div>
 
                 <!-- Bouton Supprimer -->
-                <div class="mt-4 flex justify-end">
+                <div v-if="token" class="mt-4 flex justify-end">
                     <button @click="confirmDelete(sortie)" class="text-red-500 hover:text-red-700 flex items-center">
                         <i class="pi pi-trash"></i>
                         <span class="ml-1">Supprimer</span>
@@ -221,6 +228,8 @@ export default {
         const sortColumn = ref("");
         const sortOrder = ref("asc");
         const isLoading = ref(true);
+        const selectedCategory = ref("");
+        const token = localStorage.getItem("auth_token");
 
 
         const sortieToDelete = ref(null);
@@ -230,21 +239,22 @@ export default {
             { key: "produit.image_url", label: "Image" },
             { key: "quantité", label: "Quantité Sortie" },
             { key: "updated_at", label: "Date de Sortie" },
-            { key: "number_after_reduce", label: "Stock Actuel" },
+            ...(token ? [{ key: "number_after_reduce", label: "Stock Actuel" }] : []),
             { key: "zone.nom", label: "Zone Concernée" },
             { key: "zone.nom", label: "A effectuer la sortie" },
             { key: "observation", label: "Observation" },
-            { key: "delete", label: "Supprimer cette sortie" }
+            ...(token ? [{ key: "delete", label: "Supprimer cette sortie" }] : []),
         ];
 
         const columnscsv = [
             { key: "produit.nom", label: "Nom du Produit" },
             { key: "quantité", label: "Quantité Sortie" },
             { key: "updated_at", label: "Date de Sortie" },
-            { key: "number_after_reduce", label: "Stock Actuel" },
+            ...(token ? [{ key: "number_after_reduce", label: "Stock Actuel" }] : []),
             { key: "zone.nom", label: "Zone Concernée" },
             { key: "zone.nom", label: "A effectuer la sortie" },
-            { key: "observation", label: "Observation" } // Nouvelle colonne Observation pour CSV
+            { key: "observation", label: "Observation" } // Nouvelle colonne Observation pour csv
+
         ];
 
         const fetchData = () => {
@@ -252,7 +262,6 @@ export default {
                 .get(`/api/sorties`)
                 .then((response) => {
                     sorties.value = response.data;
-                    console.log(sorties.value)
                 })
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des sorties:", error);
@@ -262,10 +271,34 @@ export default {
 
         };
 
+        // Extraire les catégories uniques des produits
+        const uniqueCategories = computed(() => {
+            const categories = sorties.value.flatMap(sortie =>
+                sortie.categories ? sortie.categories.map(categorie => categorie.nom) : []
+            );
+            return [...new Set(categories)].filter(Boolean);
+        });
+
+
+        // Modification du filtrage pour inclure la catégorie
+        const filteredAndSortedData = computed(() => {
+            return sorties.value
+                .filter(sortie =>
+                    (!searchQuery.value || sortie.produit.nom.toLowerCase().includes(searchQuery.value.toLowerCase())) &&
+                    (!selectedCategory.value || sortie.produit.categories.some(categorie => categorie.nom === selectedCategory.value))
+                )
+                .sort((a, b) => {
+                    if (!sortColumn.value) return 0;
+                    const valueA = a[sortColumn.value];
+                    const valueB = b[sortColumn.value];
+                    return sortOrder.value === "asc" ? valueA > valueB ? 1 : -1 : valueA < valueB ? 1 : -1;
+                });
+        });
+
+
         const confirmDelete = (sortie) => {
             sortieToDelete.value = sortie;
             showDeletePopup.value = true;
-            console.log(showDeletePopup.value)
         };
 
         const deleteSortie = () => {
@@ -297,36 +330,7 @@ export default {
             fetchData();
         };
 
-        const filteredAndSortedData = computed(() => {
-            let data = sorties.value;
 
-            // Filtrage par recherche
-            if (searchQuery.value) {
-                data = data.filter((sortie) =>
-                    sortie.produit.nom
-                        .toLowerCase()
-                        .includes(searchQuery.value.toLowerCase())
-                );
-            }
-
-            // Tri par colonne
-            if (sortColumn.value) {
-                data.sort((a, b) => {
-                    const aValue = sortColumn.value
-                        .split(".")
-                        .reduce((o, i) => o[i], a);
-                    const bValue = sortColumn.value
-                        .split(".")
-                        .reduce((o, i) => o[i], b);
-
-                    if (aValue < bValue) return sortOrder.value === "asc" ? -1 : 1;
-                    if (aValue > bValue) return sortOrder.value === "asc" ? 1 : -1;
-                    return 0;
-                });
-            }
-
-            return data;
-        });
 
         const sortData = (column) => {
             if (sortColumn.value === column) {
@@ -412,6 +416,8 @@ export default {
             refreshData,
             exportToCSV,
             filteredAndSortedData,
+            selectedCategory,
+            uniqueCategories,
             sortData,
             confirmDelete,
             columns,
@@ -423,6 +429,7 @@ export default {
             cancelDelete,
             deleteSortie,
             columnscsv,
+            token,
             exportToCSV,
 
         };

@@ -56,7 +56,6 @@ export default {
                 if (this.isAdmin && hasOutOfStock && this.shouldShowPopup()) {
                     console.log("Produits en rupture de stock !");
                     this.showAlert = true;
-                    this.playAlertSound();
                     this.setPopupTimestamp();
                 }
             } catch (error) {
@@ -88,28 +87,7 @@ export default {
 
 
 
-        playAlertSound() {
-            const audio = new Audio(`${this.baseUrl}/storage/song/danger.wav`);
-
-            audio.addEventListener('ended', () => {
-                this.song = false;
-            });
-
-            if (document.documentElement.dataset.userInteracted) {
-                audio.currentTime = 3;
-                audio.play();
-                this.song = true;
-            } else {
-                const playSoundOnInteraction = () => {
-                    audio.currentTime = 3;
-                    audio.play();
-                    this.song = true;
-                    document.documentElement.dataset.userInteracted = "true";
-                    document.removeEventListener('click', playSoundOnInteraction);
-                };
-                document.addEventListener('click', playSoundOnInteraction);
-            }
-        },
+ 
 
 
 
@@ -146,13 +124,8 @@ export default {
                 </div>
             </div>
 
-            <button v-if="!interaction" @click="closePopup"
-                class="mt-6 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300"
-                disabled>
-                Fermer
-            </button>
 
-            <button v-if="!song && interaction" @click="closePopup"
+            <button @click="closePopup"
                 class="mt-6 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300">
                 Fermer
             </button>

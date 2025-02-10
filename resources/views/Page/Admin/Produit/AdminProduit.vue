@@ -1,14 +1,25 @@
 <template>
     <div>
-        <h2 id="top" class="text-2xl font-bold mb-4">🧴 Liste des Produits</h2>
+
+        <h2 id="topprod" class="text-2xl font-bold mb-4">🧴 Liste des Produits</h2>
         <button @click="$router.push('/admin/produits/create')"
             class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             Créez votre produit
         </button>
+        <!-- Filtres et recherche -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <input v-model="rechercheNom" type="text" placeholder="Rechercher par nom"
+                class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
+            <select v-model="triCategorie"
+                class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Trier par catégorie</option>
+                <option v-for="categorie in categories" :key="categorie.id" :value="categorie.id">
+                    {{ categorie.nom }}
+                </option>
+            </select>
+        </div>
 
-
-        <!-- Grid Layout -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
             <div v-for="produit in paginatedProduits" :key="produit.id"
                 class="bg-white p-4 shadow-md rounded-lg w-[80%] justify-self-center ">
@@ -35,7 +46,7 @@
                 <!-- Actions -->
                 <div class="mt-4 flex justify-around">
                     <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
-                        class="text-blue-600 hover:text-blue-800">
+                        class="text-blue-600 hover:text-blue-800 ">
                         ✏ Modifier
                     </button>
                     <button @click="confirmDeletion(produit.id)" class="text-red-600 hover:text-red-800">
@@ -44,41 +55,33 @@
                 </div>
             </div>
         </div>
-
         <div class="overflow-x-auto hidden md:block">
-            <table class="min-w-full border-collapse border border-gray-300">
+            <!-- Tableau des produits -->
+            <table class="w-full border-collapse border border-gray-300 mt-2">
                 <thead>
                     <tr>
+                        <th class="border border-gray-300 px-4 py-2">Image</th>
                         <th class="border border-gray-300 px-4 py-2">Nom</th>
                         <th class="border border-gray-300 px-4 py-2">Quantité</th>
-                        <th class="border border-gray-300 px-4 py-2">Image</th>
-                        <th class="border border-gray-300 px-4 py-2">Categorie</th>
                         <th class="border border-gray-300 px-4 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="produit in paginatedProduits" :key="produit.id">
-                        <td class="border border-gray-300 px-4 py-2">{{ produit.nom }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ produit.quantité }}</td>
                         <td class="border border-gray-300 px-4 py-2">
                             <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Image"
                                 class="w-16 h-16 object-cover rounded">
                         </td>
-                        <td class="border border-gray-300 px-4 py-2">
-                            <ul class="list-disc pl-5">
-                                <li v-for="categorie in produit.categories" :key="categorie.id">
-                                    {{ categorie.nom }}
-                                </li>
-                            </ul>
-                        </td>
+                        <td class="border border-gray-300 px-4 py-2">{{ produit.nom }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ produit.quantité }}</td>
                         <td class="border border-gray-300 px-4 py-2 text-center">
                             <div class="flex justify-center items-center space-x-4">
                                 <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
-                                    class="text-blue-600 hover:text-blue-800 text-xs sm:text-sm">
+                                    class="text-blue-600 hover:text-blue-800 text-base ">
                                     Modifier
                                 </button>
                                 <button @click="confirmDeletion(produit.id)"
-                                    class="text-red-600 hover:text-red-800 text-xs sm:text-sm">
+                                    class="text-red-600 hover:text-red-800 text-base ">
                                     Supprimer
                                 </button>
                             </div>
@@ -89,42 +92,28 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-between items-center mb-4 flex-wrap mt-10">
-            <span class="text-sm text-gray-700 w-full sm:w-auto mb-2 sm:mb-0">Page: {{ currentPage }} / {{ totalPages
-                }}</span>
-            <div class="flex items-center w-full sm:w-auto justify-between sm:justify-start">
-                <button @click="previousPage" :disabled="currentPage === 1"
-                    class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300 w-full sm:w-auto mb-2 sm:mb-0">
-                    Précédent
-                </button>
-                <select v-model="currentPage" @change="changePage"
-                    class="px-4 py-2 border rounded mx-2 w-full sm:w-auto mb-2 sm:mb-0">
-                    <option v-for="page in totalPages" :key="page" :value="page">
-                        {{ page }}
-                    </option>
-                </select>
-                <button @click="nextPage" :disabled="currentPage === totalPages"
-                    class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300 w-full sm:w-auto">
-                    Suivant
-                </button>
-            </div>
+        <div class="flex justify-between items-center mt-4">
+            <button @click="prevPage" :disabled="currentPage === 1"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Précédent</button>
+            <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Suivant</button>
         </div>
 
-     
+        <!-- Formulaire de création/édition -->
+        <formulaire-produit v-if="isFormVisible" :produit="currentProduit" @submit="handleFormSubmit"
+            @close="closeForm"></formulaire-produit>
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal"
-            class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-            <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                <h3 class="text-xl font-bold mb-4">Confirmer la suppression</h3>
+            class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded shadow-lg">
                 <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
-                <div class="flex justify-between mt-4">
-                    <button @click="deleteProduit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                        Oui, Supprimer
-                    </button>
-                    <button @click="cancelDeletion" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
-                        Annuler
-                    </button>
+                <div class="flex justify-end mt-4">
+                    <button @click="cancelDeletion"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Annuler</button>
+                    <button @click="deleteProduct"
+                        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 ml-2">Supprimer</button>
                 </div>
             </div>
         </div>
@@ -132,10 +121,10 @@
 </template>
 
 <script>
-import axios from "../../../../../axios.config.js";
+import axios from "axios";
+import FormulaireProduit from "./FormulaireProduit.vue";
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
-import FormulaireProduit from "./FormulaireProduit.vue";
 
 export default {
     name: "AdminProduits",
@@ -143,6 +132,9 @@ export default {
     data() {
         return {
             produits: [],
+            categories: [],
+            rechercheNom: "",
+            triCategorie: "",
             isFormVisible: false,
             baseUrl: import.meta.env.VITE_APP_URL,
             isEditMode: false,
@@ -154,13 +146,30 @@ export default {
         };
     },
     computed: {
+        produitsFiltres() {
+            let filtres = this.produits;
+
+            if (this.rechercheNom) {
+                filtres = filtres.filter((produit) =>
+                    produit.nom.toLowerCase().includes(this.rechercheNom.toLowerCase())
+                );
+            }
+
+            if (this.triCategorie) {
+                filtres = filtres.filter((produit) =>
+                    produit.categories.some(categorie => categorie.id === parseInt(this.triCategorie))
+                );
+            }
+
+            return filtres;
+        },
         paginatedProduits() {
             const start = (this.currentPage - 1) * this.productsPerPage;
             const end = start + this.productsPerPage;
-            return this.produits.slice(start, end);
+            return this.produitsFiltres.slice(start, end);
         },
         totalPages() {
-            return Math.ceil(this.produits.length / this.productsPerPage);
+            return Math.ceil(this.produitsFiltres.length / this.productsPerPage);
         },
     },
     methods: {
@@ -217,33 +226,26 @@ export default {
             this.showConfirmationModal = false;
             this.productToDeleteId = null;
         },
-        deleteProduit() {
+        deleteProduct() {
             axios
-                .post(`/api/produits/${this.productToDeleteId}/delete`, {}, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
+                .delete(`/api/produits/${this.productToDeleteId}`)
                 .then(() => {
                     this.showSuccessToast("Produit supprimé avec succès !");
                     this.fetchProduits();
-                    this.showConfirmationModal = false;
+                    this.cancelDeletion();
                 })
                 .catch(() => {
                     this.showErrorToast("Erreur lors de la suppression du produit.");
-                    this.showConfirmationModal = false;
                 });
         },
-
         fetchProduits() {
-            axios
-                .get("/api/produits")
-                .then((response) => {
-                    this.produits = response.data;
-                })
-                .catch((error) => {
-                    console.error("Erreur lors de la récupération des produits:", error);
-                });
+            axios.get("/api/produits")
+                .then((response) => { this.produits = response.data; })
+                .catch((error) => { console.error("Erreur produits:", error); });
+
+            axios.get("/api/categorie")
+                .then((response) => { this.categories = response.data; })
+                .catch((error) => { console.error("Erreur catégories:", error); });
         },
         showSuccessToast(message) {
             Toastify({
@@ -253,7 +255,7 @@ export default {
                 gravity: "top",
                 position: "right",
                 backgroundColor: "#4CAF50",
-                stopOnFocus: true,
+                stopOnFocus: true
             }).showToast();
         },
         showErrorToast(message) {
@@ -263,41 +265,32 @@ export default {
                 close: true,
                 gravity: "top",
                 position: "right",
-                backgroundColor: "#F44336",
-                stopOnFocus: true,
+                backgroundColor: "#FF0000",
+                stopOnFocus: true
             }).showToast();
         },
         scrollToTop() {
-            const element = document.getElementById("top");
+            const element = document.getElementById("topprod");
             if (element) {
-                element.scrollIntoView({ behavior: "smooth" }); 
+                element.scrollIntoView({ behavior: "smooth" });
             }
         },
-
-
-        previousPage() {
+        prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
                 this.scrollToTop();
             }
-
         },
-
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
                 this.scrollToTop();
             }
-
-        },
-        changePage() {
-            this.fetchProduits();
-            this.scrollToTop();
-        },
+        }
     },
     mounted() {
         this.fetchProduits();
-    },
+    }
 };
 </script>
 

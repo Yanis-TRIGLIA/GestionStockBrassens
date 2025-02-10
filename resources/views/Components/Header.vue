@@ -72,7 +72,7 @@ export default {
             <div class="hidden md:flex md:items-center md:space-x-6">
                 <a href="/liste_produit" class="hover:text-blue-600 transition">Les produits</a>
                 <a href="/sortie_produit" class="hover:text-blue-600 transition">Tableau de sortie</a>
-                <a href="/tableau_produit" class="hover:text-blue-600 transition">Tableau de produit</a>
+                <a v-if="isLoggedIn" href="/tableau_produit" class="hover:text-blue-600 transition">Tableau de produit</a>
 
                 <!-- Connexion / Déconnexion -->
                 <button v-if="!isLoggedIn" @click="$router.push('/connexion')"
@@ -126,7 +126,7 @@ export default {
             <div class="flex flex-col space-y-4 mt-10">
                 <a href="/liste_produit" class="hover:text-blue-600 transition">Les produits</a>
                 <a href="/sortie_produit" class="hover:text-blue-600 transition">Tableau de sortie</a>
-                <a href="/tableau_produit" class="hover:text-blue-600 transition">Tableau de produit</a>
+                <a v-if="isLoggedIn" href="/tableau_produit" class="hover:text-blue-600 transition">Tableau de produit</a>
 
                 <!-- Panier -->
                 <a href="/panier" class="flex items-center space-x-2 hover:text-blue-600 transition">

@@ -62,14 +62,16 @@
                             class="w-16 h-16 object-cover rounded">
                     </td>
                     <td class="border border-gray-300 px-4 py-2">{{ categorie.nom }}</td>
-                    <td class="border-b border-gray-300 px-4 py-2 flex space-x-4">
-                        <button @click="$router.push(`/admin/categorie/edit/${categorie.id}`)"
-                            class="text-blue-600 hover:text-blue-800">
-                            Modifier
-                        </button>
-                        <button @click="confirmDeletion(categorie.id)" class="text-red-600 hover:text-red-800">
-                            Supprimer
-                        </button>
+                    <td class="border-b border-gray-300 px-4 py-2">
+                        <div class="flex justify-center space-x-4">
+                            <button @click="$router.push(`/admin/categorie/edit/${categorie.id}`)"
+                                class="text-blue-600 hover:text-blue-800 whitespace-nowrap">
+                                Modifier
+                            </button>
+                            <button @click="confirmDeletion(categorie.id)" class="text-red-600 hover:text-red-800 whitespace-nowrap">
+                                Supprimer
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
