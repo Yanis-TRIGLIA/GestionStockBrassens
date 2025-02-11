@@ -25,15 +25,17 @@
         <div class="md:flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-700">Sortie de Produits</h1>
             <div class="md:flex space-x-2">
-              <!--    <select v-model="selectedCategory" @change="filterData"
-                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300">
+                <!-- Sélecteur de catégorie -->
+                <select v-model="selectedCategory" @change="filterData"
+                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 md:mb-0 mb-6 ml-2  md:ml-0">
                     <option value="">Toutes les catégories</option>
                     <option v-for="cat in uniqueCategories" :key="cat" :value="cat">{{ cat }}</option>
-                </select>  -->
+                </select>
+
 
                 <!-- Input de recherche -->
                 <input v-model="searchQuery" @input="filterData" type="text" placeholder="Rechercher un produit..."
-                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300" />
+                    class="px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 mb-2 md:mb-0" />
                 <!-- Bouton Actualiser -->
                 <button @click="refreshData"
                     class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center md:mt-0 md:mb-0 mt-2 mb-2 ">
@@ -266,21 +268,21 @@ export default {
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des sorties:", error);
                 });
+            console.log(sorties);
 
             isLoading.value = false;
 
         };
 
-        // Extraire les catégories uniques des produits
         const uniqueCategories = computed(() => {
             const categories = sorties.value.flatMap(sortie =>
-                sortie.categories ? sortie.categories.map(categorie => categorie.nom) : []
+                sortie.produit.categories ? sortie.produit.categories.map(categorie => categorie.nom) : []
             );
-            return [...new Set(categories)].filter(Boolean);
+            return [...new Set(categories)].filter(Boolean); 
         });
 
 
-        // Modification du filtrage pour inclure la catégorie
+
         const filteredAndSortedData = computed(() => {
             return sorties.value
                 .filter(sortie =>
@@ -294,6 +296,7 @@ export default {
                     return sortOrder.value === "asc" ? valueA > valueB ? 1 : -1 : valueA < valueB ? 1 : -1;
                 });
         });
+
 
 
         const confirmDelete = (sortie) => {
@@ -334,7 +337,6 @@ export default {
 
         const sortData = (column) => {
             if (sortColumn.value === column) {
-                // Inverser l'ordre de tri
                 sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
             } else {
                 sortColumn.value = column;
@@ -351,7 +353,7 @@ export default {
                 sortie.number_after_reduce,
                 sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun',
                 sortie.zone.type === 'personne' ? sortie.zone.nom : 'Aucun',
-                sortie.observation || 'Aucune'  // Observation
+                sortie.observation || 'Aucune'  
             ]);
 
             const csvContent =
@@ -449,7 +451,6 @@ img:hover {
 @media print {
     img {
         display: none;
-        /* Masquer les images lors de l'impression */
     }
 }
 

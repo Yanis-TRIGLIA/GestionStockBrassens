@@ -7,12 +7,9 @@
         <div class="mt-8">
             <h3 class="text-2xl font-bold text-gray-700 mb-4">📌 Détails des Sorties</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div 
-                    v-for="person in personsData" 
-                    :key="person.id"
-                    @click="openPopup(person.id)"
+                <div v-for="person in personsData" :key="person.id" @click="openPopup(person.id)"
                     class="flex items-center bg-white p-4 shadow-md rounded-lg cursor-pointer hover:shadow-xl transition">
-                    
+
                     <img :src="person.photo" alt="Utilisateur"
                         class="w-16 h-16 object-cover rounded-full border border-gray-300" />
                     <div class="ml-4">
@@ -23,10 +20,13 @@
             </div>
         </div>
 
-        <div v-if="showPopup" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-lg w-3/4 md:w-1/2 lg:w-1/3 p-6 relative">
-                <button @click="closePopup" class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl">&times;</button>
-                
+        <div v-if="showPopup" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50"
+            @click="handleOverlayClick">
+            <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3 p-6 relative max-h-[80vh] overflow-y-auto"
+                @click.stop>
+                <button @click="closePopup"
+                    class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl">&times;</button>
+
                 <h3 class="text-xl font-bold text-gray-800 mb-4">📜 Sorties de {{ selectedPerson?.name }}</h3>
 
                 <div v-if="userSorties.length">
@@ -43,6 +43,7 @@
             </div>
         </div>
 
+
     </div>
 </template>
 
@@ -55,23 +56,24 @@ export default {
     name: "AdminStats",
     data() {
         return {
-            personsData: [], 
-            sortiesData: [],  
-            showPopup: false, 
-            selectedPerson: null,  
-            userSorties: []  
+            personsData: [],
+            sortiesData: [],
+            showPopup: false,
+            selectedPerson: null,
+            userSorties: []
         };
     },
     mounted() {
         this.loadStats();
     },
     methods: {
+
         async loadStats() {
             try {
                 const { data } = await axios.get("/api/sorties");
                 console.log(data);
 
-                this.sortiesData = data; 
+                this.sortiesData = data;
 
                 const sortiesParPersonne = {};
 
@@ -98,6 +100,12 @@ export default {
                 this.initChart();
             } catch (error) {
                 console.error("Erreur lors de la récupération des statistiques :", error);
+            }
+        },
+
+        handleOverlayClick(event) {
+            if (event.target === event.currentTarget) {
+                this.closePopup();
             }
         },
 
@@ -174,6 +182,7 @@ export default {
 .grid div {
     transition: transform 0.2s;
 }
+
 .grid div:hover {
     transform: scale(1.05);
 }
@@ -191,6 +200,7 @@ export default {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

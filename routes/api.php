@@ -63,8 +63,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/sorties', function () {
-    return response()->json(\App\Models\Sortie::with('produit', 'zone' ,'personne')->latest()->get());
-})->middleware();
+    return response()->json(
+        \App\Models\Sortie::with(['produit.categories', 'produit', 'zone', 'personne'])->latest()->get()
+    );
+});
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
