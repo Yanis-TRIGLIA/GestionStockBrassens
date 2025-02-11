@@ -87,7 +87,7 @@ export default {
 
 
 
- 
+
 
 
 
@@ -105,7 +105,7 @@ export default {
             <h2 class="text-xl font-bold text-red-600 dark:text-red-400 mb-4">⚠️ Stock Critique</h2>
             <p class="text-gray-700 dark:text-gray-300">Les produits suivants sont en rupture de stock :</p>
 
-            <div class="mt-4 space-y-4">
+            <div class="mt-4 space-y-4 max-h-[400px] overflow-y-auto">
                 <div v-for="prod in produits.filter(p => p.quantité === 0)" :key="prod.id"
                     class="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-lg shadow cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                     @click="goToProductPage(prod.id)">
@@ -124,13 +124,13 @@ export default {
                 </div>
             </div>
 
-
             <button @click="closePopup"
                 class="mt-6 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300">
                 Fermer
             </button>
         </div>
     </div>
+
 </template>
 
 <style scoped>
