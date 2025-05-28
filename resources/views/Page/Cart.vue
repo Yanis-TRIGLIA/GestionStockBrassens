@@ -166,6 +166,12 @@ export default {
         },
         generatePDF() {
             const doc = new jsPDF();
+
+            if (typeof doc.autoTable !== "function") {
+                console.error("autoTable is not loaded. Check jsPDF and autotable versions.");
+                return;
+            }
+
             doc.text("Récapitulatif de votre panier", 20, 10);
 
             const rows = this.panier.map(produit => [
@@ -181,21 +187,19 @@ export default {
                 body: rows
             });
 
-            doc.text(`Total: ${this.total.toFixed(2)}€`, 20, doc.autoTable.previous.finalY + 10);
-            //on enregistre le panier avec la date du jour Panier_ladate_lenomdelutilisateur.pdf
+            doc.text(`Total: ${this.total.toFixed(2)}€`, 20, doc.lastAutoTable.finalY + 10);
             doc.save(`Panier_${new Date().toISOString().split('T')[0]}_${this.user.name}.pdf`);
         }
     },
 
 
-
     mounted() {
-        this.fetchUserData(localStorage.getItem('auth_token'));
-        this.loadPanier();
+            this.fetchUserData(localStorage.getItem('auth_token'));
+            this.loadPanier();
 
 
-    }
-};
+        }
+    };
 </script>
 
 <template>
@@ -232,7 +236,7 @@ export default {
 
         <p v-else class="empty-message">Votre panier est vide.</p>
 
-        
+
 
         <div class="cart-summary">
             <h2>Total: <span class="total">{{ total.toFixed(2) }}€</span></h2>
