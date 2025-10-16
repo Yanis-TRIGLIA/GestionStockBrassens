@@ -62,14 +62,57 @@ export default {
         };
     },
     mounted() {
-        // Vérifier si un token est présent dans le localStorage lors du montage du composant
-        const token = localStorage.getItem("auth_token");
+        // Vérifier si un token est présent lors du montage du composant
+        const token = this.getToken();
         if (token) {
             // Si un token est trouvé, rediriger directement vers la page d'accueil
             this.$router.push('/');
         }
     },
     methods: {
+        // Fonction pour gérer le stockage avec fallback
+        setToken(token) {
+            try {
+                localStorage.setItem("auth_token", token);
+                localStorage.setItem(
+                    "auth_token_expiration",
+                    Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 jours
+                );
+                return true;
+            } catch (e) {
+                // Fallback si localStorage n'est pas disponible (iPhone en navigation privée)
+                console.warn("localStorage non disponible, utilisation de sessionStorage");
+                try {
+                    sessionStorage.setItem("auth_token", token);
+                    sessionStorage.setItem(
+                        "auth_token_expiration",
+                        Date.now() + 7 * 24 * 60 * 60 * 1000
+                    );
+                    return true;
+                } catch (e2) {
+                    // Dernière option : cookie
+                    console.warn("sessionStorage non disponible, utilisation de cookies");
+                    document.cookie = `auth_token=${token}; max-age=${7 * 24 * 60 * 60}; path=/; SameSite=Strict`;
+                    return true;
+                }
+            }
+        },
+
+        // Fonction pour récupérer le token avec fallback
+        getToken() {
+            try {
+                return localStorage.getItem("auth_token");
+            } catch (e) {
+                try {
+                    return sessionStorage.getItem("auth_token");
+                } catch (e2) {
+                    // Lire depuis les cookies
+                    const match = document.cookie.match(/auth_token=([^;]+)/);
+                    return match ? match[1] : null;
+                }
+            }
+        },
+
         async login() {
             try {
                 // Envoi des informations de connexion à l'API
@@ -78,24 +121,20 @@ export default {
                     password: this.password,
                 });
 
-                // Stockage du token dans le localStorage
+                // Stockage du token avec fallback
                 const token = response.data.access_token;
-                localStorage.setItem("auth_token", token);
-                localStorage.setItem(
-                    "auth_token_expiration",
-                    Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 jours
-                );
+                this.setToken(token);
 
-                // Rafraîchissement de la page pour mettre à jour le header
-                window.location.reload();
+                // Configuration du header axios pour les futures requêtes
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-                // Redirection vers la page d'accueil
-                this.$router.push("/");
+                // Redirection vers la page d'accueil avec rechargement complet
+                window.location.href = '/';
 
             } catch (error) {
                 // Gérer les erreurs de connexion
                 this.errorMessage =
-                    error.response.data.message || "Erreur lors de la connexion";
+                    error.response?.data?.message || "Erreur lors de la connexion";
             }
         },
     },
@@ -104,7 +143,7 @@ export default {
 
 <style scoped>
 .bg-image-blur {
-    background-image: url('https://ds.static.rtbf.be/article/image/370x208/5/d/0/b98a3773ecf715751d3cf0fb6dcba424-1634905771.jpg'); /* Remplacez par le chemin de votre image locale */
+    background-image: url('https://ds.static.rtbf.be/article/image/370x208/5/d/0/b98a3773ecf715751d3cf0fb6dcba424-1634905771.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
