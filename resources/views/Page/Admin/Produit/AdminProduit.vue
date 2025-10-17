@@ -27,36 +27,39 @@
             </select>
         </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:hidden">
             <div v-for="produit in paginatedProduits" :key="produit.id"
-        class="bg-white p-4 shadow-md rounded-xl w-[85%] justify-self-center transform hover:scale-[1.02] transition">
+                class="bg-white p-4 shadow-md rounded-xl w-[85%] justify-self-center transform hover:scale-[1.02] transition">
 
                 <!-- Image -->
                 <div class="flex justify-center">
                     <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Produit"
-                        class="w-56 h-56 object-cover rounded cursor-pointer shadow-sm hover:shadow-lg transition" @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
+                        class="w-56 h-56 object-cover rounded cursor-pointer shadow-sm hover:shadow-lg transition"
+                        @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
                 </div>
 
                 <!-- Infos -->
-                    <div class="mt-3 text-center">
-                        <h3 class="text-lg font-semibold truncate">{{ produit.nom }}</h3>
-                        <p class="text-gray-600">Quantité : <span :class="badgeClass(produit.quantité)">{{ produit.quantité }}</span></p>
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg font-semibold truncate">{{ produit.nom }}</h3>
+                    <p class="text-gray-600">Quantité : <span :class="badgeClass(produit.quantité)">{{ produit.quantité
+                    }}</span></p>
 
-                        <div class="mt-3 flex flex-wrap justify-center gap-2">
-                            <span v-for="categorie in produit.categories" :key="categorie.id"
-                                class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full border">{{ categorie.nom }}</span>
-                        </div>
+                    <div class="mt-3 flex flex-wrap justify-center gap-2">
+                        <span v-for="categorie in produit.categories" :key="categorie.id"
+                            class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full border">{{ categorie.nom
+                            }}</span>
                     </div>
+                </div>
 
                 <!-- Actions -->
-                    <div class="mt-4 flex justify-around">
-                        <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
-                            class="px-3 py-1 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition">✏
-                            Modifier</button>
-                        <button @click="confirmDeletion(produit.id)"
-                            class="px-3 py-1 bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition">🗑
-                            Supprimer</button>
-                    </div>
+                <div class="mt-4 flex justify-around">
+                    <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
+                        class="px-3 py-1 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition">✏
+                        Modifier</button>
+                    <button @click="confirmDeletion(produit.id)"
+                        class="px-3 py-1 bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition">🗑
+                        Supprimer</button>
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto hidden md:block">
@@ -76,24 +79,29 @@
                         </tr>
                     </thead>
                     <tbody class="">
-                        <tr v-for="produit in paginatedProduits" :key="produit.id" class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
+                        <tr v-for="produit in paginatedProduits" :key="produit.id"
+                            class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
                             <td class="px-3 py-3 align-top">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-28 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer">
-                                        <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Image"
-                                            class="w-full h-full object-cover" @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
+                                    <div
+                                        class="w-28 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer">
+                                        <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`"
+                                            alt="Image" class="w-full h-full object-cover"
+                                            @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
                                         <div v-else class="text-gray-400 text-xs">No image</div>
                                     </div>
                                     <div>
                                         <div class="font-semibold text-sm text-gray-800">{{ produit.nom }}</div>
-                                        <div class="text-sm text-gray-500 truncate max-w-[40ch]">{{ produit.description || '-' }}</div>
+                                        <div class="text-sm text-gray-500 truncate max-w-[40ch]">{{ produit.description
+                                            || '-' }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-3 py-3 align-top w-48">
-                                <div class="flex flex-wrap gap-1"> 
+                                <div class="flex flex-wrap gap-1">
                                     <span v-for="categorie in produit.categories" :key="categorie.id"
-                                        class="text-xs bg-gray-50 text-gray-700 px-2 py-0.5 rounded-full border">{{ categorie.nom }}</span>
+                                        class="text-xs bg-gray-50 text-gray-700 px-2 py-0.5 rounded-full border">{{
+                                            categorie.nom }}</span>
                                 </div>
                             </td>
                             <td class="px-3 py-3 align-top">
@@ -101,17 +109,21 @@
                             </td>
                             <td class="px-3 py-3 text-center align-top">
                                 <div class="flex justify-center items-center gap-3">
-                                    <button @click="$router.push(`/admin/produits/edit/${produit.id}`)" aria-label="Modifier"
+                                    <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
+                                        aria-label="Modifier"
                                         class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor">
                                             <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
-                                            <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                            <path
+                                                d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                         </svg>
                                         <span class="text-sm">Modifier</span>
                                     </button>
                                     <button @click="confirmDeletion(produit.id)" aria-label="Supprimer"
                                         class="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor">
                                             <polyline points="3 6 5 6 21 6" />
                                             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                                             <path d="M10 11v6M14 11v6" />
@@ -122,9 +134,9 @@
                                 </div>
                             </td>
                         </tr>
-                    <tr v-if="paginatedProduits.length === 0">
-                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">Aucun produit trouvé.</td>
-                    </tr>
+                        <tr v-if="paginatedProduits.length === 0">
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">Aucun produit trouvé.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -158,11 +170,13 @@
         </div>
 
         <!-- Lightbox modal -->
-        <div v-if="lightbox.visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" @click.self="closeLightbox">
+        <div v-if="lightbox.visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+            @click.self="closeLightbox">
             <div class="max-w-[90%] max-h-[90%]">
                 <img :src="lightbox.src" alt="Aperçu" class="w-full h-auto max-h-[90vh] rounded-lg shadow-2xl" />
             </div>
-            <button @click="closeLightbox" class="absolute top-6 right-6 text-white bg-black bg-opacity-30 rounded-full p-2 hover:bg-opacity-50">✕</button>
+            <button @click="closeLightbox"
+                class="absolute top-6 right-6 text-white bg-black bg-opacity-30 rounded-full p-2 hover:bg-opacity-50">✕</button>
         </div>
     </div>
 </template>
@@ -283,16 +297,36 @@ export default {
             this.showConfirmationModal = false;
             this.productToDeleteId = null;
         },
+        // Après (Correspond à la route protégée POST /produits/{id}/delete)
         deleteProduct() {
+            // 1. Récupérer le token depuis le localStorage
+            const token = localStorage.getItem('auth_token');
+
+            if (!token) {
+                this.showErrorToast("Erreur: Token d'authentification manquant. Reconnectez-vous.");
+                return;
+            }
+
+            // 2. Préparer la requête avec l'en-tête d'autorisation (Bearer Token)
             axios
-                .delete(`/api/produits/${this.productToDeleteId}`)
+                .post(
+                    `/api/produits/${this.productToDeleteId}/delete`,
+                    {}, // Le corps de la requête est vide
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}` // ⬅️ Envoi du token
+                        }
+                    }
+                )
                 .then(() => {
                     this.showSuccessToast("Produit supprimé avec succès !");
                     this.fetchProduits();
                     this.cancelDeletion();
                 })
-                .catch(() => {
-                    this.showErrorToast("Erreur lors de la suppression du produit.");
+                .catch((error) => {
+                    console.error("Erreur de suppression:", error.response || error);
+                    // Le 401 sera toujours géré ici
+                    this.showErrorToast("Erreur lors de la suppression du produit. (Token ou route invalide)");
                 });
         },
         openLightbox(src) {
