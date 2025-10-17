@@ -1,34 +1,36 @@
 <template>
-    <form @submit.prevent="submitForm" class="max-w-lg">
-        <div class="mb-4">
-            <label for="nom" class="block text-gray-700">Nom de la Catégorie</label>
-            <input
-                type="text"
-                id="nom"
-                v-model="form.nom"
-                class="mt-1 block w-full border rounded py-2 px-3"
-                placeholder="Nom de la catégorie"
-                required
-            />
-        </div>
+    <form @submit.prevent="submitForm" class="max-w-lg mx-auto">
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">{{ categorie ? 'Modifier la catégorie' : 'Créer une catégorie' }}
+            </h2>
 
-        <div class="mb-4">
-            <label for="image" class="block text-gray-700">Image de la Catégorie</label>
-            <input
-                type="file"
-                id="image"
-                @change="handleFileUpload"
-                class="border rounded w-full py-2 px-3"
-            />
-            <p v-if="form.image" class="text-sm text-gray-600 mt-2">Image actuelle : {{ form.image.name }}</p>
-        </div>
+            <div class="mb-4">
+                <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom de la catégorie</label>
+                <input type="text" id="nom" v-model="form.nom"
+                    class="mt-1 block w-full rounded-md border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Nom de la catégorie" required />
+            </div>
 
-        <button
-            type="submit"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-            {{ categorie ? "Mettre à jour" : "Créer" }}
-        </button>
+            <div class="mb-4">
+                <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Image de la catégorie</label>
+                <div class="border-dashed border-2 border-indigo-200 rounded-md p-4 text-center bg-white">
+                    <div class="mt-3">
+                        <button type="button" @click="triggerImageInput"
+                            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700">Choisir
+                            une image</button>
+                        <input ref="imageInput" type="file" id="image" @change="handleFileUpload" class="hidden" />
+                    </div>
+                    <p v-if="form.image" class="text-sm text-gray-600 mt-2">Fichier sélectionné : {{ form.image.name }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" @click="goBack" class="px-4 py-2 rounded-md bg-gray-100">Annuler</button>
+                <button type="submit" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">{{
+                    categorie ? 'Mettre à jour' : 'Créer' }}</button>
+            </div>
+        </div>
     </form>
 </template>
 
@@ -63,6 +65,16 @@ export default {
             const file = event.target.files[0];
             this.form.image = file;
         },
+        triggerImageInput() {
+            if (this.$refs.imageInput) this.$refs.imageInput.click();
+        },
+        removeImage() {
+            this.form.image = null;
+        },
+        openInNewTab(src) {
+            if (!src) return;
+            window.open(src, '_blank');
+        },
         submitForm() {
             const formData = new FormData();
             formData.append("nom", this.form.nom);
@@ -70,6 +82,11 @@ export default {
                 formData.append("image", this.form.image);
             }
             this.$emit("submit", formData);
+        },
+
+        goBack() {
+            if (this.$router && this.$router.back) this.$router.back();
+            else window.history.back();
         },
     },
 };

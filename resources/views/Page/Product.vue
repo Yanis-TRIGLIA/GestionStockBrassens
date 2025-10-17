@@ -117,96 +117,159 @@ export default {
 </script>
 
 <template>
-    <popup-exit v-if="showPopup" @close="closePopup"></popup-exit>
+  <popup-exit v-if="showPopup" @close="closePopup"></popup-exit>
+  <SkeletonLoader v-if="isLoading" />
 
-    <SkeletonLoader v-if="isLoading" />
-
-    <div v-else class="bg-gray-100 dark:bg-gray-800 py-10">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="flex flex-col md:flex-row gap-8">
-                <!-- IMAGE PRODUIT -->
-                <div class="md:w-1/2">
-                    <div class="rounded-lg overflow-hidden bg-gray-300 dark:bg-gray-700 shadow-lg">
-                        <img :src="`${baseUrl}/${produit.image_url}`" alt="Product"
-                            class="w-full h-[460px] object-cover">
-                    </div>
-                </div>
-
-                <!-- DÉTAILS PRODUIT -->
-                <div class="md:w-1/2">
-                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">{{ produit.nom }}</h2>
-                    <p v-if="token" class="text-gray-600 dark:text-gray-300 text-lg mb-2">⚖️ Quantité disponible : <span
-                            class="font-semibold">{{ produit.quantité }}</span></p>
-                    <p class="text-gray-700 dark:text-gray-300 text-lg mb-2">🎫 Référence : <span
-                            class="font-semibold">{{ produit.reference }}</span></p>
-                    <p class="text-gray-700 dark:text-gray-300 text-lg mb-4">📃 Description : <span
-                            class="font-semibold">{{ produit.description }}</span></p>
-
-                    <p class="text-xl font-bold text-green-600 dark:text-green-400 mb-6">💰 Prix : {{ produit.prix }} €
-                    </p>
-                    <div v-if="token">
-                        <h2 class="text-white font-semibold mb-4">🧺 Panier :</h2>
-                        <!-- MESSAGE "DÉJÀ DANS LE PANIER" -->
-                        <div v-if="panier_verif && panier_verif.includes(produit.id)"
-                            class="bg-green-100 text-green-700 dark:bg-green-700 dark:text-white font-bold p-3 rounded-lg mb-4 md:w-4/12 ">
-                            ✅ Déjà dans le panier
-                        </div>
-
-                        <!-- AJOUTER AU PANIER -->
-
-                        <div v-else
-                            class="flex items-center gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md md:w-7/12">
-                            <label for="quantity" class="text-lg font-semibold">📦 Quantité :</label>
-                            <input type="number" v-model="quantity" :max="produit.quantité" min="1"
-                                class="w-20 p-2 border rounded-md text-center" id="quantity">
-
-                            <button @click="ajouterAuPanier()"
-                                class="bg-blue-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-600 transition duration-200 flex items-center gap-2">
-                                🛒 Ajouter
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- MESSAGE DE CONFIRMATION -->
-                    <div v-if="addedToCart"
-                        class="mt-4 text-green-600 dark:text-green-400 font-semibold bg-green-100 dark:bg-green-700 p-3 rounded-lg">
-                        ✅ Le produit <span class="font-bold">{{ produit.nom }}</span> a été ajouté au panier !
-                    </div>
-
-                    <!-- BOUTON SORTIE (SI CONNECTÉ) -->
-                    <button v-if="tokenExists" @click="openPopup"
-                        class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition duration-200 flex items-center gap-2">
-                        🚀 Effectuer une sortie
-                    </button>
-
-                    <!-- TÉLÉCHARGEMENT FICHES TECHNIQUES -->
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold mb-2 text-white">📂 Fiches Techniques :</h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <router-link v-for="(file, index) in fileProduct" :key="index" :to="`/${file}`"
-                                target="_blank">
-                                <button
-                                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 transition duration-200 flex items-center gap-2">
-                                    📄 Fiche Techniques {{ index + 1 }}
-                                </button>
-                            </router-link>
-                        </div>
-                    </div>
-
-                    <!-- CATÉGORIE -->
-                    <div class="mt-8">
-                        <h3 class="text-lg font-semibold mb-2 text-white">🔠 Catégorie :</h3>
-                        <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 px-4">
-                            <li v-for="categorie in produit.categories" :key="categorie.id">
-                                {{ categorie.nom }}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+  <div v-else class="bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 min-h-screen py-12 lg:py-20">
+    <div class="container mx-auto px-4 lg:px-8 max-w-6xl">
+      
+      <div class="flex flex-col md:flex-row gap-10">
+        <!-- Image Produit -->
+        <div class="md:w-1/2 lg:w-5/12 sticky top-6 h-fit bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4">
+          <div class="overflow-hidden rounded-xl">
+            <img
+              :src="`${baseUrl}/${produit.image_url}`"
+              :alt="produit.nom"
+              class="w-full h-96 object-contain transition-transform duration-500 hover:scale-105"
+              style="aspect-ratio: 4/3;"
+            />
+          </div>
         </div>
+
+        <!-- Informations Produit -->
+        <div class="md:w-1/2 lg:w-7/12">
+          <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-gray-50 mb-3">
+            {{ produit.nom }}
+          </h1>
+
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
+            🎫 Référence : <span class="font-semibold">{{ produit.reference }}</span>
+          </p>
+
+          <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-6">
+            {{ produit.prix }} €
+          </p>
+
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2">
+            <span class="text-blue-500 dark:text-blue-400">📄</span> Description :
+          </h2>
+
+          <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 p-5 rounded-xl bg-gray-100 dark:bg-gray-800 border-l-4 border-blue-400 dark:border-blue-500 shadow-sm">
+            {{ produit.description }}
+          </p>
+
+          <div
+            v-if="token"
+            class="flex items-center gap-4 text-lg mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl shadow-inner border border-gray-200 dark:border-gray-700"
+          >
+            <span class="text-blue-500 dark:text-blue-400">⚖️</span>
+            <p class="text-gray-700 dark:text-gray-300 font-medium">
+              Stock disponible :
+              <span class="font-bold text-blue-600 dark:text-blue-400">{{ produit.quantité }}</span>
+            </p>
+          </div>
+
+          <!-- Panier -->
+          <div
+            v-if="token"
+            class="p-6 border border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800 shadow-lg"
+          >
+            <h2 class="text-xl font-bold text-gray-900 mb-5">🧺 Panier</h2>
+
+            <div v-if="!panier_verif.includes(produit.id)" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <!-- Quantity -->
+              <div class="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden dark:bg-gray-700">
+                <button
+                  @click="quantity > 1 ? quantity-- : null"
+                  class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                >
+                  <span class="text-2xl font-bold">−</span>
+                </button>
+                <input
+                  type="number"
+                  v-model.number="quantity"
+                  :max="produit.quantité"
+                  min="1"
+                  class="w-16 text-center text-lg font-semibold bg-transparent focus:outline-none border-x border-gray-300 dark:border-gray-600 p-2 dark:text-white"
+                  @input="quantity = Math.max(1, Math.min(produit.quantité, quantity))"
+                />
+                <button
+                  @click="quantity < produit.quantité ? quantity++ : null"
+                  class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                >
+                  <span class="text-2xl font-bold">+</span>
+                </button>
+              </div>
+
+              <!-- Bouton panier -->
+              <button
+                @click="ajouterAuPanier()"
+                class="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-extrabold text-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-transform duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  ></path>
+                </svg>
+                Ajouter au panier
+              </button>
+            </div>
+          </div>
+
+          <!-- Autres informations -->
+          <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <button
+              v-if="tokenExists"
+              @click="openPopup"
+              class="bg-gradient-to-r from-teal-600 to-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-md hover:from-teal-700 hover:to-blue-700 transition flex items-center justify-center gap-2"
+            >
+              ⚡ Effectuer une sortie
+            </button>
+
+            <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl shadow-inner">
+              <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-white">🔠 Catégorie :</h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="categorie in produit.categories"
+                  :key="categorie.id"
+                  class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200"
+                >
+                  {{ categorie.nom }}
+                </span>
+              </div>
+            </div>
+
+            <div class="md:col-span-2 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl shadow-inner">
+              <h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-white">📂 Fiches Techniques :</h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <a
+                  v-for="(file, index) in fileProduct"
+                  :key="index"
+                  :href="`${baseUrl}/${file}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200 flex items-center justify-center text-sm shadow-sm"
+                >
+                  📎 Fiche {{ index + 1 }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
+
 
 
 

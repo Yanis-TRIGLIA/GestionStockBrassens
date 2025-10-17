@@ -7,35 +7,99 @@
             Créez un Agent
         </button>
 
-        <!-- Tableau responsive pour les zones de type "personne" -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full border-collapse border border-gray-300 mt-2">
-                <thead>
-                    <tr>
-                        <th class="border border-gray-300 px-4 py-2">Image</th>
-                        <th class="border border-gray-300 px-4 py-2">Nom</th>
-                        <th class="border border-gray-300 px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="zone in paginatedZonesPersonne" :key="zone.id">
-                        <td class="border border-gray-300 px-4 py-2">
-                            <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image"
-                                class="w-16 h-16 object-cover rounded">
-                        </td>
-                        <td class="border border-gray-300 px-4 py-2">{{ zone.nom }}</td>
-                        <td class="border-t border-gray-300 px-4 py-2 flex flex-col sm:flex-row sm:space-x-4">
-                            <button @click="$router.push(`/admin/zones/edit/${zone.id}`)"
-                                class="text-blue-600 hover:text-blue-800 mb-2 sm:mb-0">
-                                Modifier
-                            </button>
-                            <button @click="confirmDeletion(zone.id)" class="text-red-600 hover:text-red-800">
-                                Supprimer
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Mobile cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
+            <div v-for="zone in paginatedZonesPersonne" :key="zone.id" class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
+                <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Agent" class="w-40 h-40 object-cover rounded mb-3 cursor-pointer" @click="openLightbox(`${baseUrl}/${zone.image_url}`)">
+                <h4 class="font-semibold text-lg mb-2">{{ zone.nom }}</h4>
+                <div class="flex gap-3">
+                    <button @click="$router.push(`/admin/zones/edit/${zone.id}`)" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
+                            <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                        </svg>
+                        <span class="text-sm">Modifier</span>
+                    </button>
+                    <button @click="confirmDeletion(zone.id)" class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6M14 11v6" />
+                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        <span class="text-sm">Supprimer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto hidden md:block">
+            <div class="mt-2 bg-white rounded-lg shadow-md p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-700">Agents</h3>
+                    <span class="text-sm text-gray-500">Total : {{ zones.filter(z => z.type === 'personne').length }}</span>
+                </div>
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="text-left text-xs text-gray-500 border-b pb-2">
+                            <th class="px-3 py-2">Image</th>
+                            <th class="px-3 py-2">Nom</th>
+                            <th class="px-3 py-2 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                                <tr v-for="zone in paginatedZonesPersonne" :key="zone.id" class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
+                                    <!-- Fixed width image column -->
+                                    <td class="px-3 py-3 align-middle" style="width:120px; max-width:120px;">
+                                        <div class="w-28 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer">
+                                            <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`${baseUrl}/${zone.image_url}`)" />
+                                        </div>
+                                    </td>
+
+                                    <!-- Center name vertically -->
+                                    <td class="px-3 py-3 align-middle">
+                                        <div class="flex items-center h-full">
+                                            <div class="truncate">{{ zone.nom }}</div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Constrain actions column and center buttons -->
+                                    <td class="px-3 py-3 align-middle" style="width:220px; max-width:220px;">
+                                        <div class="flex items-center justify-center h-full">
+                                            <div class="flex justify-center items-center gap-3">
+                                                <button @click="$router.push(`/admin/zones/edit/${zone.id}`)" class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow" aria-label="Modifier">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
+                                                        <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                                    </svg>
+                                                    <span class="text-sm">Modifier</span>
+                                                </button>
+                                                <button @click="confirmDeletion(zone.id)" class="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow" aria-label="Supprimer">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <polyline points="3 6 5 6 21 6" />
+                                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                                        <path d="M10 11v6M14 11v6" />
+                                                        <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                                                    </svg>
+                                                    <span class="text-sm">Supprimer</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                        <tr v-if="paginatedZonesPersonne.length === 0">
+                            <td colspan="3" class="px-6 py-8 text-center text-gray-500">Aucun agent trouvé.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Lightbox modal -->
+        <div v-if="lightbox.visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" @click.self="closeLightbox">
+            <div class="max-w-[90%] max-h-[90%]">
+                <img :src="lightbox.src" alt="Aperçu" class="w-full h-auto max-h-[90vh] rounded-lg shadow-2xl" />
+            </div>
+            <button @click="closeLightbox" class="absolute top-6 right-6 text-white bg-black bg-opacity-30 rounded-full p-2 hover:bg-opacity-50">✕</button>
         </div>
 
         <!-- Pagination responsive -->
@@ -90,6 +154,7 @@ export default {
             baseUrl: import.meta.env.VITE_APP_URL,
             showConfirmationModal: false,
             zoneToDeleteId: null,
+            lightbox: { visible: false, src: null },
         };
     },
     computed: {
@@ -163,6 +228,19 @@ export default {
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des zones:", error);
                 });
+        },
+        openLightbox(src) {
+            this.lightbox.src = src;
+            this.lightbox.visible = true;
+            document.addEventListener('keydown', this._handleEsc);
+        },
+        closeLightbox() {
+            this.lightbox.visible = false;
+            this.lightbox.src = null;
+            document.removeEventListener('keydown', this._handleEsc);
+        },
+        _handleEsc(e) {
+            if (e.key === 'Escape') this.closeLightbox();
         },
         showSuccessToast(message) {
             Toastify({

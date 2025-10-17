@@ -25,12 +25,19 @@
                 </button>
             </div>
         </div>
+        <!-- Lightbox modal -->
+        <div v-if="lightbox.visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" @click.self="closeLightbox">
+            <div class="max-w-[90%] max-h-[90%]">
+                <img :src="lightbox.src" alt="Aperçu" class="w-full h-auto max-h-[90vh] rounded-lg shadow-2xl" />
+            </div>
+            <button @click="closeLightbox" class="absolute top-6 right-6 text-white bg-black bg-opacity-30 rounded-full p-2 hover:bg-opacity-50">✕</button>
+        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
             <div v-for="categorie in paginatedCategories" :key="categorie.id" class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
                 
                 <!-- Image -->
-                <img v-if="categorie.image" :src="`/storage/${categorie.image}`" alt="Catégorie" class="w-32 h-32 object-cover rounded mb-3">
+                <img v-if="categorie.image" :src="`/storage/${categorie.image}`" alt="Catégorie" class="w-40 h-40 object-cover rounded mb-3 cursor-pointer shadow-sm hover:shadow-lg transition" @click="openLightbox(`/storage/${categorie.image}`)">
                 
                 <!-- Nom -->
                 <h3 class="text-lg font-semibold">{{ categorie.nom }}</h3>
@@ -47,35 +54,58 @@
             </div>
         </div>
 
-        <table class="min-w-full border-collapse border border-gray-300 hidden md:table">
-            <thead>
-                <tr>
-                    <th class="border border-gray-300 px-4 py-2">Image</th>
-                    <th class="border border-gray-300 px-4 py-2">Nom</th>
-                    <th class="border border-gray-300 px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="categorie in paginatedCategories" :key="categorie.id">
-                    <td class="border border-gray-300 px-4 py-2">
-                        <img v-if="categorie.image" :src="`/${categorie.image}`" alt="Image"
-                            class="w-16 h-16 object-cover rounded">
-                    </td>
-                    <td class="border border-gray-300 px-4 py-2">{{ categorie.nom }}</td>
-                    <td class="border-b border-gray-300 px-4 py-2">
-                        <div class="flex justify-center space-x-4">
-                            <button @click="$router.push(`/admin/categorie/edit/${categorie.id}`)"
-                                class="text-blue-600 hover:text-blue-800 whitespace-nowrap">
-                                Modifier
-                            </button>
-                            <button @click="confirmDeletion(categorie.id)" class="text-red-600 hover:text-red-800 whitespace-nowrap">
-                                Supprimer
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="overflow-x-auto hidden md:block">
+            <div class="mt-4 bg-white rounded-lg shadow-md p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-700">Catégories</h3>
+                    <span class="text-sm text-gray-500">Total : {{ categories.length }}</span>
+                </div>
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="text-left text-xs text-gray-500 border-b pb-2">
+                            <th class="px-3 py-2">Image</th>
+                            <th class="px-3 py-2">Nom</th>
+                            <th class="px-3 py-2 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="categorie in paginatedCategories" :key="categorie.id" class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
+                            <td class="px-3 py-3 align-top w-28">
+                                <div class="w-24 h-24 overflow-hidden rounded-md bg-gray-100 flex items-center justify-center cursor-pointer">
+                                    <img v-if="categorie.image" :src="`/storage/${categorie.image}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`/storage/${categorie.image}`)">
+                                </div>
+                            </td>
+                            <td class="px-3 py-3 align-top">
+                                <div class="font-semibold text-sm text-gray-800">{{ categorie.nom }}</div>
+                            </td>
+                            <td class="px-3 py-3 text-center align-top">
+                                <div class="flex justify-center items-center gap-3">
+                                    <button @click="$router.push(`/admin/categorie/edit/${categorie.id}`)" class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow" aria-label="Modifier">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
+                                            <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                        </svg>
+                                        <span class="text-sm">Modifier</span>
+                                    </button>
+                                    <button @click="confirmDeletion(categorie.id)" class="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow" aria-label="Supprimer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="3 6 5 6 21 6" />
+                                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                            <path d="M10 11v6M14 11v6" />
+                                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                                        </svg>
+                                        <span class="text-sm">Supprimer</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="paginatedCategories.length === 0">
+                            <td colspan="3" class="px-6 py-8 text-center text-gray-500">Aucune catégorie trouvée.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal"
@@ -110,6 +140,7 @@ export default {
             categoriesPerPage: 10,
             showConfirmationModal: false,
             categoryToDeleteId: null,
+            lightbox: { visible: false, src: null },
         };
     },
     computed: {
@@ -132,6 +163,19 @@ export default {
                 .catch((error) => {
                     console.error("Erreur lors de la récupération des catégories:", error);
                 });
+        },
+        openLightbox(src) {
+            this.lightbox.src = src;
+            this.lightbox.visible = true;
+            document.addEventListener('keydown', this._handleEsc);
+        },
+        closeLightbox() {
+            this.lightbox.visible = false;
+            this.lightbox.src = null;
+            document.removeEventListener('keydown', this._handleEsc);
+        },
+        _handleEsc(e) {
+            if (e.key === 'Escape') this.closeLightbox();
         },
         confirmDeletion(categoryId) {
             this.categoryToDeleteId = categoryId;

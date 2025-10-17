@@ -170,4 +170,34 @@ public function store(Request $request)
         Log::info('Produit supprimé avec succès : ', ['id' => $id]);
         return response()->json(['message' => 'Produit supprimé avec succès']);
     }
+
+    // Supprime un fichier spécifique rattaché au produit (fichier dans file_product)
+    public function deleteFile(Request $request, $id)
+    {
+        $produit = Produit::findOrFail($id);
+        $file = $request->input('file');
+        if (!$file) {
+            return response()->json(['error' => 'Aucun fichier spécifié'], 400);
+        }
+
+        $files = json_decode($produit->file_product ?? '[]', true);
+        if (!in_array($file, $files)) {
+            return response()->json(['error' => 'Fichier introuvable'], 404);
+        }
+
+        // Supprimer le fichier physique si présent
+        $publicPath = public_path($file);
+        if (file_exists($publicPath)) {
+            @unlink($publicPath);
+        }
+
+        // Retirer du tableau et sauvegarder
+        $files = array_values(array_filter($files, function ($f) use ($file) {
+            return $f !== $file;
+        }));
+        $produit->file_product = json_encode($files);
+        $produit->save();
+
+        return response()->json(['message' => 'Fichier supprimé']);
+    }
 }
