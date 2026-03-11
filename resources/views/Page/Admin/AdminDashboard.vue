@@ -82,7 +82,7 @@ export default {
                     const personneId = sortie.personne.id;
                     const personneNom = sortie.personne.nom;
                     const personnePhoto = sortie.personne.image_url
-                        ? `${import.meta.env.VITE_APP_URL}/${sortie.personne.image_url}`
+                        ? `/${sortie.personne.image_url}`
                         : "https://via.placeholder.com/150";
 
                     if (!sortiesParPersonne[personneId]) {
