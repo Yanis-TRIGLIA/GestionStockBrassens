@@ -79,7 +79,7 @@
                         @click.stop="$router.push('/sortie/' + sortie.id)">
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit?.nom || '—' }}</td>
                         <td class="px-6 py-4 border-b">
-                            <img v-if="sortie.produit?.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
+                            <img v-if="sortie.produit?.image_url" :src="`/${sortie.produit.image_url}`"
                                 alt="Image du produit" class="w-16 h-16 object-cover rounded" />
                         </td>
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.quantité }}</td>
@@ -177,7 +177,7 @@
 
                 <!-- Image -->
                 <div class="flex justify-center">
-                    <img v-if="sortie.produit?.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
+                    <img v-if="sortie.produit?.image_url" :src="`/${sortie.produit.image_url}`"
                         alt="Image du produit" class="w-32 h-32 object-cover rounded-lg" />
                 </div>
 

@@ -13,8 +13,8 @@
                 class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
 
                 <!-- Image -->
-                <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Zone"
-                    class="w-40 h-40 object-cover rounded mb-3 cursor-pointer shadow-sm hover:shadow-lg transition" @click="openLightbox(`${baseUrl}/${zone.image_url}`)">
+                <img v-if="zone.image_url" :src="`/${zone.image_url}`" alt="Zone"
+                    class="w-40 h-40 object-cover rounded mb-3 cursor-pointer shadow-sm hover:shadow-lg transition" @click="openLightbox(`/${zone.image_url}`)">
 
                 <!-- Nom -->
                 <h3 class="text-lg font-semibold">{{ zone.nom }}</h3>
@@ -60,7 +60,7 @@
                         <tr v-for="zone in paginatedZonesZone" :key="zone.id" class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
                             <td class="px-3 py-3 w-28 align-top">
                                 <div class="w-24 h-24 overflow-hidden rounded-md bg-gray-100 flex items-center justify-center cursor-pointer">
-                                    <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`${baseUrl}/${zone.image_url}`)">
+                                    <img v-if="zone.image_url" :src="`/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`/${zone.image_url}`)">
                                 </div>
                             </td>
                             <td class="px-3 py-3 align-top">{{ zone.nom }}</td>

@@ -27,7 +27,7 @@
                 <!-- Image produit -->
                 <div class="flex-shrink-0">
                     <img v-if="sortie.produit?.image_url"
-                        :src="`${baseUrl}/${sortie.produit.image_url}`"
+                        :src="`/${sortie.produit.image_url}`"
                         :alt="sortie.produit.nom"
                         class="w-40 h-40 object-cover rounded-xl shadow" />
                     <div v-else

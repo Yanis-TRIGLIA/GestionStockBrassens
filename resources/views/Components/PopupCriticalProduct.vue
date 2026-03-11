@@ -110,7 +110,7 @@ export default {
                     class="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-lg shadow cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                     @click="goToProductPage(prod.id)">
 
-                    <img :src="`${baseUrl}/${prod.image_url}`" alt="Image produit"
+                    <img :src="`/${prod.image_url}`" alt="Image produit"
                         class="w-16 h-16 object-cover rounded-md mr-4">
 
                     <div class="text-left">

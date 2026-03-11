@@ -62,7 +62,7 @@
                         @click="$router.push(`/prod/${produit.id}`)">
 
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <img :src="`${baseUrl}/${produit.image_url}`" :alt="`Image de ${produit.nom}`"
+                            <img :src="`/${produit.image_url}`" :alt="`Image de ${produit.nom}`"
                                 class="w-full h-72 sm:h-80 object-cover rounded-2xl mb-5 mx-auto shadow-lg border-2 border-gray-100 transition-transform duration-300 hover:scale-105" />
 
                         </td>
@@ -145,7 +145,7 @@
                 class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-5 border border-gray-100 cursor-pointer flex flex-col items-center text-center"
                 @click="$router.push(`/prod/${produit.id}`)">
 
-                <img :src="`${baseUrl}/${produit.image_url}`" :alt="`Image de ${produit.nom}`"
+                <img :src="`/${produit.image_url}`" :alt="`Image de ${produit.nom}`"
                     class="w-full h-full object-cover rounded-lg mb-4 mx-auto shadow-md border-2 border-gray-100" />
 
                 <h2 class="text-xl font-extrabold text-gray-800 mb-2 truncate w-full">{{ produit.nom }}</h2>

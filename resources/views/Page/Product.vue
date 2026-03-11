@@ -128,7 +128,7 @@ export default {
         <div class="md:w-1/2 lg:w-5/12 sticky top-6 h-fit bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4">
           <div class="overflow-hidden rounded-xl">
             <img
-              :src="`${baseUrl}/${produit.image_url}`"
+              :src="`/${produit.image_url}`"
               :alt="produit.nom"
               class="w-full h-96 object-contain transition-transform duration-500 hover:scale-105"
               style="aspect-ratio: 4/3;"
@@ -254,7 +254,7 @@ export default {
                 <a
                   v-for="(file, index) in fileProduct"
                   :key="index"
-                  :href="`${baseUrl}/${file}`"
+                  :href="`/${file}`"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200 flex items-center justify-center text-sm shadow-sm"

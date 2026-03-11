@@ -38,7 +38,7 @@
         <!-- Mobile cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
             <div v-for="zone in agentsFiltered" :key="zone.id" class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
-                <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Agent" class="w-40 h-40 object-cover rounded-full mb-3 cursor-pointer shadow-sm" @click="openLightbox(`${baseUrl}/${zone.image_url}`)">
+                <img v-if="zone.image_url" :src="`/${zone.image_url}`" alt="Agent" class="w-40 h-40 object-cover rounded-full mb-3 cursor-pointer shadow-sm" @click="openLightbox(`/${zone.image_url}`)">
                 <div v-else class="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mb-3">
                     <span class="text-2xl font-bold text-purple-600">{{ zone.nom.charAt(0).toUpperCase() }}</span>
                 </div>
@@ -67,7 +67,7 @@
                         <tr v-for="zone in agentsFiltered" :key="zone.id" class="border-b border-gray-50 hover:bg-gray-50 transition">
                             <td class="px-3 py-3 align-middle" style="width:100px;">
                                 <div class="w-16 h-16 rounded-full overflow-hidden bg-purple-100 flex items-center justify-center cursor-pointer">
-                                    <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`${baseUrl}/${zone.image_url}`)" />
+                                    <img v-if="zone.image_url" :src="`/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`/${zone.image_url}`)" />
                                     <span v-else class="text-xl font-bold text-purple-600">{{ zone.nom.charAt(0).toUpperCase() }}</span>
                                 </div>
                             </td>

@@ -64,9 +64,9 @@
 
                 <!-- Image -->
                 <div class="flex justify-center">
-                    <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`" alt="Produit"
+                    <img v-if="produit.image_url" :src="`/${produit.image_url}`" alt="Produit"
                         class="w-56 h-56 object-cover rounded cursor-pointer shadow-sm hover:shadow-lg transition"
-                        @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
+                        @click="openLightbox(`/${produit.image_url}`)">
                 </div>
 
                 <!-- Infos -->
@@ -111,9 +111,9 @@
                             <td class="px-3 py-3 align-middle">
                                 <div class="flex items-center gap-3">
                                     <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center cursor-pointer">
-                                        <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`"
+                                        <img v-if="produit.image_url" :src="`/${produit.image_url}`"
                                             alt="Image" class="w-full h-full object-cover"
-                                            @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
+                                            @click="openLightbox(`/${produit.image_url}`)">
                                         <span v-else class="text-gray-400 text-xs">N/A</span>
                                     </div>
                                     <div class="min-w-0">
