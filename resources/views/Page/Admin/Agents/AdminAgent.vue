@@ -1,100 +1,101 @@
 <template>
     <div>
-        <h3 id="topagent" class="text-2xl font-bold mb-4">👨‍⚕️ Agent (Personne)</h3>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+            <div>
+                <h3 id="topagent" class="text-2xl font-extrabold text-gray-800">👨‍⚕️ Agents</h3>
+                <p class="text-sm text-gray-500">Gestion des agents — Vue administrateur</p>
+            </div>
+            <button @click="$router.push('/admin/agent/create')"
+                class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition w-fit">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Créer un agent
+            </button>
+        </div>
 
-        <button @click="$router.push('/admin/agent/create')"
-            class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            Créez un Agent
-        </button>
+        <!-- Stats -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
+                <p class="text-xs text-gray-500 uppercase font-semibold">Total agents</p>
+                <p class="text-2xl font-bold text-gray-800">{{ agentsFiltered.length }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
+                <p class="text-xs text-gray-500 uppercase font-semibold">Résultats</p>
+                <p class="text-2xl font-bold text-green-700">{{ agentsFiltered.length }}</p>
+            </div>
+        </div>
+
+        <!-- Recherche -->
+        <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+            <div class="relative w-full md:w-1/3">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input v-model="recherche" type="text" placeholder="Rechercher par nom..."
+                    class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <span class="text-sm text-gray-500">{{ agentsFiltered.length }} résultat(s)</span>
+        </div>
 
         <!-- Mobile cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden">
-            <div v-for="zone in paginatedZonesPersonne" :key="zone.id" class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
-                <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Agent" class="w-40 h-40 object-cover rounded mb-3 cursor-pointer" @click="openLightbox(`${baseUrl}/${zone.image_url}`)">
+            <div v-for="zone in agentsFiltered" :key="zone.id" class="bg-white p-4 shadow-md rounded-lg flex flex-col items-center text-center">
+                <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Agent" class="w-40 h-40 object-cover rounded-full mb-3 cursor-pointer shadow-sm" @click="openLightbox(`${baseUrl}/${zone.image_url}`)">
+                <div v-else class="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mb-3">
+                    <span class="text-2xl font-bold text-purple-600">{{ zone.nom.charAt(0).toUpperCase() }}</span>
+                </div>
                 <h4 class="font-semibold text-lg mb-2">{{ zone.nom }}</h4>
                 <div class="flex gap-3">
-                    <button @click="$router.push(`/admin/zones/edit/${zone.id}`)" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
-                            <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                        </svg>
-                        <span class="text-sm">Modifier</span>
-                    </button>
-                    <button @click="confirmDeletion(zone.id)" class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                            <path d="M10 11v6M14 11v6" />
-                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                        </svg>
-                        <span class="text-sm">Supprimer</span>
-                    </button>
+                    <button @click="$router.push(`/admin/zones/edit/${zone.id}`)"
+                        class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition text-sm">✏ Modifier</button>
+                    <button @click="confirmDeletion(zone.id)"
+                        class="px-3 py-1.5 bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition text-sm">🗑 Supprimer</button>
                 </div>
             </div>
         </div>
 
+        <!-- Table desktop -->
         <div class="overflow-x-auto hidden md:block">
             <div class="mt-2 bg-white rounded-lg shadow-md p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-lg font-semibold text-gray-700">Agents</h3>
-                    <span class="text-sm text-gray-500">Total : {{ zones.filter(z => z.type === 'personne').length }}</span>
-                </div>
                 <table class="w-full table-auto">
                     <thead>
-                        <tr class="text-left text-xs text-gray-500 border-b pb-2">
-                            <th class="px-3 py-2">Image</th>
-                            <th class="px-3 py-2">Nom</th>
-                            <th class="px-3 py-2 text-center">Actions</th>
+                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide border-b">
+                            <th class="px-3 py-3">Photo</th>
+                            <th class="px-3 py-3">Nom</th>
+                            <th class="px-3 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                                <tr v-for="zone in paginatedZonesPersonne" :key="zone.id" class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
-                                    <!-- Fixed width image column -->
-                                    <td class="px-3 py-3 align-middle" style="width:120px; max-width:120px;">
-                                        <div class="w-28 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer">
-                                            <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`${baseUrl}/${zone.image_url}`)" />
-                                        </div>
-                                    </td>
-
-                                    <!-- Center name vertically -->
-                                    <td class="px-3 py-3 align-middle">
-                                        <div class="flex items-center h-full">
-                                            <div class="truncate">{{ zone.nom }}</div>
-                                        </div>
-                                    </td>
-
-                                    <!-- Constrain actions column and center buttons -->
-                                    <td class="px-3 py-3 align-middle" style="width:220px; max-width:220px;">
-                                        <div class="flex items-center justify-center h-full">
-                                            <div class="flex justify-center items-center gap-3">
-                                                <button @click="$router.push(`/admin/zones/edit/${zone.id}`)" class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow" aria-label="Modifier">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
-                                                        <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                                                    </svg>
-                                                    <span class="text-sm">Modifier</span>
-                                                </button>
-                                                <button @click="confirmDeletion(zone.id)" class="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow" aria-label="Supprimer">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <polyline points="3 6 5 6 21 6" />
-                                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                                        <path d="M10 11v6M14 11v6" />
-                                                        <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                                                    </svg>
-                                                    <span class="text-sm">Supprimer</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                        <tr v-if="paginatedZonesPersonne.length === 0">
-                            <td colspan="3" class="px-6 py-8 text-center text-gray-500">Aucun agent trouvé.</td>
+                        <tr v-for="zone in agentsFiltered" :key="zone.id" class="border-b border-gray-50 hover:bg-gray-50 transition">
+                            <td class="px-3 py-3 align-middle" style="width:100px;">
+                                <div class="w-16 h-16 rounded-full overflow-hidden bg-purple-100 flex items-center justify-center cursor-pointer">
+                                    <img v-if="zone.image_url" :src="`${baseUrl}/${zone.image_url}`" alt="Image" class="w-full h-full object-cover" @click="openLightbox(`${baseUrl}/${zone.image_url}`)" />
+                                    <span v-else class="text-xl font-bold text-purple-600">{{ zone.nom.charAt(0).toUpperCase() }}</span>
+                                </div>
+                            </td>
+                            <td class="px-3 py-3 align-middle font-medium text-gray-800">{{ zone.nom }}</td>
+                            <td class="px-3 py-3 align-middle text-center">
+                                <div class="flex justify-center items-center gap-2">
+                                    <button @click="$router.push(`/admin/zones/edit/${zone.id}`)"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                        Modifier
+                                    </button>
+                                    <button @click="confirmDeletion(zone.id)"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                                        Supprimer
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="agentsFiltered.length === 0">
+                            <td colspan="3" class="px-6 py-12 text-center text-gray-400">Aucun agent trouvé.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <!-- Lightbox modal -->
+
+        <!-- Lightbox -->
         <div v-if="lightbox.visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" @click.self="closeLightbox">
             <div class="max-w-[90%] max-h-[90%]">
                 <img :src="lightbox.src" alt="Aperçu" class="w-full h-auto max-h-[90vh] rounded-lg shadow-2xl" />
@@ -102,36 +103,22 @@
             <button @click="closeLightbox" class="absolute top-6 right-6 text-white bg-black bg-opacity-30 rounded-full p-2 hover:bg-opacity-50">✕</button>
         </div>
 
-        <!-- Pagination responsive -->
-        <div class="flex justify-between items-center mt-4">
-            <button @click="previousPagePersonne" :disabled="currentPagePersonne === 1"
-                class="px-4 py-2 bg-gray-200 rounded-l hover:bg-gray-300">
-                Précédent
-            </button>
-            <select v-model="currentPagePersonne" @change="changePagePersonne" class="px-4 py-2 border rounded mx-2 text-sm">
-                <option v-for="page in totalPagesPersonne" :key="page" :value="page">
-                    {{ page }}
-                </option>
-            </select>
-            <button @click="nextPagePersonne" :disabled="currentPagePersonne === totalPagesPersonne"
-                class="px-4 py-2 bg-gray-200 rounded-r hover:bg-gray-300">
-                Suivant
-            </button>
-        </div>
-
-        <!-- Modal de confirmation de suppression -->
+        <!-- Modal suppression -->
         <div v-if="showConfirmationModal"
-            class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-            <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                <h3 class="text-xl font-bold mb-4">Confirmer la suppression</h3>
-                <p>Êtes-vous sûr de vouloir supprimer cette zone ?</p>
-                <div class="flex justify-between mt-4">
-                    <button @click="deleteZone" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                        Oui, Supprimer
-                    </button>
-                    <button @click="cancelDeletion" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
-                        Annuler
-                    </button>
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full mx-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                        <svg class="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Supprimer l'agent</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Cette action est irréversible. Êtes-vous sûr de vouloir supprimer cet agent ?</p>
+                <div class="flex justify-end gap-3">
+                    <button @click="cancelDeletion"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Annuler</button>
+                    <button @click="deleteZone"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Supprimer</button>
                 </div>
             </div>
         </div>
@@ -148,9 +135,7 @@ export default {
     data() {
         return {
             zones: [],
-            currentPagePersonne: 1,
-            currentPageZone: 1,
-            zonesPerPage: 10,
+            recherche: "",
             baseUrl: import.meta.env.VITE_APP_URL,
             showConfirmationModal: false,
             zoneToDeleteId: null,
@@ -158,14 +143,12 @@ export default {
         };
     },
     computed: {
-        paginatedZonesPersonne() {
-            const start = (this.currentPagePersonne - 1) * this.zonesPerPage;
-            const end = start + this.zonesPerPage;
-            return this.zones.filter(zone => zone.type === "personne").slice(start, end);
-        },
-
-        totalPagesPersonne() {
-            return Math.ceil(this.zones.filter(zone => zone.type === "personne").length / this.zonesPerPage);
+        agentsFiltered() {
+            let filtered = this.zones.filter(z => z.type === "personne");
+            if (this.recherche) {
+                filtered = filtered.filter(z => z.nom.toLowerCase().includes(this.recherche.toLowerCase()));
+            }
+            return filtered;
         },
     },
     methods: {
@@ -200,23 +183,6 @@ export default {
             if (element) {
                 element.scrollIntoView({ behavior: "smooth" }); 
             }
-        },
-
-        previousPagePersonne() {
-            if (this.currentPagePersonne > 1) {
-                this.currentPagePersonne--;
-                this.scrollToTop();
-            }
-        },
-        nextPagePersonne() {
-            if (this.currentPagePersonne < this.totalPagesPersonne) {
-                this.currentPagePersonne++;
-                this.scrollToTop();
-            }
-        },
-        changePagePersonne() {
-            this.fetchzones();
-            this.scrollToTop();
         },
 
         fetchzones() {
@@ -272,78 +238,4 @@ export default {
 </script>
 
 <style scoped>
-/* Amélioration de la responsivité */
-.fixed {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
-
-.bg-opacity-50 {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.bg-white {
-    background-color: #fff;
-}
-
-button {
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #f0f0f0;
-}
-
-.table th,
-.table td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-.table th {
-    background-color: #f4f4f4;
-}
-
-.table td img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-/* Adaptation sur mobile */
-@media (max-width: 640px) {
-    .table th,
-    .table td {
-        padding: 8px;
-    }
-
-    .table td {
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .table td img {
-        max-width: 40%;
-        margin-bottom: 10px;
-    }
-
-    .table td:first-child {
-        font-weight: bold;
-    }
-
-    .table td:last-child {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .table td:last-child button {
-        margin-bottom: 10px;
-    }
-}
 </style>

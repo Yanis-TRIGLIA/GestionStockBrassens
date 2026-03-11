@@ -75,10 +75,11 @@
                 <!-- Corps du tableau -->
                 <tbody>
                     <tr v-for="sortie in filteredAndSortedData" :key="sortie.id"
-                        class="even:bg-gray-100 hover:bg-gray-50">
-                        <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit.nom }}</td>
+                        class="even:bg-gray-100 hover:bg-blue-50 cursor-pointer"
+                        @click.stop="$router.push('/sortie/' + sortie.id)">
+                        <td class="px-6 py-4 border-b text-gray-700">{{ sortie.produit?.nom || '—' }}</td>
                         <td class="px-6 py-4 border-b">
-                            <img v-if="sortie.produit.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
+                            <img v-if="sortie.produit?.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
                                 alt="Image du produit" class="w-16 h-16 object-cover rounded" />
                         </td>
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.quantité }}</td>
@@ -89,18 +90,18 @@
 
                         <!-- Zone Concernée, affichage conditionnel -->
                         <td class="px-6 py-4 border-b text-gray-700">
-                            {{ sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun' }}
+                            {{ sortie.zone ? (sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun') : 'Aucun' }}
                         </td>
 
                         <!-- A effectuer la sortie, affichage conditionnel -->
                         <td class="px-6 py-4 border-b text-gray-700">
-                            {{ sortie.personne.nom }}
+                            {{ sortie.personne?.nom || '—' }}
                         </td>
 
                         <!-- Observation -->
                         <td class="px-6 py-4 border-b text-gray-700">{{ sortie.observation || 'Aucune' }}</td>
 
-                        <td v-if="token"><a @click="confirmDelete(sortie)" class="cursor-pointer"><svg
+                        <td v-if="token"><a @click.stop="confirmDelete(sortie)" class="cursor-pointer"><svg
                                     class="w-full text-center " xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
                                     width="50" height="50" viewBox="0 0 100 100">
                                     <path fill="#8b8bc1"
@@ -176,24 +177,24 @@
 
                 <!-- Image -->
                 <div class="flex justify-center">
-                    <img v-if="sortie.produit.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
+                    <img v-if="sortie.produit?.image_url" :src="`${baseUrl}/${sortie.produit.image_url}`"
                         alt="Image du produit" class="w-32 h-32 object-cover rounded-lg" />
                 </div>
 
                 <!-- Infos principales -->
                 <div class="mt-4">
-                    <h2 class="text-lg font-semibold text-gray-800">{{ sortie.produit.nom }}</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">{{ sortie.produit?.nom || '—' }}</h2>
                     <p class="text-sm text-gray-600">Quantité : <strong>{{ sortie.quantité }}</strong></p>
                     <p v-if="token" class="text-sm text-gray-600">Stock restant : <strong>{{ sortie.number_after_reduce
                             }}</strong>
                     </p>
-                    <p class="text-sm text-gray-600">Sortie par : <strong>{{ sortie.personne.nom }}</strong></p>
+                    <p class="text-sm text-gray-600">Sortie par : <strong>{{ sortie.personne?.nom || '—' }}</strong></p>
                 </div>
 
                 <!-- Détails supplémentaires -->
                 <div class="mt-2 text-sm text-gray-500">
                     <p>Dernière mise à jour : {{ new Date(sortie.updated_at).toLocaleString() }}</p>
-                    <p>Zone concernée : <strong>{{ sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun' }}</strong>
+                    <p>Zone concernée : <strong>{{ sortie.zone ? (sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun') : 'Aucun' }}</strong>
                     </p>
                     <p>Observation : <span>{{ sortie.observation || 'Aucune' }}</span></p>
                 </div>
@@ -250,13 +251,13 @@ export default {
 
         const columnscsv = [
             { key: "produit.nom", label: "Nom du Produit" },
+            { key: "produit.reference", label: "Référence" },
             { key: "quantité", label: "Quantité Sortie" },
             { key: "updated_at", label: "Date de Sortie" },
-            ...(token ? [{ key: "number_after_reduce", label: "Stock Actuel" }] : []),
+            ...(token ? [{ key: "number_after_reduce", label: "Stock Après Sortie" }] : []),
             { key: "zone.nom", label: "Zone Concernée" },
-            { key: "zone.nom", label: "A effectuer la sortie" },
-            { key: "observation", label: "Observation" } // Nouvelle colonne Observation pour csv
-
+            { key: "personne.nom", label: "Effectué par" },
+            { key: "observation", label: "Observation" },
         ];
 
         const fetchData = () => {
@@ -285,9 +286,10 @@ export default {
 
         const filteredAndSortedData = computed(() => {
             return sorties.value
+                .filter(sortie => sortie.produit && sortie.zone && sortie.personne)
                 .filter(sortie =>
                     (!searchQuery.value || sortie.produit.nom.toLowerCase().includes(searchQuery.value.toLowerCase())) &&
-                    (!selectedCategory.value || sortie.produit.categories.some(categorie => categorie.nom === selectedCategory.value))
+                    (!selectedCategory.value || sortie.produit.categories?.some(categorie => categorie.nom === selectedCategory.value))
                 )
                 .sort((a, b) => {
                     if (!sortColumn.value) return 0;
@@ -344,30 +346,42 @@ export default {
             }
         };
 
+        const escapeCSV = (val) => {
+            const str = val == null ? '' : String(val);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        };
+
         const exportToCSV = () => {
-            const headers = columnscsv.map((col) => col.label);
-            const rows = filteredAndSortedData.value.map((sortie) => [
-                sortie.produit.nom,
-                sortie.quantité,
-                new Date(sortie.updated_at).toLocaleString(),
-                sortie.number_after_reduce,
-                sortie.zone.type === 'zone' ? sortie.zone.nom : 'Aucun',
-                sortie.zone.type === 'personne' ? sortie.zone.nom : 'Aucun',
-                sortie.observation || 'Aucune'  
-            ]);
+            const headers = columnscsv.map((col) => escapeCSV(col.label));
+            const rows = filteredAndSortedData.value.map((sortie) => {
+                const values = [
+                    sortie.produit?.nom || '',
+                    sortie.produit?.reference || '',
+                    sortie.quantité,
+                    new Date(sortie.updated_at).toLocaleString('fr-FR'),
+                    ...(token ? [sortie.number_after_reduce ?? ''] : []),
+                    sortie.zone?.type === 'zone' ? sortie.zone.nom : 'Aucun',
+                    sortie.personne?.nom || 'Aucun',
+                    sortie.observation || 'Aucune',
+                ];
+                return values.map(escapeCSV);
+            });
 
-            const csvContent =
-                "data:text/csv;charset=utf-8," +
-                [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+            const BOM = '\uFEFF';
+            const csvContent = BOM + [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "sorties.csv");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'sorties.csv');
             document.body.appendChild(link);
-
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         };
 
         const printTable = () => {

@@ -32,9 +32,9 @@
                 <div v-if="userSorties.length">
                     <ul class="space-y-3">
                         <li v-for="sortie in userSorties" :key="sortie.id" class="p-3 border rounded-lg bg-gray-100">
-                            <p><strong>🛒 Produit:</strong> {{ sortie.produit.nom }}</p>
+                            <p><strong>🛒 Produit:</strong> {{ sortie.produit?.nom || '—' }}</p>
                             <p><strong>📦 Quantité:</strong> {{ sortie.quantité }}</p>
-                            <p><strong>📍 Zone:</strong> {{ sortie.zone.nom }}</p>
+                            <p><strong>📍 Zone:</strong> {{ sortie.zone?.type === 'zone' ? sortie.zone.nom : 'Aucune' }}</p>
                             <p><strong>📅 Date:</strong> {{ new Date(sortie.created_at).toLocaleString() }}</p>
                         </li>
                     </ul>
@@ -78,6 +78,7 @@ export default {
                 const sortiesParPersonne = {};
 
                 data.forEach((sortie) => {
+                    if (!sortie.personne) return;
                     const personneId = sortie.personne.id;
                     const personneNom = sortie.personne.nom;
                     const personnePhoto = sortie.personne.image_url
@@ -159,7 +160,7 @@ export default {
 
         openPopup(personId) {
             this.selectedPerson = this.personsData.find(person => person.id === personId);
-            this.userSorties = this.sortiesData.filter(sortie => sortie.personne.id === personId);
+            this.userSorties = this.sortiesData.filter(sortie => sortie.personne?.id === personId);
             this.showPopup = true;
         },
 

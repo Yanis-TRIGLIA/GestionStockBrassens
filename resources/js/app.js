@@ -8,6 +8,7 @@ import Header from '../views/Components/Header.vue';
 import Login from '../views/Page/Login.vue';
 import Home from '../views/Page/Home.vue';
 import TableauSortie from '../views/Page/TableauSortie.vue';
+import SortieDetail from '../views/Page/SortieDetail.vue';
 import TableauProduits from '../views/Page/TableauProduit.vue';
 
 // Importation des pages Admin
@@ -90,6 +91,11 @@ const routes = [
     {
         path: '/sortie_produit',
         component: TableauSortie,
+        meta: { requiresAuth: false },
+    },
+    {
+        path: '/sortie/:id',
+        component: SortieDetail,
         meta: { requiresAuth: false },
     },
     {

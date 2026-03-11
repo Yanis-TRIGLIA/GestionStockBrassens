@@ -1,34 +1,65 @@
 <template>
     <div>
 
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-                <h2 id="topprod" class="text-2xl font-extrabold">🧴 Liste des Produits</h2>
+                <h2 id="topprod" class="text-2xl font-extrabold text-gray-800">🧴 Liste des Produits</h2>
                 <p class="text-sm text-gray-500">Gestion des produits — Vue administrateur</p>
             </div>
+            <button @click="$router.push('/admin/produits/create')"
+                class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition w-fit">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Créer un produit
+            </button>
+        </div>
 
-            <div class="flex items-center gap-3">
-                <button @click="$router.push('/admin/produits/create')"
-                    class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">Créez un
-                    produit</button>
+        <!-- Stats bar -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
+                <p class="text-xs text-gray-500 uppercase font-semibold">Total produits</p>
+                <p class="text-2xl font-bold text-gray-800">{{ produits.length }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-400">
+                <p class="text-xs text-gray-500 uppercase font-semibold">Stock bas (≤10)</p>
+                <p class="text-2xl font-bold text-yellow-600">{{ produits.filter(p => p.quantité > 3 && p.quantité <= 10).length }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-red-500">
+                <p class="text-xs text-gray-500 uppercase font-semibold">Critique (≤3)</p>
+                <p class="text-2xl font-bold text-red-600">{{ produits.filter(p => p.quantité <= 3).length }}</p>
             </div>
         </div>
+
         <!-- Filtres et recherche -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <input v-model="rechercheNom" type="text" placeholder="Rechercher par nom"
-                class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-
+            <div class="relative w-full md:w-1/4">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input v-model="rechercheNom" type="text" placeholder="Rechercher par nom..."
+                    class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="relative w-full md:w-1/4">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h10M4 19h6"/></svg>
+                <input v-model="rechercheReference" type="text" placeholder="Rechercher par référence..."
+                    class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
             <select v-model="triCategorie"
                 class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Trier par catégorie</option>
+                <option value="">Toutes les catégories</option>
                 <option v-for="categorie in categories" :key="categorie.id" :value="categorie.id">
                     {{ categorie.nom }}
                 </option>
             </select>
+            <select v-model="triStock"
+                class="w-full md:w-1/5 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Tout le stock</option>
+                <option value="critique">Critique (≤3)</option>
+                <option value="bas">Stock bas (≤10)</option>
+                <option value="ok">Stock OK (>10)</option>
+            </select>
+            <span class="text-sm text-gray-500 whitespace-nowrap">{{ produitsFiltres.length }} résultat(s)</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:hidden">
-            <div v-for="produit in paginatedProduits" :key="produit.id"
+            <div v-for="produit in produitsFiltres" :key="produit.id"
                 class="bg-white p-4 shadow-md rounded-xl w-[85%] justify-self-center transform hover:scale-[1.02] transition">
 
                 <!-- Image -->
@@ -41,9 +72,8 @@
                 <!-- Infos -->
                 <div class="mt-3 text-center">
                     <h3 class="text-lg font-semibold truncate">{{ produit.nom }}</h3>
-                    <p class="text-gray-600">Quantité : <span :class="badgeClass(produit.quantité)">{{ produit.quantité
-                    }}</span></p>
-
+                    <p class="text-gray-600">Quantité : <span :class="badgeClass(produit.quantité)">{{ produit.quantité }}</span></p>
+                    <p v-if="produit.prix" class="text-gray-700 font-medium mt-1">{{ Number(produit.prix).toFixed(2) }} €</p>
                     <div class="mt-3 flex flex-wrap justify-center gap-2">
                         <span v-for="categorie in produit.categories" :key="categorie.id"
                             class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full border">{{ categorie.nom
@@ -65,90 +95,76 @@
         <div class="overflow-x-auto hidden md:block">
             <!-- Tableau des produits (card) -->
             <div class="mt-4 bg-white rounded-lg shadow-md p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-lg font-semibold text-gray-700">Produits</h3>
-                    <span class="text-sm text-gray-500">Total : {{ produits.length }}</span>
-                </div>
                 <table class="w-full table-auto">
                     <thead>
-                        <tr class="text-left text-xs text-gray-500 border-b pb-2">
-                            <th class="px-3 py-2">Produit</th>
-                            <th class="px-3 py-2">Catégories</th>
-                            <th class="px-3 py-2">Quantité</th>
-                            <th class="px-3 py-2 text-center">Actions</th>
+                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide border-b">
+                            <th class="px-3 py-3">Produit</th>
+                            <th class="px-3 py-3">Catégories</th>
+                            <th class="px-3 py-3">Prix</th>
+                            <th class="px-3 py-3">Quantité</th>
+                            <th class="px-3 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="">
-                        <tr v-for="produit in paginatedProduits" :key="produit.id"
-                            class="transition transform hover:-translate-y-0.5 hover:shadow-lg">
-                            <td class="px-3 py-3 align-top">
+                    <tbody>
+                        <tr v-for="produit in produitsFiltres" :key="produit.id"
+                            class="border-b border-gray-50 hover:bg-gray-50 transition">
+                            <td class="px-3 py-3 align-middle">
                                 <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-28 h-28 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer">
+                                    <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center cursor-pointer">
                                         <img v-if="produit.image_url" :src="`${baseUrl}/${produit.image_url}`"
                                             alt="Image" class="w-full h-full object-cover"
                                             @click="openLightbox(`${baseUrl}/${produit.image_url}`)">
-                                        <div v-else class="text-gray-400 text-xs">No image</div>
+                                        <span v-else class="text-gray-400 text-xs">N/A</span>
                                     </div>
-                                    <div>
-                                        <div class="font-semibold text-sm text-gray-800">{{ produit.nom }}</div>
-                                        <div class="text-sm text-gray-500 truncate max-w-[40ch]">{{ produit.description
-                                            || '-' }}</div>
+                                    <div class="min-w-0">
+                                        <div class="font-semibold text-sm text-gray-800 truncate max-w-[30ch]">{{ produit.nom }}</div>
+                                        <div class="text-xs text-gray-400 truncate max-w-[35ch]">{{ produit.description || '—' }}</div>
+                                        <div v-if="produit.reference" class="text-xs text-gray-400">Réf : {{ produit.reference }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-3 py-3 align-top w-48">
+                            <td class="px-3 py-3 align-middle w-44">
                                 <div class="flex flex-wrap gap-1">
                                     <span v-for="categorie in produit.categories" :key="categorie.id"
-                                        class="text-xs bg-gray-50 text-gray-700 px-2 py-0.5 rounded-full border">{{
-                                            categorie.nom }}</span>
+                                        class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">{{ categorie.nom }}</span>
                                 </div>
                             </td>
-                            <td class="px-3 py-3 align-top">
+                            <td class="px-3 py-3 align-middle text-sm text-gray-700 font-medium whitespace-nowrap">
+                                {{ produit.prix ? Number(produit.prix).toFixed(2) + ' €' : '—' }}
+                            </td>
+                            <td class="px-3 py-3 align-middle">
                                 <span :class="badgeClass(produit.quantité)">{{ produit.quantité }}</span>
                             </td>
-                            <td class="px-3 py-3 text-center align-top">
-                                <div class="flex justify-center items-center gap-3">
+                            <td class="px-3 py-3 text-center align-middle">
+                                <div class="flex justify-center items-center gap-2">
                                     <button @click="$router.push(`/admin/produits/edit/${produit.id}`)"
                                         aria-label="Modifier"
-                                        class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor">
-                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
-                                            <path
-                                                d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
+                                            <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                         </svg>
-                                        <span class="text-sm">Modifier</span>
+                                        Modifier
                                     </button>
                                     <button @click="confirmDeletion(produit.id)" aria-label="Supprimer"
-                                        class="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor">
-                                            <polyline points="3 6 5 6 21 6" />
-                                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                            <path d="M10 11v6M14 11v6" />
-                                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/>
+                                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                            <path d="M10 11v6M14 11v6"/>
+                                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
                                         </svg>
-                                        <span class="text-sm">Supprimer</span>
+                                        Supprimer
                                     </button>
                                 </div>
                             </td>
                         </tr>
-                        <tr v-if="paginatedProduits.length === 0">
-                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">Aucun produit trouvé.</td>
+                        <tr v-if="produitsFiltres.length === 0">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-400">Aucun produit trouvé.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="flex flex-col md:flex-row justify-between items-center mt-4 gap-3">
-            <button @click="prevPage" :disabled="currentPage === 1"
-                class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Précédent</button>
-            <span>Page {{ currentPage }} sur {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages"
-                class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Suivant</button>
         </div>
 
         <!-- Formulaire de création/édition -->
@@ -157,14 +173,20 @@
 
         <!-- Modal de confirmation de suppression -->
         <div v-if="showConfirmationModal"
-            class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded shadow-lg">
-                <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
-                <div class="flex justify-end mt-4">
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full mx-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                        <svg class="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Supprimer le produit</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Cette action est irréversible. Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+                <div class="flex justify-end gap-3">
                     <button @click="cancelDeletion"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Annuler</button>
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Annuler</button>
                     <button @click="deleteProduct"
-                        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 ml-2">Supprimer</button>
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Supprimer</button>
                 </div>
             </div>
         </div>
@@ -195,13 +217,13 @@ export default {
             produits: [],
             categories: [],
             rechercheNom: "",
+            rechercheReference: "",
             triCategorie: "",
+            triStock: "",
             isFormVisible: false,
             baseUrl: import.meta.env.VITE_APP_URL,
             isEditMode: false,
             currentProduit: null,
-            currentPage: 1,
-            productsPerPage: 10,
             showConfirmationModal: false,
             productToDeleteId: null,  // ID du produit à supprimer
             lightbox: {
@@ -220,21 +242,21 @@ export default {
                 );
             }
 
+            if (this.rechercheReference) {
+                filtres = filtres.filter((produit) =>
+                    produit.reference && produit.reference.toLowerCase().includes(this.rechercheReference.toLowerCase())
+                );
+            }
+
             if (this.triCategorie) {
                 filtres = filtres.filter((produit) =>
                     produit.categories.some(categorie => categorie.id === parseInt(this.triCategorie))
                 );
             }
-
+            if (this.triStock === 'critique') filtres = filtres.filter(p => p.quantité <= 3);
+            else if (this.triStock === 'bas') filtres = filtres.filter(p => p.quantité > 3 && p.quantité <= 10);
+            else if (this.triStock === 'ok') filtres = filtres.filter(p => p.quantité > 10);
             return filtres;
-        },
-        paginatedProduits() {
-            const start = (this.currentPage - 1) * this.productsPerPage;
-            const end = start + this.productsPerPage;
-            return this.produitsFiltres.slice(start, end);
-        },
-        totalPages() {
-            return Math.ceil(this.produitsFiltres.length / this.productsPerPage);
         },
     },
     methods: {

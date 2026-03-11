@@ -77,7 +77,7 @@ export default {
                 <!-- Connexion / Déconnexion -->
                 <button v-if="!isLoggedIn" @click="$router.push('/connexion')"
                     class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Connexion</button>
-                    <a v-if="isLoggedIn && user.is_admin" href="/admin" class="hover:text-blue-600 transition">Espace Admin</a>
+                    <a v-if="isLoggedIn && user?.is_admin" href="/admin" class="hover:text-blue-600 transition">Espace Admin</a>
                 <div v-if="isLoggedIn" class="flex items-center space-x-4">
                     
 

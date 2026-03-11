@@ -69,6 +69,12 @@ Route::get('/sorties', function () {
     );
 });
 
+Route::get('/sorties/{id}', function ($id) {
+    return response()->json(
+        \App\Models\Sortie::with(['produit.categories', 'produit', 'zone', 'personne'])->findOrFail($id)
+    );
+});
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
